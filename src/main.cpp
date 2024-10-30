@@ -6,8 +6,9 @@
 
 #include "shader.hpp"
 #include "camera.hpp"
+#include "object.hpp"
 
-#define WINDOW_NAME "Cralwer"
+#define WINDOW_NAME "Crawler"
 #define WINDOW_WIDTH 500
 #define WINDOW_HEIGHT 500
 
@@ -102,28 +103,10 @@ int main() {
     glfwSetMouseButtonCallback(window, mouse_button_callback);
     glfwSetScrollCallback(window, scroll_callback);
 
-    GLuint VAO, VBO;
     shader box_shader = shader("src/shaders/box_vertex.glsl", "src/shaders/box_fragment.glsl");
-    { // init box
-        #include "Box.cpp"
-        
-        glGenVertexArrays(1, &VAO);
-        glBindVertexArray(VAO);
-
-        glGenBuffers(1, &VBO);
-        glBindBuffer(GL_ARRAY_BUFFER, VBO);
-        glBufferData(GL_ARRAY_BUFFER, sizeof(box), box, GL_STATIC_DRAW);
-        
-        GLint posAttrib = 0;
-	    GLint colAttrib = 1;
-	
-	    glVertexAttribPointer(posAttrib, 4, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
-	    glEnableVertexAttribArray(posAttrib);
-	    glVertexAttribPointer(colAttrib, 4, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(4 * sizeof(float)));
-	    glEnableVertexAttribArray(colAttrib);
-        
-        glEnableVertexAttribArray(0);
-    }
+    #include "Box.cpp"
+    object box_obj = object(&box_shader, box, sizeof(box));
+    object box_2 = object(&box_shader, box, sizeof(box), 1.0, 1.0);
     
     while(!glfwWindowShouldClose(window)){
         glClearColor(0.0f, 0.3f, 0.3f, 1.0f);
@@ -142,20 +125,8 @@ int main() {
             delta_time = new_time - current_time;
             current_time = new_time;
         }
-        { // render box
-            box_shader.use();
-            glm::mat4 view = current_camera.get_view_matrix();
-            glm::mat4 projection = current_camera.get_projection_matrix(aspect_ratio);
-            
-            glBindVertexArray(VAO);
-            glm::mat4 transformation = projection * view;
-            box_shader.apply_uniform_mat4(transformation, "transformation");
-            glDrawArrays(GL_TRIANGLES, 0, 36);
-            glBindVertexArray(0);
-
-            glUseProgram(0);
-
-        }
+        box_obj.render(&current_camera, aspect_ratio);
+        box_2.render(&current_camera, aspect_ratio);
         glfwSwapBuffers(window);
 		glfwPollEvents();
 	}

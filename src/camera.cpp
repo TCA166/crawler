@@ -50,7 +50,7 @@ void camera::update_front() {
     front = glm::normalize(front);
 }
 
-void camera::move_front(double xoffset, double yoffset) {
+void camera::rotate_front(double xoffset, double yoffset) {
     pitch += yoffset * look_speed;
     yaw += xoffset * look_speed;
 
@@ -64,10 +64,10 @@ void camera::move_front(double xoffset, double yoffset) {
     update_front();
 }
 
-glm::mat4 camera::get_view_matrix() {
+glm::mat4 camera::get_view_matrix() const {
     return glm::lookAt(position, position + front, glm::vec3(0.0f, 1.0f, 0.0f));
 }
 
-glm::mat4 camera::get_projection_matrix(float aspect_ratio) {
+glm::mat4 camera::get_projection_matrix(float aspect_ratio) const {
     return glm::perspective(glm::radians(fov), aspect_ratio, NEAR_PLANE, FAR_PLANE);
 }

@@ -78,10 +78,14 @@ shader::~shader() {
     glDeleteProgram(program);
 }
 
-void shader::use() {
+void shader::use() const {
     glUseProgram(program);
 }
 
-void shader::apply_uniform_mat4(glm::mat4 matrix, const std::string& name) {
+void shader::apply_uniform_mat4(glm::mat4 matrix, const std::string& name) const {
     glUniformMatrix4fv(glGetUniformLocation(program, name.c_str()), 1, GL_FALSE, (float*)&matrix);
+}
+
+GLint shader::get_attrib_location(const std::string& name) const {
+    return glGetAttribLocation(program, name.c_str());
 }

@@ -94,11 +94,11 @@ class camera {
          @brief Get the view matrix of the camera
          @return The view matrix of the camera
         */
-        glm::mat4 get_view_matrix();
+        glm::mat4 get_view_matrix() const;
         /*!
          @brief Get the projection matrix of the camera
          @param aspect_ratio The aspect ratio of the window
          @return The projection matrix of the camera
         */
-        glm::mat4 get_projection_matrix(float aspect_ratio);
+        glm::mat4 get_projection_matrix(float aspect_ratio) const;
 };
