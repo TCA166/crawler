@@ -7,6 +7,11 @@
 #include <glm/glm.hpp>
 #include <GL/glew.h>
 
+/*!
+ @brief Read a file and return its contents as a string
+ @param file_path The path to the file
+ @return The contents of the file as a string
+*/
 static std::string read_file(const std::string& file_path) {
     std::ifstream file(file_path);
     if (!file.is_open()) {
@@ -18,6 +23,12 @@ static std::string read_file(const std::string& file_path) {
     return buffer.str();
 }
 
+/*!
+ @brief Compile a shader from a given source
+ @param source The source of the shader
+ @param type The type of the shader
+ @return The compiled shader
+*/
 static GLuint compile_shader(const std::string& source, GLenum type) {
     GLuint shader = glCreateShader(type);
     const char* src = source.c_str();
