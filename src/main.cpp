@@ -95,10 +95,11 @@ int main() {
         if(focused){
             double new_xpos, new_ypos;
             glfwGetCursorPos(window, &new_xpos, &new_ypos);
-            current_camera.move_front(new_xpos - xpos, ypos - new_ypos);
-            xpos = new_xpos;
-            ypos = new_ypos;
-            std::cout << "xpos: " << xpos << " ypos: " << ypos << std::endl;
+            if(new_xpos != xpos || new_ypos != ypos){
+                current_camera.move_front(new_xpos - xpos, ypos - new_ypos);
+                xpos = new_xpos;
+                ypos = new_ypos;
+            }
         }
         { // render box
             box_shader.use();
