@@ -11,21 +11,52 @@
 #define WINDOW_WIDTH 500
 #define WINDOW_HEIGHT 500
 
-float aspectRatio = WINDOW_WIDTH / float(WINDOW_HEIGHT);
+float aspect_ratio = WINDOW_WIDTH / float(WINDOW_HEIGHT);
 double xpos, ypos;
+/*!
+ @brief Whether the window is focused, used to determine if the camera should be moved
+*/
 bool focused = false;
+/*!
+ @brief The current camera used in the scene
+*/
 camera current_camera = camera();
+double current_time = 0.0;
+double delta_time = 0.0;
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height){
-	aspectRatio = width / float(height);
+	aspect_ratio = width / float(height);
 	glViewport(0, 0, width, height);
 }
 
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods){
-    if(key == GLFW_KEY_ESCAPE && action == GLFW_PRESS){
-        if(focused){
-            focused = false;
-            glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+    if(action == GLFW_PRESS){
+        switch(key){
+            case GLFW_KEY_W:
+                current_camera.move_forward(delta_time);
+                break;
+            case GLFW_KEY_S:
+                current_camera.move_forward(-delta_time);
+                break;
+            case GLFW_KEY_A:
+                current_camera.move_right(-delta_time);
+                break;
+            case GLFW_KEY_D:
+                current_camera.move_right(delta_time);
+                break;
+            case GLFW_KEY_SPACE:
+                current_camera.move_up(delta_time);
+                break;
+            case GLFW_KEY_LEFT_SHIFT:
+                current_camera.move_up(-delta_time);
+                break;
+            case GLFW_KEY_ESCAPE:
+                if(focused){
+                    focused = false;
+                    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+                }
+                break;
+
         }
     }
 }
@@ -35,6 +66,10 @@ void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
         glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
         focused = true;
     }
+}
+
+void scroll_callback(GLFWwindow* window, double xoffset, double yoffset){
+    current_camera.zoom(-yoffset);
 }
 
 int main() {
@@ -65,6 +100,7 @@ int main() {
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
     glfwSetKeyCallback(window, key_callback);
     glfwSetMouseButtonCallback(window, mouse_button_callback);
+    glfwSetScrollCallback(window, scroll_callback);
 
     GLuint VAO, VBO;
     shader box_shader = shader("src/shaders/box_vertex.glsl", "src/shaders/box_fragment.glsl");
@@ -96,15 +132,20 @@ int main() {
             double new_xpos, new_ypos;
             glfwGetCursorPos(window, &new_xpos, &new_ypos);
             if(new_xpos != xpos || new_ypos != ypos){
-                current_camera.move_front(new_xpos - xpos, ypos - new_ypos);
+                current_camera.rotate_front(new_xpos - xpos, ypos - new_ypos);
                 xpos = new_xpos;
                 ypos = new_ypos;
             }
         }
+        { // handle time
+            float new_time = glfwGetTime();
+            delta_time = new_time - current_time;
+            current_time = new_time;
+        }
         { // render box
             box_shader.use();
             glm::mat4 view = current_camera.get_view_matrix();
-            glm::mat4 projection = current_camera.get_projection_matrix(aspectRatio);
+            glm::mat4 projection = current_camera.get_projection_matrix(aspect_ratio);
             
             glBindVertexArray(VAO);
             glm::mat4 transformation = projection * view;

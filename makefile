@@ -1,5 +1,5 @@
 
-CFLAGS += -lGL -lGLU -lGLEW -lglfw -lassimp
+CFLAGS += -lGL -lGLU -lGLEW -lglfw -lassimp -Wall -Wextra -std=c++11
 CC = g++
 
 all: main

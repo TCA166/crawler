@@ -12,10 +12,10 @@ camera::camera(glm::vec3 position, float speed, float fov, float look_speed, flo
     this->look_speed = look_speed;
     this->pitch = pitch;
     this->yaw = yaw;
-    this->move_front(0.0, 0.0);
+    this->update_front();
 }
 
-camera::camera() : camera(glm::vec3(1.0f, 1.0f, 0.0f), 0.1f, 90.0f, 0.1f, 0.0f, 0.0f) {
+camera::camera() : camera(glm::vec3(1.0f, 1.0f, 0.0f), 10.0f, 90.0f, 0.1f, 0.0f, 0.0f) {
 
 }
 
@@ -23,12 +23,31 @@ camera::~camera() {
 
 }
 
-void camera::move(glm::vec3 direction) {
-    position += direction * speed;
+void camera::move_up(float scale) {
+    position.y += scale * speed;
+}
+
+void camera::move_forward(float scale) {
+    position += front * scale * speed;
+}
+
+void camera::move_right(float scale) {
+    position += glm::normalize(glm::cross(front, glm::vec3(0.0f, 1.0f, 0.0f))) * scale * speed;
 }
 
 void camera::zoom(float value) {
-    fov += value;
+    float new_fov = fov + value;
+    if (new_fov >= 180.0f || new_fov <= 1.0f){
+        return;
+    }
+    fov = new_fov;
+}
+
+void camera::update_front() {
+    front.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch));
+    front.y = sin(glm::radians(pitch));
+    front.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
+    front = glm::normalize(front);
 }
 
 void camera::move_front(double xoffset, double yoffset) {
@@ -42,11 +61,7 @@ void camera::move_front(double xoffset, double yoffset) {
         pitch = -89.0f;
     }
 
-    glm::vec3 new_front;
-    new_front.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch));
-    new_front.y = sin(glm::radians(pitch));
-    new_front.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
-    front = glm::normalize(new_front);
+    update_front();
 }
 
 glm::mat4 camera::get_view_matrix() {
