@@ -15,7 +15,7 @@ class camera {
         ~camera();
         void move(glm::vec3 direction);
         void zoom(float value);
-        void update_front(double xoffset, double yoffset);
+        void move_front(double xoffset, double yoffset);
         glm::mat4 get_view_matrix();
         glm::mat4 get_projection_matrix(float aspect_ratio);
 };

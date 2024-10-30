@@ -3,9 +3,12 @@
 #include <glm/ext/matrix_clip_space.hpp>
 
 #define DEFAULT_DIR glm::vec3(1.f, 0.f, 0.f)
-#define DEFAULT_POS glm::vec3(0.0f, 0.0f, 0.0f)
+#define DEFAULT_POS glm::vec3(-1.0f, 1.0f, 0.0f)
 #define DEFAULT_SPEED 0.1f
 #define DEFAULT_FOV 90.0f
+
+#define NEAR_PLANE 0.1f
+#define FAR_PLANE 100.0f
 
 camera::camera(glm::vec3 position, glm::vec3 front, float speed, float fov) {
     this->position = position;
@@ -30,11 +33,15 @@ void camera::zoom(float value) {
     fov += value;
 }
 
-void camera::update_front(double xoffset, double yoffset) {
-    front.x = cos(glm::radians(xoffset)) * cos(glm::radians(yoffset));
-    front.y = sin(glm::radians(yoffset));
-    front.z = sin(glm::radians(xoffset)) * cos(glm::radians(yoffset));
-    front = glm::normalize(front);
+void camera::move_front(double xoffset, double yoffset) {
+    glm::vec3 new_front = glm::normalize(
+        (glm::vec3){
+            cos(glm::radians(xoffset)) * cos(glm::radians(yoffset)),
+            sin(glm::radians(yoffset)), 
+            sin(glm::radians(xoffset)) * cos(glm::radians(yoffset))
+            }
+        );
+    front += new_front; //FIXME this is not correct, cos(0) * cos(0) 
 }
 
 glm::mat4 camera::get_view_matrix() {
@@ -42,5 +49,5 @@ glm::mat4 camera::get_view_matrix() {
 }
 
 glm::mat4 camera::get_projection_matrix(float aspect_ratio) {
-    return glm::perspective(glm::radians(fov), aspect_ratio, 0.1f, 100.0f);
+    return glm::perspective(glm::radians(fov), aspect_ratio, NEAR_PLANE, FAR_PLANE);
 }

@@ -4,6 +4,7 @@
 #include <sstream>
 #include <stdexcept>
 
+#include <glm/glm.hpp>
 #include <GL/glew.h>
 
 static std::string read_file(const std::string& file_path) {
@@ -68,4 +69,8 @@ shader::~shader() {
 
 void shader::use() {
     glUseProgram(program);
+}
+
+void shader::apply_uniform_mat4(glm::mat4 matrix, const std::string& name) {
+    glUniformMatrix4fv(glGetUniformLocation(program, name.c_str()), 1, GL_FALSE, (float*)&matrix);
 }
