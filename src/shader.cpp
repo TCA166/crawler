@@ -1,10 +1,10 @@
+#include "shader.hpp"
+
 #include <fstream>
 #include <sstream>
 #include <stdexcept>
 
 #include <GL/glew.h>
-
-#include "shader.hpp"
 
 static std::string read_file(const std::string& file_path) {
     std::ifstream file(file_path);
@@ -64,4 +64,8 @@ shader::shader(const std::string vertex_path, const std::string fragment_Path) {
 
 shader::~shader() {
     glDeleteProgram(program);
+}
+
+void shader::use() {
+    glUseProgram(program);
 }

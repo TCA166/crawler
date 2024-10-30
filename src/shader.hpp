@@ -9,4 +9,5 @@ class shader {
     public:
         shader(const std::string vertex_path, const std::string fragment_path);
         ~shader();
+        void use();
 };
