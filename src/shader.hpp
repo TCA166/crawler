@@ -4,6 +4,8 @@
 #include <GL/glew.h>
 #include <string>
 
+#include "light.hpp"
+
 /*!
  @brief Shader class to handle shader programs.
  @details This class is used to load and compile shader programs.
@@ -42,4 +44,11 @@ class shader {
          @param value The value to set
         */
         void set_uniform(const std::string& name, int value) const;
+        /*!
+         @brief Set a uniform vector in the shader program
+         @param vector The vector to set
+         @param name The name of the uniform variable
+        */
+        void apply_uniform_vec3(glm::vec3 vector, const std::string& name) const;
+        void apply_light(const light* light, const std::string& name) const;
 };

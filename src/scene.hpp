@@ -10,6 +10,7 @@
 class scene {
     private:
         std::vector<const object*> objects;
+        std::vector<const light*> lights;
     public:
         /*!
          @brief Constructs a scene
@@ -25,6 +26,11 @@ class scene {
          @param obj The object to add
         */
         void add_object(const object* obj);
+        /*!
+         @brief Add a light to the scene
+         @param light The light to add
+        */
+        void add_light(const light* light);
         /*!
          @brief Initialize the scene
         */

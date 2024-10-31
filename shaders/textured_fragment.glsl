@@ -1,29 +1,45 @@
 #version 430 core
 
+#define MAX_LIGHTS 10
+
 in vec2 texCoord;
+in vec3 fragPos;
+in vec3 normal;
 in mat3 TBN;
+
 uniform sampler2D texture0;
 uniform sampler2D normal0;
+
+struct Light {
+    vec3 position;
+    vec3 color;
+    float constant;
+    float linear;
+    float quadratic;
+};
+
+uniform Light lights[MAX_LIGHTS];
+uniform int numLights;
+
 out vec4 out_color;
 
 void main()
 {
-	
-	// Sample the normal from the normal map
-    vec3 normal = texture(normal0, texCoord).rgb;
-    normal = normalize(normal * 2.0 - 1.0); // Transform from [0, 1] to [-1, 1]
+    vec3 norm = texture(normal0, texCoord).rgb;
+    norm = normalize(norm * 2.0 - 1.0);
+    norm = normalize(TBN * norm);
 
-    // Transform the normal to world space
-    normal = normalize(TBN * normal);
+    vec3 result = vec3(0.0);
+    for (int i = 0; i < numLights; ++i) {
+        vec3 lightDir = normalize(lights[i].position - fragPos);
+        float distance = length(lights[i].position - fragPos);
+        float attenuation = 1.0 / (lights[i].constant + lights[i].linear * distance + lights[i].quadratic * distance * distance);
 
-    // Sample the diffuse color
+        float diff = max(dot(norm, lightDir), 0.0);
+        vec3 diffuse = diff * lights[i].color * attenuation;
+        result += diffuse;
+    }
+
     vec4 color = texture(texture0, texCoord);
-
-    // Simple lighting calculation (example)
-    vec3 lightDir = normalize(vec3(0.0, 0.0, 1.0)); // Light direction
-    float diff = max(dot(normal, lightDir), 0.0);
-
-    // Set the fragment color
-    out_color = vec4(color.rgb * diff, color.a);
-	//out_color = vec4(1.0, 0.0, 0.0, 1.0);
+    out_color = vec4(result * color.rgb, color.a);
 }

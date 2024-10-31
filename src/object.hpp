@@ -8,6 +8,7 @@
 #include "shader.hpp"
 #include "camera.hpp"
 #include "texture.hpp"
+#include "light.hpp"
 
 /*!
  @brief Object class to handle rendering of objects.
@@ -26,7 +27,7 @@ class object {
          @param target_camera The camera to render the object with
          @param aspect_ratio The aspect ratio of the window
         */
-        virtual void render(const camera* target_camera, float aspect_ratio) const;
+        virtual void render(const camera* target_camera, float aspect_ratio, const std::vector<const light*>& lights) const;
 };
 
 class basic_object : private object {
@@ -67,5 +68,5 @@ class textured_object : private object {
          @param target_camera The camera to render the object with
          @param aspect_ratio The aspect ratio of the window
         */
-        void render(const camera* target_camera, float aspect_ratio) const;
+        void render(const camera* target_camera, float aspect_ratio, const std::vector<const light*>& lights) const;
 };

@@ -157,15 +157,25 @@ object::~object() {
     }
 }
 
-void object::render(const camera* target_camera, float aspect_ratio) const{
+void object::render(const camera* target_camera, float aspect_ratio, const std::vector<const light*>& lights) const{
     object_shader->use();
+    glm::mat4 model = glm::translate(glm::mat4(1.0f), glm::vec3(xpos, ypos, zpos));
     glm::mat4 view = target_camera->get_view_matrix();
     glm::mat4 projection = target_camera->get_projection_matrix(aspect_ratio);
-    glm::mat4 translation = glm::translate(glm::mat4(1.0f), glm::vec3(xpos, ypos, zpos));
-    glm::mat4 transformation = projection * view * translation;
-    object_shader->apply_uniform_mat4(transformation, "transformation");
+    glm::mat4 viewProjection = projection * view;
+
+    object_shader->apply_uniform_mat4(model, "model");
+    object_shader->apply_uniform_mat4(viewProjection, "viewProjection");
+
+    // Pass light properties to the shader
+    for (size_t i = 0; i < lights.size(); ++i) {
+        std::string name = "lights[" + std::to_string(i) + "]";
+        object_shader->apply_light(lights[i], name);
+    }
+    object_shader->set_uniform("numLights", lights.size());
+
     glBindVertexArray(VAO);
-    if(EBO != NO_EBO){
+    if (EBO != NO_EBO) {
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
         glDrawElements(GL_TRIANGLES, index_count, GL_UNSIGNED_INT, 0);
     } else {
@@ -175,11 +185,11 @@ void object::render(const camera* target_camera, float aspect_ratio) const{
     glUseProgram(0);
 }
 
-void textured_object::render(const camera* target_camera, float aspect_ratio) const{
+void textured_object::render(const camera* target_camera, float aspect_ratio, const std::vector<const light*>& lights) const{
     for(size_t i = 0; i < textures.size(); i++){
         textures[i]->set_active_texture(object_shader, i);
     }
-    object::render(target_camera, aspect_ratio);
+    object::render(target_camera, aspect_ratio, lights);
 }
 
 void textured_object::add_texture(texture* tex){

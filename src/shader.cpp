@@ -93,3 +93,15 @@ GLint shader::get_attrib_location(const std::string& name) const {
 void shader::set_uniform(const std::string& name, int value) const {
     glUniform1i(glGetUniformLocation(program, name.c_str()), value);
 }
+
+void shader::apply_uniform_vec3(glm::vec3 vector, const std::string& name) const {
+    glUniform3fv(glGetUniformLocation(program, name.c_str()), 1, (float*)&vector);
+}
+
+void shader::apply_light(const light* light, const std::string& name) const {
+    glUniform3fv(glGetUniformLocation(program, (name + ".position").c_str()), 1, (float*)&light->position);
+    glUniform3fv(glGetUniformLocation(program, (name + ".color").c_str()), 1, (float*)&light->color);
+    glUniform1f(glGetUniformLocation(program, (name + ".constant").c_str()), light->constant);
+    glUniform1f(glGetUniformLocation(program, (name + ".linear").c_str()), light->linear);
+    glUniform1f(glGetUniformLocation(program, (name + ".quadratic").c_str()), light->quadratic);
+}
