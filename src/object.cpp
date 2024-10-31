@@ -19,9 +19,11 @@
 #define SHADER_VERTEX_TANGENT "vertexTangent"
 #define SHADER_VERTEX_BITANGENT "vertexBitangent"
 
-object::object(const shader* object_shader, const float* vertices_colors, size_t size) : object(object_shader, vertices_colors, size, 0.0, 0.0, 0.0) {}
-
-object::object(const shader* object_shader, const float* vertices_colors, size_t size, double xpos, double ypos, double zpos) : xpos(xpos), ypos(ypos), zpos(zpos), object_shader(object_shader) {
+basic_object::basic_object(const shader* object_shader, const float* vertices_colors, size_t size, double xpos, double ypos, double zpos) {
+    this->object_shader = object_shader;
+    this->xpos = xpos;
+    this->ypos = ypos;
+    this->zpos = zpos;    
     glGenVertexArrays(1, &VAO);
     glBindVertexArray(VAO);
 
@@ -50,7 +52,11 @@ object::object(const shader* object_shader, const float* vertices_colors, size_t
     glEnableVertexAttribArray(0);
 }
 
-object::object(const shader* object_shader, const std::string& path, double xpos, double ypos, double zpos) : xpos(xpos), ypos(ypos), zpos(zpos), object_shader(object_shader) {
+textured_object::textured_object(const shader* object_shader, const std::string& path, double xpos, double ypos, double zpos) {
+    this->object_shader = object_shader;
+    this->xpos = xpos;
+    this->ypos = ypos;
+    this->zpos = zpos;
     Assimp::Importer import;
 	const aiScene* scene = import.ReadFile(path, aiProcess_Triangulate | aiProcess_CalcTangentSpace);
 	if(!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode){
@@ -131,13 +137,13 @@ object::object(const shader* object_shader, const std::string& path, double xpos
 
     glVertexAttribPointer(posAttrib, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
     glEnableVertexAttribArray(posAttrib);
-    glVertexAttribPointer(normAttrib, 3, GL_FLOAT, GL_FALSE, 0, (void*)(vertexDataBufferSize));
+    glVertexAttribPointer(normAttrib, 3, GL_FLOAT, GL_FALSE, 0, (void*)(uintptr_t)(vertexDataBufferSize));
     glEnableVertexAttribArray(normAttrib);
-    glVertexAttribPointer(texAttrib, 2, GL_FLOAT, GL_FALSE, 0, (void*)(vertexDataBufferSize + vertexNormalBufferSize));
+    glVertexAttribPointer(texAttrib, 2, GL_FLOAT, GL_FALSE, 0, (void*)(uintptr_t)(vertexDataBufferSize + vertexNormalBufferSize));
     glEnableVertexAttribArray(texAttrib);
-    glVertexAttribPointer(tanAttrib, 3, GL_FLOAT, GL_FALSE, 0, (void*)(vertexDataBufferSize + vertexNormalBufferSize + vertexTexBufferSize));
+    glVertexAttribPointer(tanAttrib, 3, GL_FLOAT, GL_FALSE, 0, (void*)(uintptr_t)(vertexDataBufferSize + vertexNormalBufferSize + vertexTexBufferSize));
     glEnableVertexAttribArray(tanAttrib);
-    glVertexAttribPointer(biTanAttrib, 3, GL_FLOAT, GL_FALSE, 0, (void*)(vertexDataBufferSize + vertexNormalBufferSize + vertexTexBufferSize + vertexTangentBufferSize));
+    glVertexAttribPointer(biTanAttrib, 3, GL_FLOAT, GL_FALSE, 0, (void*)(uintptr_t)(vertexDataBufferSize + vertexNormalBufferSize + vertexTexBufferSize + vertexTangentBufferSize));
     glEnableVertexAttribArray(biTanAttrib);
 
     glEnableVertexAttribArray(0);
@@ -146,13 +152,13 @@ object::object(const shader* object_shader, const std::string& path, double xpos
 object::~object() {
     glDeleteVertexArrays(1, &VAO);
     glDeleteBuffers(1, &VBO);
+    if(EBO != NO_EBO){
+        glDeleteBuffers(1, &EBO);
+    }
 }
 
 void object::render(const camera* target_camera, float aspect_ratio) const{
     object_shader->use();
-    for(size_t i = 0; i < textures.size(); i++){
-        textures[i]->set_active_texture(object_shader, i);
-    }
     glm::mat4 view = target_camera->get_view_matrix();
     glm::mat4 projection = target_camera->get_projection_matrix(aspect_ratio);
     glm::mat4 translation = glm::translate(glm::mat4(1.0f), glm::vec3(xpos, ypos, zpos));
@@ -169,6 +175,13 @@ void object::render(const camera* target_camera, float aspect_ratio) const{
     glUseProgram(0);
 }
 
-void object::add_texture(texture* tex){
+void textured_object::render(const camera* target_camera, float aspect_ratio) const{
+    for(size_t i = 0; i < textures.size(); i++){
+        textures[i]->set_active_texture(object_shader, i);
+    }
+    object::render(target_camera, aspect_ratio);
+}
+
+void textured_object::add_texture(texture* tex){
     textures.push_back(tex);
 }

@@ -32,17 +32,17 @@ int main() {
     shader box_shader = shader("shaders/box_vertex.glsl", "shaders/box_fragment.glsl");
     shader textured_shader = shader("shaders/textured_vertex.glsl", "shaders/textured_fragment.glsl");
     #include "Box.cpp"
-    object box_obj = object(&box_shader, box, sizeof(box));
-    object box_2 = object(&box_shader, box, sizeof(box), 1.0, 1.0, 1.0);
+    basic_object box_obj = basic_object(&box_shader, box, sizeof(box), 0.0, 0.0, 0.0);
+    basic_object box_2 = basic_object(&box_shader, box, sizeof(box), 1.0, 1.0, 1.0);
     texture ship_texture = texture("textures/spaceship.jpg", "texture0");
     texture ship_normal = texture("textures/spaceship_normal.jpg", "normal0");
-    object ship = object(&textured_shader, "models/spaceship.obj", -1.0, 0.0, 0.0);
+    textured_object ship = textured_object(&textured_shader, "models/spaceship.obj", -1.0, 0.0, 0.0);
     ship.add_texture(&ship_texture);
     ship.add_texture(&ship_normal);
 
-    current_scene.add_object(box_obj);
-    current_scene.add_object(box_2);
-    current_scene.add_object(ship);
+    current_scene.add_object((object*)&box_obj);
+    current_scene.add_object((object*)&box_2);
+    current_scene.add_object((object*)&ship);
 
     // renderer loop
     current_renderer.run();

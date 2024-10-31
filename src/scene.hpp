@@ -20,7 +20,11 @@ class scene {
          @brief Add an object to the scene
          @param obj The object to add
         */
-        void add_object(const object& obj);
+        /*!
+         @brief Add an object to the scene
+         @param obj The object to add
+        */
+        void add_object(const object* obj);
         /*!
          @brief Initialize the scene
         */

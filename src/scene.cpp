@@ -9,8 +9,8 @@ scene::~scene() {
    
 }
 
-void scene::add_object(const object& obj) {
-    objects.push_back(&obj);
+void scene::add_object(const object* obj) {
+    objects.push_back(obj);
 }
 
 void scene::init() {
