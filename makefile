@@ -1,9 +1,12 @@
 
-IFLAGS += -lGL -lGLU -lGLEW -lglfw -lassimp 
+IFLAGS += -lGL -lGLU -lGLEW -lglfw -lassimp -lSOIL
 CFLAGS += -Wall -Wextra -std=c++11 -g
 CC = g++
 
 all: main
+
+texture.o: src/texture.cpp src/texture.hpp
+	$(CC) $(IFLAGS) $(CFLAGS) -c src/texture.cpp
 
 scene.o: src/scene.cpp src/scene.hpp
 	$(CC) $(IFLAGS) $(CFLAGS) -c src/scene.cpp
@@ -20,11 +23,11 @@ shader.o: src/shader.cpp src/shader.hpp
 camera.o: src/camera.cpp src/camera.hpp
 	$(CC) $(IFLAGS) $(CFLAGS) -c src/camera.cpp
 
-main: src/main.cpp shader.o camera.o object.o scene.o renderer.o
-	$(CC) $(IFLAGS) $(CFLAGS) -o main src/main.cpp shader.o camera.o object.o scene.o renderer.o
+main: src/main.cpp shader.o camera.o object.o scene.o renderer.o texture.o
+	$(CC) $(IFLAGS) $(CFLAGS) -o main src/main.cpp shader.o camera.o object.o scene.o renderer.o texture.o
 
 clean:
 	rm -f *.o main
 
 dependencies:
-	sudo dnf install -y glfw-devel assimp-devel glew-devel glm-devel
+	sudo dnf install -y glfw-devel assimp-devel glew-devel glm-devel SOIL-devel

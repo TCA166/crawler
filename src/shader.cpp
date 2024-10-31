@@ -89,3 +89,7 @@ void shader::apply_uniform_mat4(glm::mat4 matrix, const std::string& name) const
 GLint shader::get_attrib_location(const std::string& name) const {
     return glGetAttribLocation(program, name.c_str());
 }
+
+void shader::set_uniform(const std::string& name, int value) const {
+    glUniform1i(glGetUniformLocation(program, name.c_str()), value);
+}

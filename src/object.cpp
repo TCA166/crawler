@@ -8,6 +8,7 @@
 
 #include <stdexcept>
 #include <vector>
+#include <iostream>
 
 #define NO_EBO 0
 
@@ -15,10 +16,12 @@
 #define SHADER_VERTEX_COLOR "vertexColor"
 #define SHADER_VERTEX_TEXCOORD "vertexTexCoord"
 #define SHADER_VERTEX_NORMAL "vertexNormal"
+#define SHADER_VERTEX_TANGENT "vertexTangent"
+#define SHADER_VERTEX_BITANGENT "vertexBitangent"
 
 object::object(const shader* object_shader, const float* vertices_colors, size_t size) : object(object_shader, vertices_colors, size, 0.0, 0.0, 0.0) {}
 
-object::object(const shader* object_shader, const float* vertices_colors, size_t size, double xpos, double ypos, double zpos) : xpos(xpos), ypos(ypos), zpos(zpos), object_shader(object_shader), size(size) {
+object::object(const shader* object_shader, const float* vertices_colors, size_t size, double xpos, double ypos, double zpos) : xpos(xpos), ypos(ypos), zpos(zpos), object_shader(object_shader) {
     glGenVertexArrays(1, &VAO);
     glBindVertexArray(VAO);
 
@@ -41,6 +44,8 @@ object::object(const shader* object_shader, const float* vertices_colors, size_t
     glEnableVertexAttribArray(colAttrib);
 
     this->EBO = NO_EBO;
+    this->vertex_count = size / (8 * sizeof(float));
+    this->index_count = 0;
 
     glEnableVertexAttribArray(0);
 }
@@ -57,98 +62,85 @@ object::object(const shader* object_shader, const std::string& path, double xpos
     }
 
     // we allow for the shader to have either color or texture attributes
-    GLint colAttrib = -1; // color attribute
-    GLint normalAttrib = -1; // normal attribute
-    GLint texAttrib = object_shader->get_attrib_location(SHADER_VERTEX_TEXCOORD); // texture attribute
-    if(texAttrib == -1){ // if we don't have a texture attribute, we must have a color attribute
-        colAttrib = object_shader->get_attrib_location(SHADER_VERTEX_COLOR);
-        if(colAttrib == -1){ // if we don't have neither a texture nor a color attribute, we throw an error
-            throw std::runtime_error("Failed to find " SHADER_VERTEX_TEXCOORD " and " SHADER_VERTEX_COLOR " attribute in shader");
-        }
-    } else {
-        normalAttrib = object_shader->get_attrib_location(SHADER_VERTEX_NORMAL);
-        if(normalAttrib == -1){
-            throw std::runtime_error("Failed to find " SHADER_VERTEX_NORMAL " attribute in shader");
-        }
+    GLint posAttrib = object_shader->get_attrib_location(SHADER_VERTEX_POSITION);
+    if(posAttrib == -1){
+        throw std::runtime_error("Failed to find " SHADER_VERTEX_POSITION " attribute in shader");
+    }
+    GLint texAttrib = object_shader->get_attrib_location(SHADER_VERTEX_TEXCOORD);
+    if(texAttrib == -1){
+        texAttrib = 1;
+    }
+    GLint normAttrib = object_shader->get_attrib_location(SHADER_VERTEX_NORMAL);
+    if(normAttrib == -1){
+        normAttrib = 2;
+    }
+    GLint tanAttrib = object_shader->get_attrib_location(SHADER_VERTEX_TANGENT);
+    if(tanAttrib == -1){
+        tanAttrib = 3;
+    }
+    GLint biTanAttrib = object_shader->get_attrib_location(SHADER_VERTEX_BITANGENT);
+    if(biTanAttrib == -1){
+        biTanAttrib = 4;
     }
 
-    std::vector<float> vertices;
+    const aiMesh* mesh = scene->mMeshes[0];
+
+    std::vector<float> textureCoord;
     std::vector<unsigned int> indices;
-
-    aiMesh* mesh = scene->mMeshes[0];
-    for (unsigned int i = 0; i < mesh->mNumVertices; i++) {
-        vertices.push_back(mesh->mVertices[i].x);
-        vertices.push_back(mesh->mVertices[i].y);
-        vertices.push_back(mesh->mVertices[i].z);
-        vertices.push_back(1.0f); // Assuming w component is 1.0 for positions
-        if(texAttrib != 1){ // if we have a texture attribute
-            if(mesh->mTextureCoords[0] != nullptr){
-                vertices.push_back(mesh->mTextureCoords[0][i].x);
-                vertices.push_back(mesh->mTextureCoords[0][i].y);
-            } else {
-                vertices.push_back(0.0f);
-                vertices.push_back(0.0f);
-            }
-
-            if(mesh->mNormals != nullptr){
-                vertices.push_back(mesh->mNormals[i].x);
-                vertices.push_back(mesh->mNormals[i].y);
-                vertices.push_back(mesh->mNormals[i].z);
-            } else {
-                vertices.push_back(0.0f);
-                vertices.push_back(0.0f);
-                vertices.push_back(0.0f);
-            }
-        } else { // if we have a color attribute
-            if(mesh->mColors[0] != nullptr) {
-                vertices.push_back(mesh->mColors[0][i].r);
-                vertices.push_back(mesh->mColors[0][i].g);
-                vertices.push_back(mesh->mColors[0][i].b);
-                vertices.push_back(mesh->mColors[0][i].a);
-            } else {
-                vertices.push_back(0.0f);
-                vertices.push_back(0.0f);
-                vertices.push_back(0.0f);
-                vertices.push_back(0.0f);
-            }
-        }        
-    }
-
-    for (unsigned int i = 0; i < mesh->mNumFaces; i++) {
-        aiFace face = mesh->mFaces[i];
-        for (unsigned int j = 0; j < face.mNumIndices; j++) {
-            indices.push_back(face.mIndices[j]);
+    for (unsigned int i = 0; i < mesh->mNumVertices; i++){
+        if (mesh->mTextureCoords[0] != nullptr) {
+            textureCoord.push_back(mesh->mTextureCoords[0][i].x);
+            textureCoord.push_back(mesh->mTextureCoords[0][i].y);
+        }
+        else {
+            textureCoord.push_back(0.0f);
+            textureCoord.push_back(0.0f);
         }
     }
+    for (unsigned int i = 0; i < mesh->mNumFaces; i++){
+        aiFace face = mesh->mFaces[i];
+        // retrieve all indices of the face and store them in the indices vector
+        for (unsigned int j = 0; j < face.mNumIndices; j++)
+            indices.push_back(face.mIndices[j]);
+    }
+
+    unsigned int vertexDataBufferSize = sizeof(float) * mesh->mNumVertices * 3;
+    vertex_count = mesh->mNumVertices;
+    unsigned int vertexNormalBufferSize = sizeof(float) * mesh->mNumVertices * 3;
+    unsigned int vertexTexBufferSize = sizeof(float) * mesh->mNumVertices * 2;
+    unsigned int vertexTangentBufferSize = sizeof(float) * mesh->mNumVertices * 3;
+    unsigned int vertexBiTangentBufferSize = sizeof(float) * mesh->mNumVertices * 3;
 
     glGenVertexArrays(1, &VAO);
     glBindVertexArray(VAO);
 
     glGenBuffers(1, &VBO);
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(float), vertices.data(), GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, vertexDataBufferSize + vertexNormalBufferSize + vertexTexBufferSize + vertexTangentBufferSize + vertexBiTangentBufferSize, NULL, GL_STATIC_DRAW);
+
+    glBufferSubData(GL_ARRAY_BUFFER, 0, vertexDataBufferSize, mesh->mVertices);
+    glBufferSubData(GL_ARRAY_BUFFER, vertexDataBufferSize, vertexNormalBufferSize, mesh->mNormals);
+    glBufferSubData(GL_ARRAY_BUFFER, vertexDataBufferSize + vertexNormalBufferSize, vertexTexBufferSize, textureCoord.data());
+    glBufferSubData(GL_ARRAY_BUFFER, vertexDataBufferSize + vertexNormalBufferSize + vertexTexBufferSize, vertexTangentBufferSize, mesh->mTangents);
+    glBufferSubData(GL_ARRAY_BUFFER, vertexDataBufferSize + vertexNormalBufferSize + vertexTexBufferSize + vertexTangentBufferSize, vertexBiTangentBufferSize, mesh->mBitangents);
 
     glGenBuffers(1, &EBO);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned int), indices.data(), GL_STATIC_DRAW);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * indices.size(), indices.data(), GL_STATIC_DRAW);
+    index_count = indices.size();
 
-    GLint posAttrib = object_shader->get_attrib_location(SHADER_VERTEX_POSITION);
-    if(posAttrib == -1){
-        throw std::runtime_error("Failed to find " SHADER_VERTEX_POSITION " attribute in shader");
-    }    
-
-    glVertexAttribPointer(posAttrib, 4, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
+    glVertexAttribPointer(posAttrib, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
     glEnableVertexAttribArray(posAttrib);
-    if(colAttrib != -1){
-        glVertexAttribPointer(colAttrib, 4, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(4 * sizeof(float)));
-        glEnableVertexAttribArray(colAttrib);
-    } else {
-        glVertexAttribPointer(texAttrib, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(4 * sizeof(float)));
-        glEnableVertexAttribArray(texAttrib);
-        glVertexAttribPointer(normalAttrib, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
-        glEnableVertexAttribArray(normalAttrib);
-    }
-    size = vertices.size() * sizeof(float);
+    glVertexAttribPointer(normAttrib, 3, GL_FLOAT, GL_FALSE, 0, (void*)(vertexDataBufferSize));
+    glEnableVertexAttribArray(normAttrib);
+    glVertexAttribPointer(texAttrib, 2, GL_FLOAT, GL_FALSE, 0, (void*)(vertexDataBufferSize + vertexNormalBufferSize));
+    glEnableVertexAttribArray(texAttrib);
+    glVertexAttribPointer(tanAttrib, 3, GL_FLOAT, GL_FALSE, 0, (void*)(vertexDataBufferSize + vertexNormalBufferSize + vertexTexBufferSize));
+    glEnableVertexAttribArray(tanAttrib);
+    glVertexAttribPointer(biTanAttrib, 3, GL_FLOAT, GL_FALSE, 0, (void*)(vertexDataBufferSize + vertexNormalBufferSize + vertexTexBufferSize + vertexTangentBufferSize));
+    glEnableVertexAttribArray(biTanAttrib);
+
+    glEnableVertexAttribArray(0);
 }
 
 object::~object() {
@@ -158,17 +150,25 @@ object::~object() {
 
 void object::render(const camera* target_camera, float aspect_ratio) const{
     object_shader->use();
+    for(size_t i = 0; i < textures.size(); i++){
+        textures[i]->set_active_texture(object_shader, i);
+    }
     glm::mat4 view = target_camera->get_view_matrix();
     glm::mat4 projection = target_camera->get_projection_matrix(aspect_ratio);
     glm::mat4 translation = glm::translate(glm::mat4(1.0f), glm::vec3(xpos, ypos, zpos));
     glm::mat4 transformation = projection * view * translation;
     object_shader->apply_uniform_mat4(transformation, "transformation");
     glBindVertexArray(VAO);
-    glDrawArrays(GL_TRIANGLES, 0, size / (8 * sizeof(float)));
     if(EBO != NO_EBO){
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-        glDrawElements(GL_TRIANGLES, size / sizeof(unsigned int), GL_UNSIGNED_INT, 0);
+        glDrawElements(GL_TRIANGLES, index_count, GL_UNSIGNED_INT, 0);
+    } else {
+        glDrawArrays(GL_TRIANGLES, 0, vertex_count);
     }
     glBindVertexArray(0);
     glUseProgram(0);
+}
+
+void object::add_texture(texture* tex){
+    textures.push_back(tex);
 }

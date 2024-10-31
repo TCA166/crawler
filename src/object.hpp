@@ -3,8 +3,11 @@
 
 #include <GL/glew.h>
 
+#include <vector>
+
 #include "shader.hpp"
 #include "camera.hpp"
+#include "texture.hpp"
 
 /*!
  @brief Object class to handle rendering of objects.
@@ -14,7 +17,11 @@ class object {
         GLuint VAO, VBO, EBO;
         double xpos, ypos, zpos;
         const shader* object_shader;
-        size_t size;
+        std::vector<texture*> textures;
+        unsigned int vertex_count;
+        unsigned int index_count;
+        unsigned int texture_count;
+        unsigned int normal_count;
     public:
         /*!
          @brief Constructs an object with a given shader and vertices
@@ -48,4 +55,9 @@ class object {
          @param aspect_ratio The aspect ratio of the window
         */
         void render(const camera* target_camera, float aspect_ratio) const;
+        /*!
+         @brief Add a texture to the object
+         @param tex The texture to add
+        */
+        void add_texture(texture* tex);
 };

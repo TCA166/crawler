@@ -36,4 +36,10 @@ class shader {
          @return The location of the attribute
         */
         GLint get_attrib_location(const std::string& name) const;
+        /*!
+         @brief Set a uniform integer in the shader program
+         @param name The name of the uniform variable
+         @param value The value to set
+        */
+        void set_uniform(const std::string& name, int value) const;
 };

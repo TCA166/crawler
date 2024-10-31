@@ -91,6 +91,16 @@ renderer::~renderer() {
 void renderer::key_callback(int key, int scancode, int action, int mods){
     if(action == GLFW_PRESS){
         switch(key){
+            case GLFW_KEY_ESCAPE:
+                if(focused){
+                    focused = false;
+                    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+                }
+                break;
+        }
+    }
+    if(action == GLFW_REPEAT || action == GLFW_RELEASE ){
+        switch(key){
             case GLFW_KEY_W:
                 target_camera.move_forward(delta_time);
                 break;
@@ -109,13 +119,6 @@ void renderer::key_callback(int key, int scancode, int action, int mods){
             case GLFW_KEY_LEFT_SHIFT:
                 target_camera.move_up(-delta_time);
                 break;
-            case GLFW_KEY_ESCAPE:
-                if(focused){
-                    focused = false;
-                    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
-                }
-                break;
-
         }
     }
 }
