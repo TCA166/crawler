@@ -5,13 +5,7 @@
 #define NEAR_PLANE 0.1f
 #define FAR_PLANE 100.0f
 
-camera::camera(glm::vec3 position, float speed, float fov, float look_speed, float pitch, float yaw) {
-    this->position = position;
-    this->speed = speed;
-    this->fov = fov;
-    this->look_speed = look_speed;
-    this->pitch = pitch;
-    this->yaw = yaw;
+camera::camera(glm::vec3 position, float speed, float fov, float look_speed, float pitch, float yaw) : position(position), speed(speed), fov(fov), look_speed(look_speed), pitch(pitch), yaw(yaw) {
     this->update_front();
 }
 

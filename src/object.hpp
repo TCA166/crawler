@@ -11,9 +11,10 @@
 */
 class object {
     private:
-        GLuint VAO, VBO;
-        double xpos, ypos;
+        GLuint VAO, VBO, EBO;
+        double xpos, ypos, zpos;
         const shader* object_shader;
+        size_t size;
     public:
         /*!
          @brief Constructs an object with a given shader and vertices
@@ -30,7 +31,16 @@ class object {
          @param xpos The x position of the object
          @param ypos The y position of the object
         */
-        object(const shader* object_shader, const float* vertices_colors, size_t size, double xpos, double ypos);
+        object(const shader* object_shader, const float* vertices_colors, size_t size, double xpos, double ypos, double zpos);
+        /*!
+         @brief Constructs an object with a given shader and path to an obj file
+         @param object_shader The shader to use for rendering
+         @param path The path to the obj file
+         @param xpos The x position of the object
+         @param ypos The y position of the object
+         @param zpos The z position of the object
+        */
+        object(const shader* object_shader, const std::string& path, double xpos, double ypos, double zpos);
         ~object();
         /*!
          @brief Render the object

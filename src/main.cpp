@@ -29,13 +29,16 @@ int main() {
     // renderer handles all the initialization
     renderer current_renderer = renderer(&current_scene, WINDOW_WIDTH, WINDOW_HEIGHT, WINDOW_NAME);
 
-    shader box_shader = shader("src/shaders/box_vertex.glsl", "src/shaders/box_fragment.glsl");
+    shader box_shader = shader("shaders/box_vertex.glsl", "shaders/box_fragment.glsl");
+    shader textured_shader = shader("shaders/textured_vertex.glsl", "shaders/textured_fragment.glsl");
     #include "Box.cpp"
     object box_obj = object(&box_shader, box, sizeof(box));
-    object box_2 = object(&box_shader, box, sizeof(box), 1.0, 1.0);
-    
+    object box_2 = object(&box_shader, box, sizeof(box), 1.0, 1.0, 1.0);
+    object ship = object(&textured_shader, "models/spaceship.obj", -1.0, 0.0, 0.0);
+
     current_scene.add_object(box_obj);
     current_scene.add_object(box_2);
+    current_scene.add_object(ship);
 
     // renderer loop
     current_renderer.run();

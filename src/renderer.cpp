@@ -3,22 +3,53 @@
 
 #include <stdexcept>
 
+/*!
+ @brief Global framebuffer size callback
+ @details This function is called when the window is resized, it expects a renderer instance as the user pointer
+ @param window The window that was resized
+ @param width The new width of the window
+ @param height The new height of the window
+*/
 static void global_framebuffer_size_callback(GLFWwindow* window, int width, int height){
     renderer* instance = static_cast<renderer*>(glfwGetWindowUserPointer(window));
 	instance->set_aspect_ratio(width / float(height));
 	glViewport(0, 0, width, height);
 }
 
+/*!
+ @brief Global key callback
+ @details This function is called when a key is pressed, it expects a renderer instance as the user pointer
+ @param window The window that was resized
+ @param key The key that was pressed
+ @param scancode The scancode of the key
+ @param action The action that was performed
+ @param mods The mods that were pressed
+*/
 static void global_key_callback(GLFWwindow* window, int key, int scancode, int action, int mods){
     renderer* instance = static_cast<renderer*>(glfwGetWindowUserPointer(window));
     instance->key_callback(key, scancode, action, mods);
 }
 
+/*!
+ @brief Global mouse button callback
+ @details This function is called when a mouse button is pressed, it expects a renderer instance as the user pointer
+ @param window The window that was resized
+ @param button The button that was pressed
+ @param action The action that was performed
+ @param mods The mods that were pressed
+*/
 static void global_mouse_button_callback(GLFWwindow* window, int button, int action, int mods){
     renderer* instance = static_cast<renderer*>(glfwGetWindowUserPointer(window));
     instance->mouse_button_callback(button, action, mods);
 }
 
+/*!
+ @brief Global scroll callback
+ @details This function is called when the mouse is scrolled, it expects a renderer instance as the user pointer
+ @param window The window that was resized
+ @param xoffset The x offset of the scroll
+ @param yoffset The y offset of the scroll
+*/
 static void global_scroll_callback(GLFWwindow* window, double xoffset, double yoffset){
     renderer* instance = static_cast<renderer*>(glfwGetWindowUserPointer(window));
     instance->scroll_callback(xoffset, yoffset);
