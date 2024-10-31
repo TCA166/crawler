@@ -37,5 +37,5 @@ class object {
          @param target_camera The camera to render the object with
          @param aspect_ratio The aspect ratio of the window
         */
-        void render(const camera* target_camera, float aspect_ratio);
+        void render(const camera* target_camera, float aspect_ratio) const;
 };

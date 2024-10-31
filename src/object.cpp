@@ -40,7 +40,7 @@ object::~object() {
     glDeleteBuffers(1, &VBO);
 }
 
-void object::render(const camera* target_camera, float aspect_ratio) {
+void object::render(const camera* target_camera, float aspect_ratio) const{
     object_shader->use();
     glm::mat4 view = target_camera->get_view_matrix();
     glm::mat4 projection = target_camera->get_projection_matrix(aspect_ratio);
