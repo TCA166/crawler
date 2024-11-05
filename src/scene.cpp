@@ -2,7 +2,7 @@
 #include "scene.hpp"
 #include <iostream>
 
-scene::scene() {
+scene::scene(glm::vec3 ambient_light) : ambient_light(ambient_light) {
 
 }
 
@@ -23,8 +23,9 @@ void scene::init() {
 }
 
 void scene::render(const camera* target_camera, float aspect_ratio) {
+    glm::mat4 viewProjection = target_camera->get_projection_matrix(aspect_ratio) * target_camera->get_view_matrix();
     for(const object* obj : objects){
-        obj->render(target_camera, aspect_ratio, lights);
+        obj->render(&viewProjection, lights);
     }
 }
 

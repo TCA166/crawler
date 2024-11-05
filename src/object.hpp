@@ -20,31 +20,6 @@ class object {
         const shader* object_shader;
         unsigned int vertex_count;
         unsigned int index_count;
-    public:
-        ~object();
-        /*!
-         @brief Render the object
-         @param target_camera The camera to render the object with
-         @param aspect_ratio The aspect ratio of the window
-        */
-        virtual void render(const camera* target_camera, float aspect_ratio, const std::vector<const light*>& lights) const;
-};
-
-class basic_object : private object {
-    public:
-        /*!
-        @brief Constructs an object with a given shader, vertices and position
-        @param object_shader The shader to use for rendering
-        @param vertices_colors The vertices and colors of the object, interleaved as [x, y, z, w, r, g, b, a]
-        @param size The size of the vertices_colors array
-        @param xpos The x position of the object
-        @param ypos The y position of the object
-        */
-        basic_object(const shader* object_shader, const float* vertices_colors, size_t size, double xpos, double ypos, double zpos);
-};
-
-class textured_object : private object {
-    private:
         std::vector<texture*> textures;
         unsigned int texture_count;
         unsigned int normal_count;
@@ -57,16 +32,24 @@ class textured_object : private object {
          @param ypos The y position of the object
          @param zpos The z position of the object
         */
-        textured_object(const shader* object_shader, const std::string& path, double xpos, double ypos, double zpos);
+        object(const shader* object_shader, const std::string& path, double xpos, double ypos, double zpos);
+        ~object();
+        /*!
+         @brief Render the object
+         @param target_camera The camera to render the object with
+         @param aspect_ratio The aspect ratio of the window
+         @param lights The lights to render the object with
+        */
+        void render(const camera* target_camera, float aspect_ratio, const std::vector<const light*>& lights, glm::vec3 ambient) const;
+        /*!
+         @brief Render the object
+         @param viewProjection The view projection matrix to render the object with
+         @param lights The lights to render the object with
+        */
+        virtual void render(const glm::mat4* viewProjection, const std::vector<const light*>& lights, glm::vec3 ambient) const;
         /*!
          @brief Add a texture to the object
          @param tex The texture to add
         */
         void add_texture(texture* tex);
-        /*!
-         @brief Render the object
-         @param target_camera The camera to render the object with
-         @param aspect_ratio The aspect ratio of the window
-        */
-        void render(const camera* target_camera, float aspect_ratio, const std::vector<const light*>& lights) const;
 };

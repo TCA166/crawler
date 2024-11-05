@@ -11,11 +11,13 @@ class scene {
     private:
         std::vector<const object*> objects;
         std::vector<const light*> lights;
+        glm::vec3 ambient_light;
     public:
         /*!
          @brief Constructs a scene
+         @param ambient_light The ambient light of the scene
         */
-        scene();
+        scene(glm::vec3 ambient_light);
         ~scene();
         /*!
          @brief Add an object to the scene

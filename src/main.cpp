@@ -24,7 +24,7 @@ int main() {
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
     // a scene is a collection of objects
-    scene current_scene = scene();
+    scene current_scene = scene(glm::vec3(0.1f, 0.1f, 0.1f));
 
     // renderer handles all the initialization
     renderer current_renderer = renderer(&current_scene, WINDOW_WIDTH, WINDOW_HEIGHT, WINDOW_NAME);
@@ -33,7 +33,7 @@ int main() {
     shader textured_shader = shader("shaders/textured_vertex.glsl", "shaders/textured_fragment.glsl");
     texture ship_texture = texture("textures/spaceship.jpg", "texture0");
     texture ship_normal = texture("textures/spaceship_normal.jpg", "normal0");
-    textured_object ship = textured_object(&textured_shader, "models/spaceship.obj", -1.0, 0.0, 0.0);
+    object ship = object(&textured_shader, "models/spaceship.obj", -1.0, 0.0, 0.0);
     ship.add_texture(&ship_texture);
     ship.add_texture(&ship_normal);
 

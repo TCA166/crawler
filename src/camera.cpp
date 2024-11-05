@@ -5,7 +5,11 @@
 #define NEAR_PLANE 0.1f
 #define FAR_PLANE 100.0f
 
-camera::camera(glm::vec3 position, float speed, float fov, float look_speed, float pitch, float yaw) : position(position), speed(speed), fov(fov), look_speed(look_speed), pitch(pitch), yaw(yaw) {
+#define MAX_TURN 89.0f
+
+#define UP glm::vec3(0.0f, 1.0f, 0.0f)
+
+camera::camera(glm::vec3 position, float speed, float fov, float look_speed, float pitch, float yaw) : position(position), speed(speed), look_speed(look_speed), fov(fov), pitch(pitch), yaw(yaw) {
     this->update_front();
 }
 
@@ -48,18 +52,18 @@ void camera::rotate_front(double xoffset, double yoffset) {
     pitch += yoffset * look_speed;
     yaw += xoffset * look_speed;
 
-    if (pitch > 89.0f) {
-        pitch = 89.0f;
+    if (pitch > MAX_TURN) {
+        pitch = MAX_TURN;
     }
-    if (pitch < -89.0f) {
-        pitch = -89.0f;
+    if (pitch < -MAX_TURN) {
+        pitch = -MAX_TURN;
     }
 
     update_front();
 }
 
 glm::mat4 camera::get_view_matrix() const {
-    return glm::lookAt(position, position + front, glm::vec3(0.0f, 1.0f, 0.0f));
+    return glm::lookAt(position, position + front, UP);
 }
 
 glm::mat4 camera::get_projection_matrix(float aspect_ratio) const {

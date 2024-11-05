@@ -19,40 +19,7 @@
 #define SHADER_VERTEX_TANGENT "vertexTangent"
 #define SHADER_VERTEX_BITANGENT "vertexBitangent"
 
-basic_object::basic_object(const shader* object_shader, const float* vertices_colors, size_t size, double xpos, double ypos, double zpos) {
-    this->object_shader = object_shader;
-    this->xpos = xpos;
-    this->ypos = ypos;
-    this->zpos = zpos;    
-    glGenVertexArrays(1, &VAO);
-    glBindVertexArray(VAO);
-
-    glGenBuffers(1, &VBO);
-    glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBufferData(GL_ARRAY_BUFFER, size, vertices_colors, GL_STATIC_DRAW);
-
-    GLint posAttrib = object_shader->get_attrib_location(SHADER_VERTEX_POSITION);
-    if(posAttrib == -1){
-        throw std::runtime_error("Failed to find " SHADER_VERTEX_POSITION " attribute in shader");
-    }
-    GLint colAttrib = object_shader->get_attrib_location(SHADER_VERTEX_COLOR);
-    if(colAttrib == -1){
-        throw std::runtime_error("Failed to find " SHADER_VERTEX_COLOR " attribute in shader");
-    }
-
-    glVertexAttribPointer(posAttrib, 4, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
-    glEnableVertexAttribArray(posAttrib);
-    glVertexAttribPointer(colAttrib, 4, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(4 * sizeof(float)));
-    glEnableVertexAttribArray(colAttrib);
-
-    this->EBO = NO_EBO;
-    this->vertex_count = size / (8 * sizeof(float));
-    this->index_count = 0;
-
-    glEnableVertexAttribArray(0);
-}
-
-textured_object::textured_object(const shader* object_shader, const std::string& path, double xpos, double ypos, double zpos) {
+object::object(const shader* object_shader, const std::string& path, double xpos, double ypos, double zpos) {
     this->object_shader = object_shader;
     this->xpos = xpos;
     this->ypos = ypos;
@@ -157,15 +124,18 @@ object::~object() {
     }
 }
 
-void object::render(const camera* target_camera, float aspect_ratio, const std::vector<const light*>& lights) const{
+void object::render(const glm::mat4* viewProjection, const std::vector<const light*>& lights, glm::vec3 ambient) const {
     object_shader->use();
+
+    for(size_t i = 0; i < textures.size(); i++){
+        textures[i]->set_active_texture(object_shader, i);
+    }
+
     glm::mat4 model = glm::translate(glm::mat4(1.0f), glm::vec3(xpos, ypos, zpos));
-    glm::mat4 view = target_camera->get_view_matrix();
-    glm::mat4 projection = target_camera->get_projection_matrix(aspect_ratio);
-    glm::mat4 viewProjection = projection * view;
 
     object_shader->apply_uniform_mat4(model, "model");
-    object_shader->apply_uniform_mat4(viewProjection, "viewProjection");
+    object_shader->apply_uniform_mat4(*viewProjection, "viewProjection");
+    object_shader->apply_uniform_vec3(ambient, "ambientLight");
 
     // Pass light properties to the shader
     for (size_t i = 0; i < lights.size(); ++i) {
@@ -176,7 +146,6 @@ void object::render(const camera* target_camera, float aspect_ratio, const std::
 
     glBindVertexArray(VAO);
     if (EBO != NO_EBO) {
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
         glDrawElements(GL_TRIANGLES, index_count, GL_UNSIGNED_INT, 0);
     } else {
         glDrawArrays(GL_TRIANGLES, 0, vertex_count);
@@ -185,13 +154,11 @@ void object::render(const camera* target_camera, float aspect_ratio, const std::
     glUseProgram(0);
 }
 
-void textured_object::render(const camera* target_camera, float aspect_ratio, const std::vector<const light*>& lights) const{
-    for(size_t i = 0; i < textures.size(); i++){
-        textures[i]->set_active_texture(object_shader, i);
-    }
-    object::render(target_camera, aspect_ratio, lights);
+void object::render(const camera* target_camera, float aspect_ratio, const std::vector<const light*>& lights, glm::vec3 ambient) const{
+    glm::mat4 viewProjection = target_camera->get_projection_matrix(aspect_ratio) * target_camera->get_view_matrix();
+    this->render(&viewProjection, lights, ambient);
 }
 
-void textured_object::add_texture(texture* tex){
+void object::add_texture(texture* tex){
     textures.push_back(tex);
 }
