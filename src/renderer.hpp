@@ -21,6 +21,7 @@ class renderer {
         bool focused;
         double current_time;
         double delta_time;
+        bool mv_forward, mv_backward, mv_left, mv_right, mv_up, mv_down;
     public:
         /*!
          @brief Constructs a renderer with a given scene, width, height and name.
@@ -68,4 +69,10 @@ class renderer {
          @param mods The mods that were pressed
         */
         virtual void mouse_button_callback(int button, int action, int mods);
+        /*!
+         @brief Handle a mouse event
+         @param xpos The x position of the mouse
+         @param ypos The y position of the mouse
+        */
+        virtual void mouse_callback(double xpos, double ypos);
 };

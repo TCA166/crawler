@@ -2,6 +2,7 @@
 #include "renderer.hpp"
 
 #include <stdexcept>
+#include <iostream>
 
 /*!
  @brief Global framebuffer size callback
@@ -55,6 +56,11 @@ static void global_scroll_callback(GLFWwindow* window, double xoffset, double yo
     instance->scroll_callback(xoffset, yoffset);
 }
 
+static void global_mouse_callback(GLFWwindow* window, double xpos, double ypos){
+    renderer* instance = static_cast<renderer*>(glfwGetWindowUserPointer(window));
+    instance->mouse_callback(xpos, ypos);
+}
+
 renderer::renderer(scene* target_scene, int width, int height, const char* name) {
     // TODO modify so that we can have two renderers?
     this->change_scene(target_scene);
@@ -75,6 +81,7 @@ renderer::renderer(scene* target_scene, int width, int height, const char* name)
     glfwSetKeyCallback(window, global_key_callback);
     glfwSetMouseButtonCallback(window, global_mouse_button_callback);
     glfwSetScrollCallback(window, global_scroll_callback);
+    glfwSetCursorPosCallback(window, global_mouse_callback);
     
     this->aspect_ratio = width / float(height);
     this->focused = false;
@@ -82,6 +89,12 @@ renderer::renderer(scene* target_scene, int width, int height, const char* name)
     this->delta_time = 0.0;
     this->xpos = 0.0;
     this->ypos = 0.0;
+    this->mv_forward = false;
+    this->mv_backward = false;
+    this->mv_left = false;
+    this->mv_right = false;
+    this->mv_up = false;
+    this->mv_down = false;
 }
 
 renderer::~renderer() {
@@ -89,37 +102,35 @@ renderer::~renderer() {
 }
 
 void renderer::key_callback(int key, int scancode, int action, int mods){
-    if(action == GLFW_PRESS){
-        switch(key){
-            case GLFW_KEY_ESCAPE:
-                if(focused){
-                    focused = false;
-                    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
-                }
-                break;
-        }
+    if(action == GLFW_REPEAT){
+        return;
     }
-    if(action == GLFW_REPEAT || action == GLFW_RELEASE ){
-        switch(key){
-            case GLFW_KEY_W:
-                target_camera.move_forward(delta_time);
-                break;
-            case GLFW_KEY_S:
-                target_camera.move_forward(-delta_time);
-                break;
-            case GLFW_KEY_A:
-                target_camera.move_right(-delta_time);
-                break;
-            case GLFW_KEY_D:
-                target_camera.move_right(delta_time);
-                break;
-            case GLFW_KEY_SPACE:
-                target_camera.move_up(delta_time);
-                break;
-            case GLFW_KEY_LEFT_SHIFT:
-                target_camera.move_up(-delta_time);
-                break;
-        }
+    bool pressed = action == GLFW_PRESS;
+    switch(key){
+        case GLFW_KEY_ESCAPE:
+            if(focused && action == GLFW_PRESS){
+                focused = false;
+                glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+            }
+            break;
+        case GLFW_KEY_W:
+            mv_forward = pressed; 
+            break;
+        case GLFW_KEY_S:
+            mv_backward = pressed;
+            break;
+        case GLFW_KEY_A:
+            mv_left = pressed;
+            break;
+        case GLFW_KEY_D:
+            mv_right = pressed;
+            break;
+        case GLFW_KEY_SPACE:
+            mv_up = pressed;
+            break;
+        case GLFW_KEY_LEFT_SHIFT:
+            mv_down = pressed;
+            break;
     }
 }
 
@@ -134,6 +145,15 @@ void renderer::mouse_button_callback(int button, int action, int mods){
     }
 }
 
+void renderer::mouse_callback(double xpos, double ypos){
+    ypos = -ypos;
+    if(focused && (xpos != this->xpos || ypos != this->ypos)){
+        target_camera.rotate_front(xpos - this->xpos, ypos - this->ypos);
+        this->xpos = xpos;
+        this->ypos = ypos;
+    }
+}
+
 void renderer::scroll_callback(double xoffset, double yoffset){
     target_camera.zoom(-yoffset);
 }
@@ -142,13 +162,22 @@ void renderer::run() {
     while (!glfwWindowShouldClose(window)) {
         glClearColor(0.0f, 0.3f, 0.3f, 1.0f);
 	    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        glfwPollEvents();
         if(focused){
-            double new_xpos, new_ypos;
-            glfwGetCursorPos(window, &new_xpos, &new_ypos);
-            if(new_xpos != xpos || new_ypos != ypos){
-                target_camera.rotate_front(new_xpos - xpos, ypos - new_ypos);
-                xpos = new_xpos;
-                ypos = new_ypos;
+            if(mv_forward){
+                target_camera.move_forward(delta_time);
+            } else if(mv_backward){
+                target_camera.move_forward(-delta_time);
+            }
+            if(mv_left){
+                target_camera.move_right(-delta_time);
+            } else if(mv_right){
+                target_camera.move_right(delta_time);
+            }
+            if(mv_up){
+                target_camera.move_up(delta_time);
+            } else if(mv_down){
+                target_camera.move_up(-delta_time);
             }
         }
         {
@@ -160,7 +189,6 @@ void renderer::run() {
         target_scene->render(&target_camera, aspect_ratio);
 
         glfwSwapBuffers(window);
-        glfwPollEvents();
     }
 }
 
