@@ -160,8 +160,6 @@ void renderer::scroll_callback(double xoffset, double yoffset){
 
 void renderer::run() {
     while (!glfwWindowShouldClose(window)) {
-        glClearColor(0.0f, 0.3f, 0.3f, 1.0f);
-	    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         if(focused){
             if(mv_forward){
                 target_camera.move_forward(delta_time);
