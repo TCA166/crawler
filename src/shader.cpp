@@ -90,8 +90,12 @@ GLint shader::get_attrib_location(const std::string& name) const {
     return glGetAttribLocation(program, name.c_str());
 }
 
-void shader::set_uniform(const std::string& name, int value) const {
+void shader::apply_uniform(int value, const std::string& name) const {
     glUniform1i(glGetUniformLocation(program, name.c_str()), value);
+}
+
+void shader::apply_uniform_scalar(float scalar, const std::string& name) const {
+    glUniform1f(glGetUniformLocation(program, name.c_str()), scalar);
 }
 
 void shader::apply_uniform_vec3(glm::vec3 vector, const std::string& name) const {

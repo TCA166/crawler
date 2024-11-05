@@ -33,9 +33,14 @@ void main()
     norm = normalize(norm * 2.0 - 1.0);
     norm = normalize(TBN * norm);
 
-    vec3 result = ambientLight * texture(texture0, texCoord).rgb;
+    vec3 result = ambientLight;
     for (int i = 0; i < numLights; ++i) {
         vec3 lightDir = normalize(lights[i].position - fragPos);
+        // Check if the light should affect the fragment
+        float lightEffect = dot(lightDir, norm);
+        if (lightEffect <= 0.0) {
+            continue;
+        }
         float distance = length(lights[i].position - fragPos);
         float attenuation = 1.0 / (lights[i].constant + lights[i].linear * distance + lights[i].quadratic * distance * distance);
 

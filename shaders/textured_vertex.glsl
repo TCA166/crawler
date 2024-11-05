@@ -16,7 +16,6 @@ out vec3 shininess;
 
 uniform mat4 model;
 uniform mat4 viewProjection;
-uniform vec3 ambientLight;
 
 void main()
 {
@@ -35,8 +34,4 @@ void main()
     vec3 B = normalize(mat3(model) * vertexBitangent);
     vec3 N = normalize(mat3(model) * vertexNormal);
     TBN = mat3(T, B, N);
-
-    // Pass the view position and shininess to the fragment shader
-    viewPos = vec3(inverse(viewProjection) * vec4(0.0, 0.0, 0.0, 1.0)).xyz; //TODO fix this
-    shininess = vec3(1.0);
 }

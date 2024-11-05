@@ -101,4 +101,9 @@ class camera {
          @return The projection matrix of the camera
         */
         glm::mat4 get_projection_matrix(float aspect_ratio) const;
+        /*!
+         @brief Get the position of the camera
+         @return The position of the camera
+        */
+        glm::vec3 get_position() const;
 };

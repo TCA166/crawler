@@ -43,12 +43,23 @@ class shader {
          @param name The name of the uniform variable
          @param value The value to set
         */
-        void set_uniform(const std::string& name, int value) const;
+        void apply_uniform(int value, const std::string& name) const;
+        /*!
+         @brief Set a uniform scalar in the shader program
+         @param scalar The scalar to set
+         @param name The name of the uniform variable
+        */
+        void apply_uniform_scalar(float scalar, const std::string& name) const;
         /*!
          @brief Set a uniform vector in the shader program
          @param vector The vector to set
          @param name The name of the uniform variable
         */
         void apply_uniform_vec3(glm::vec3 vector, const std::string& name) const;
+        /*!
+         @brief Set a light in the shader program
+         @param light The light to set
+         @param name The name of the light
+        */
         void apply_light(const light* light, const std::string& name) const;
 };

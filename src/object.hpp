@@ -46,7 +46,7 @@ class object {
          @param viewProjection The view projection matrix to render the object with
          @param lights The lights to render the object with
         */
-        virtual void render(const glm::mat4* viewProjection, const std::vector<const light*>& lights, glm::vec3 ambient) const;
+        virtual void render(const glm::mat4* viewProjection, glm::vec3 viewPos, const std::vector<const light*>& lights, glm::vec3 ambient) const;
         /*!
          @brief Add a texture to the object
          @param tex The texture to add

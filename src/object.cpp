@@ -124,7 +124,7 @@ object::~object() {
     }
 }
 
-void object::render(const glm::mat4* viewProjection, const std::vector<const light*>& lights, glm::vec3 ambient) const {
+void object::render(const glm::mat4* viewProjection, glm::vec3 viewPos, const std::vector<const light*>& lights, glm::vec3 ambient) const {
     object_shader->use();
 
     for(size_t i = 0; i < textures.size(); i++){
@@ -136,13 +136,15 @@ void object::render(const glm::mat4* viewProjection, const std::vector<const lig
     object_shader->apply_uniform_mat4(model, "model");
     object_shader->apply_uniform_mat4(*viewProjection, "viewProjection");
     object_shader->apply_uniform_vec3(ambient, "ambientLight");
+    object_shader->apply_uniform_vec3(viewPos, "viewPos");
+    object_shader->apply_uniform_scalar(0.1f, "shininess");
 
     // Pass light properties to the shader
     for (size_t i = 0; i < lights.size(); ++i) {
         std::string name = "lights[" + std::to_string(i) + "]";
         object_shader->apply_light(lights[i], name);
     }
-    object_shader->set_uniform("numLights", lights.size());
+    object_shader->apply_uniform(lights.size(), "numLights");
 
     glBindVertexArray(VAO);
     if (EBO != NO_EBO) {
@@ -156,7 +158,7 @@ void object::render(const glm::mat4* viewProjection, const std::vector<const lig
 
 void object::render(const camera* target_camera, float aspect_ratio, const std::vector<const light*>& lights, glm::vec3 ambient) const{
     glm::mat4 viewProjection = target_camera->get_projection_matrix(aspect_ratio) * target_camera->get_view_matrix();
-    this->render(&viewProjection, lights, ambient);
+    this->render(&viewProjection, target_camera->get_position(), lights, ambient);
 }
 
 void object::add_texture(texture* tex){

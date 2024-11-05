@@ -69,3 +69,7 @@ glm::mat4 camera::get_view_matrix() const {
 glm::mat4 camera::get_projection_matrix(float aspect_ratio) const {
     return glm::perspective(glm::radians(fov), aspect_ratio, NEAR_PLANE, FAR_PLANE);
 }
+
+glm::vec3 camera::get_position() const {
+    return position;
+}

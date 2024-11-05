@@ -25,7 +25,7 @@ void scene::init() {
 void scene::render(const camera* target_camera, float aspect_ratio) {
     glm::mat4 viewProjection = target_camera->get_projection_matrix(aspect_ratio) * target_camera->get_view_matrix();
     for(const object* obj : objects){
-        obj->render(&viewProjection, lights);
+        obj->render(&viewProjection, target_camera->get_position(), lights, ambient_light);
     }
 }
 

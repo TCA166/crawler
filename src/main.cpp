@@ -23,8 +23,9 @@ int main() {
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
+    float ambient_strength = 0.2f;
     // a scene is a collection of objects
-    scene current_scene = scene(glm::vec3(0.1f, 0.1f, 0.1f));
+    scene current_scene = scene(glm::vec3(ambient_strength, ambient_strength, ambient_strength));
 
     // renderer handles all the initialization
     renderer current_renderer = renderer(&current_scene, WINDOW_WIDTH, WINDOW_HEIGHT, WINDOW_NAME);
@@ -39,7 +40,7 @@ int main() {
 
     light blue_sun = (light){glm::vec3(5.0f, 2.5f, 5.0f), glm::vec3(0.0f, 0.0f, 1.0f), 1.0f, 0.09f, 0.032f};
     current_scene.add_light(&blue_sun);
-    light yellow_sun = (light){glm::vec3(-1.0f, 2.0f, 0.0f), glm::vec3(1.0f, 1.0f, 0.0f), 1.0f, 0.09f, 0.032f};
+    light yellow_sun = (light){glm::vec3(-1.0f, -2.0f, 0.0f), glm::vec3(1.0f, 1.0f, 0.0f), 1.0f, 0.09f, 0.032f};
     current_scene.add_light(&yellow_sun);
     current_scene.add_object((object*)&ship);
 
