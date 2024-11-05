@@ -64,7 +64,7 @@ static void global_mouse_callback(GLFWwindow* window, double xpos, double ypos){
 renderer::renderer(scene* target_scene, int width, int height, const char* name) {
     // TODO modify so that we can have two renderers?
     this->change_scene(target_scene);
-    this->window = glfwCreateWindow(width, height, name, NULL, NULL);
+    this->window = glfwCreateWindow(width, height, name, NULL, NULL); // TODO maybe do this in run?
     if (window == NULL) {
         throw std::runtime_error("Failed to create GLFW window");
     }
@@ -159,6 +159,7 @@ void renderer::scroll_callback(double xoffset, double yoffset){
 }
 
 void renderer::run() {
+    glfwMakeContextCurrent(window);
     while (!glfwWindowShouldClose(window)) {
         if(focused){
             if(mv_forward){

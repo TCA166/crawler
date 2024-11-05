@@ -1,6 +1,7 @@
 #include "include.hpp"
 
 #include <iostream>
+#include <thread>
 
 #include "shader.hpp"
 #include "camera.hpp"
@@ -27,7 +28,7 @@ int main() {
 
     // renderer handles all the initialization
     renderer current_renderer = renderer(&current_scene, WINDOW_WIDTH, WINDOW_HEIGHT, WINDOW_NAME);
-
+    
     shader textured_shader = shader("shaders/textured_vertex.glsl", "shaders/textured_fragment.glsl");
     texture ship_texture = texture("textures/spaceship.jpg");
     texture ship_normal = texture("textures/spaceship_normal.jpg");
@@ -41,6 +42,8 @@ int main() {
     current_scene.add_light(&yellow_sun);
     current_scene.add_object((object*)&ship);
 
+    //std::thread renderer_thread = std::thread(&renderer::run, &current_renderer);
+    //renderer_thread.join();
     // renderer loop
     current_renderer.run();
 
