@@ -1,7 +1,7 @@
 
 #pragma once
 
-#include <glm/glm.hpp>
+#include "include.hpp"
 
 struct light {
     glm::vec3 position;

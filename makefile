@@ -30,4 +30,4 @@ clean:
 	rm -f *.o main
 
 dependencies:
-	sudo dnf install -y glfw-devel assimp-devel glew-devel glm-devel SOIL-devel
+	sudo dnf install -y glfw-devel assimp-devel glew-devel glm-devel SOIL-devel glibc-devel.i686

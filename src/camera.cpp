@@ -1,6 +1,6 @@
 #include "camera.hpp"
-#include <glm/ext/matrix_transform.hpp>
-#include <glm/ext/matrix_clip_space.hpp>
+
+#include "include.hpp"
 
 #define NEAR_PLANE 0.1f
 #define FAR_PLANE 100.0f

@@ -1,7 +1,8 @@
 
 #include "object.hpp"
 
-#include <glm/ext/matrix_transform.hpp>
+#include "include.hpp"
+
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
@@ -127,8 +128,10 @@ object::~object() {
 void object::render(const glm::mat4* viewProjection, glm::vec3 viewPos, const std::vector<const light*>& lights, glm::vec3 ambient) const {
     object_shader->use();
 
-    for(size_t i = 0; i < textures.size(); i++){
-        textures[i]->set_active_texture(object_shader, i);
+    size_t i = 0;
+    for (const auto& pair : textures) {
+        pair.second->set_active_texture(object_shader, i, pair.first);
+        i++;
     }
 
     glm::mat4 model = glm::translate(glm::mat4(1.0f), glm::vec3(xpos, ypos, zpos));
@@ -161,6 +164,6 @@ void object::render(const camera* target_camera, float aspect_ratio, const std::
     this->render(&viewProjection, target_camera->get_position(), lights, ambient);
 }
 
-void object::add_texture(texture* tex){
-    textures.push_back(tex);
+void object::add_texture(texture* tex, std::string name){
+    textures[name] = tex;
 }

@@ -1,9 +1,10 @@
 
 #pragma once
 
-#include <GL/glew.h>
+#include "include.hpp"
 
 #include <vector>
+#include <map>
 
 #include "shader.hpp"
 #include "camera.hpp"
@@ -20,7 +21,7 @@ class object {
         const shader* object_shader;
         unsigned int vertex_count;
         unsigned int index_count;
-        std::vector<texture*> textures;
+        std::map<std::string, texture*> textures;
         unsigned int texture_count;
         unsigned int normal_count;
     public:
@@ -51,5 +52,5 @@ class object {
          @brief Add a texture to the object
          @param tex The texture to add
         */
-        void add_texture(texture* tex);
+        void add_texture(texture* tex, std::string name);
 };

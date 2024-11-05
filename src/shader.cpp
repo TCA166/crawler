@@ -4,8 +4,7 @@
 #include <sstream>
 #include <stdexcept>
 
-#include <glm/glm.hpp>
-#include <GL/glew.h>
+#include "include.hpp"
 
 /*!
  @brief Read a file and return its contents as a string

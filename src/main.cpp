@@ -1,6 +1,4 @@
-#include <glm/glm.hpp>
-#include <GL/glew.h>
-#include <GLFW/glfw3.h>
+#include "include.hpp"
 
 #include <iostream>
 
@@ -23,20 +21,19 @@ int main() {
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-    float ambient_strength = 0.2f;
+    float ambient_strength = 0.3f;
     // a scene is a collection of objects
     scene current_scene = scene(glm::vec3(ambient_strength, ambient_strength, ambient_strength));
 
     // renderer handles all the initialization
     renderer current_renderer = renderer(&current_scene, WINDOW_WIDTH, WINDOW_HEIGHT, WINDOW_NAME);
 
-    shader box_shader = shader("shaders/box_vertex.glsl", "shaders/box_fragment.glsl");
     shader textured_shader = shader("shaders/textured_vertex.glsl", "shaders/textured_fragment.glsl");
-    texture ship_texture = texture("textures/spaceship.jpg", "texture0");
-    texture ship_normal = texture("textures/spaceship_normal.jpg", "normal0");
+    texture ship_texture = texture("textures/spaceship.jpg");
+    texture ship_normal = texture("textures/spaceship_normal.jpg");
     object ship = object(&textured_shader, "models/spaceship.obj", -1.0, 0.0, 0.0);
-    ship.add_texture(&ship_texture);
-    ship.add_texture(&ship_normal);
+    ship.add_texture(&ship_texture, "texture0");
+    ship.add_texture(&ship_normal, "normal0");
 
     light blue_sun = (light){glm::vec3(5.0f, 2.5f, 5.0f), glm::vec3(0.0f, 0.0f, 1.0f), 1.0f, 0.09f, 0.032f};
     current_scene.add_light(&blue_sun);

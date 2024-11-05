@@ -2,9 +2,10 @@
 #include "texture.hpp"
 
 #include <SOIL/SOIL.h>
+
 #include <stdexcept>
 
-texture::texture(const std::string& path, std::string name) : name(name){
+texture::texture(const std::string& path){
     glGenTextures(1, &texture_id);
 	glBindTexture(GL_TEXTURE_2D, texture_id);
 	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
@@ -24,7 +25,7 @@ texture::~texture(){
     glDeleteTextures(1, &texture_id);
 }
 
-void texture::set_active_texture(const shader* target_shader, int texture_unit) const{
+void texture::set_active_texture(const shader* target_shader, int texture_unit, std::string name) const{
     glActiveTexture(GL_TEXTURE0 + texture_unit);
     glBindTexture(GL_TEXTURE_2D, texture_id);
     target_shader->apply_uniform(texture_unit, name);

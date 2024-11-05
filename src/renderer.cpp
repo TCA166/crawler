@@ -162,7 +162,6 @@ void renderer::run() {
     while (!glfwWindowShouldClose(window)) {
         glClearColor(0.0f, 0.3f, 0.3f, 1.0f);
 	    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-        glfwPollEvents();
         if(focused){
             if(mv_forward){
                 target_camera.move_forward(delta_time);
@@ -185,9 +184,8 @@ void renderer::run() {
             delta_time = new_time - current_time;
             current_time = new_time;
         }
-        
         target_scene->render(&target_camera, aspect_ratio);
-
+        glfwPollEvents();
         glfwSwapBuffers(window);
     }
 }
