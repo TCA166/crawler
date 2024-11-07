@@ -6,6 +6,8 @@
 #include "scene.hpp"
 #include "camera.hpp"
 
+#include <semaphore.h>
+
 /*!
  @brief Renderer class to handle rendering of scenes.
  @details This class is used to render scenes and handle input.
@@ -21,6 +23,7 @@ class renderer {
         double current_time;
         double delta_time;
         bool mv_forward, mv_backward, mv_left, mv_right, mv_up, mv_down;
+        sem_t* semaphore;
     public:
         /*!
          @brief Constructs a renderer with a given scene, width, height and name.
@@ -28,10 +31,23 @@ class renderer {
          @param width The width of the window
          @param height The height of the window
          @param name The name of the window
+         @param semaphore The semaphore to use for synchronization
          @note This will create a window and initialize GLEW
         */
-        renderer(scene* target_scene, int width, int height, const char* name);
+        renderer(scene* target_scene, int width, int height, const char* name, sem_t* semaphore);
+        /*!
+         @brief Constructs a renderer with a given scene, width, height, name and parent window.
+         @param target_scene The scene to render
+         @param width The width of the window
+         @param height The height of the window
+         @param name The name of the window
+         @param semaphore The semaphore to use for synchronization
+         @param parent_window The parent window of the renderer
+         @note This will create a window and initialize GLEW
+        */
+        renderer(scene* target_scene, int width, int height, const char* name, sem_t* semaphore, GLFWwindow* parent_window);
         ~renderer();
+        renderer clone(const char* name);
         /*!
          @brief Run the renderer
          @warning This function will block until the window is closed

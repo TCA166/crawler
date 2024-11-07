@@ -61,18 +61,21 @@ static void global_mouse_callback(GLFWwindow* window, double xpos, double ypos){
     instance->mouse_callback(xpos, ypos);
 }
 
-renderer::renderer(scene* target_scene, int width, int height, const char* name) {
-    // TODO modify so that we can have two renderers?
+renderer::renderer(scene* target_scene, int width, int height, const char* name, sem_t* semaphore) : renderer(target_scene, width, height, name, semaphore, NULL) {}
+
+renderer::renderer(scene* target_scene, int width, int height, const char* name, sem_t* semaphore, GLFWwindow* parent_window) {
     this->change_scene(target_scene);
-    this->window = glfwCreateWindow(width, height, name, NULL, NULL); // TODO maybe do this in run?
+    this->window = glfwCreateWindow(width, height, name, NULL, parent_window);
     if (window == NULL) {
         throw std::runtime_error("Failed to create GLFW window");
     }
     glfwSetWindowUserPointer(window, this);
+    sem_wait(semaphore);
     glfwMakeContextCurrent(window);
     if(glewInit() != GLEW_OK){
         throw std::runtime_error("Failed to initialize GLEW");
     }
+    sem_post(semaphore);
     glViewport(0, 0, width, height);
 
     glEnable(GL_DEPTH_TEST);
@@ -95,10 +98,15 @@ renderer::renderer(scene* target_scene, int width, int height, const char* name)
     this->mv_right = false;
     this->mv_up = false;
     this->mv_down = false;
+    this->semaphore = semaphore;
 }
 
 renderer::~renderer() {
     glfwDestroyWindow(window);
+}
+
+renderer renderer::clone(const char* name){
+    return renderer(target_scene, 500, 500, name, semaphore, window);
 }
 
 void renderer::key_callback(int key, int scancode, int action, int mods){
@@ -159,8 +167,11 @@ void renderer::scroll_callback(double xoffset, double yoffset){
 }
 
 void renderer::run() {
-    glfwMakeContextCurrent(window);
+    //FIXME the rendering doesnt work for 
     while (!glfwWindowShouldClose(window)) {
+        sem_wait(semaphore);
+        glfwMakeContextCurrent(window);
+        glfwPollEvents();
         if(focused){
             if(mv_forward){
                 target_camera.move_forward(delta_time);
@@ -184,7 +195,7 @@ void renderer::run() {
             current_time = new_time;
         }
         target_scene->render(&target_camera, aspect_ratio);
-        glfwPollEvents();
+        sem_post(semaphore);
         glfwSwapBuffers(window);
     }
 }
