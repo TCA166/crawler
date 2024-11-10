@@ -15,7 +15,7 @@
 class renderer {
     private:
         GLFWwindow* window;
-        scene* target_scene;
+        scene* target_scene = NULL;
         camera target_camera;
         float aspect_ratio;
         double xpos, ypos;
@@ -27,17 +27,15 @@ class renderer {
     public:
         /*!
          @brief Constructs a renderer with a given scene, width, height and name.
-         @param target_scene The scene to render
          @param width The width of the window
          @param height The height of the window
          @param name The name of the window
          @param semaphore The semaphore to use for synchronization
          @note This will create a window and initialize GLEW
         */
-        renderer(scene* target_scene, int width, int height, const char* name, sem_t* semaphore);
+        renderer(int width, int height, const char* name, sem_t* semaphore);
         /*!
          @brief Constructs a renderer with a given scene, width, height, name and parent window.
-         @param target_scene The scene to render
          @param width The width of the window
          @param height The height of the window
          @param name The name of the window
@@ -45,7 +43,7 @@ class renderer {
          @param parent_window The parent window of the renderer
          @note This will create a window and initialize GLEW
         */
-        renderer(scene* target_scene, int width, int height, const char* name, sem_t* semaphore, GLFWwindow* parent_window);
+        renderer(int width, int height, const char* name, sem_t* semaphore, GLFWwindow* parent_window);
         ~renderer();
         renderer clone(const char* name);
         /*!
@@ -55,7 +53,9 @@ class renderer {
         void run();
         /*!
          @brief Change the scene to render
+         @details This function will change the scene to render, and initialize the new scene
          @param new_scene The new scene to render
+         @warning this must be called before run
         */
         void change_scene(scene* new_scene);
         /*!

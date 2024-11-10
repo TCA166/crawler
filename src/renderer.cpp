@@ -61,10 +61,9 @@ static void global_mouse_callback(GLFWwindow* window, double xpos, double ypos){
     instance->mouse_callback(xpos, ypos);
 }
 
-renderer::renderer(scene* target_scene, int width, int height, const char* name, sem_t* semaphore) : renderer(target_scene, width, height, name, semaphore, NULL) {}
+renderer::renderer(int width, int height, const char* name, sem_t* semaphore) : renderer(width, height, name, semaphore, NULL) {}
 
-renderer::renderer(scene* target_scene, int width, int height, const char* name, sem_t* semaphore, GLFWwindow* parent_window) {
-    this->change_scene(target_scene);
+renderer::renderer(int width, int height, const char* name, sem_t* semaphore, GLFWwindow* parent_window) {
     this->window = glfwCreateWindow(width, height, name, NULL, parent_window);
     if (window == NULL) {
         throw std::runtime_error("Failed to create GLFW window");
@@ -106,7 +105,9 @@ renderer::~renderer() {
 }
 
 renderer renderer::clone(const char* name){
-    return renderer(target_scene, 500, 500, name, semaphore, window);
+    renderer new_renderer = renderer(500, 500, name, semaphore, window);
+    new_renderer.change_scene(target_scene);
+    return new_renderer;
 }
 
 void renderer::key_callback(int key, int scancode, int action, int mods){
@@ -167,6 +168,9 @@ void renderer::scroll_callback(double xoffset, double yoffset){
 }
 
 void renderer::run() {
+    if(target_scene == NULL){
+        throw std::runtime_error("No scene to render");
+    }
     //FIXME the rendering doesnt work for 
     while (!glfwWindowShouldClose(window)) {
         sem_wait(semaphore);
@@ -205,6 +209,15 @@ void renderer::set_aspect_ratio(float aspect_ratio){
 }
 
 void renderer::change_scene(scene* new_scene){
+    sem_wait(semaphore);
+    GLFWwindow* prev = glfwGetCurrentContext();
+    if(prev != window){
+        glfwMakeContextCurrent(window);
+    }
     new_scene->init();
+    if(prev != window){
+        glfwMakeContextCurrent(prev);
+    }
+    sem_post(semaphore);
     target_scene = new_scene;
 }

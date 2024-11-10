@@ -10,8 +10,8 @@
  */
 class scene {
     private:
-        std::vector<const object*> objects;
-        std::vector<const light*> lights;
+        std::vector<object*> objects;
+        std::vector<light*> lights;
         glm::vec3 ambient_light;
         glm::vec3 background_color;
     public:
@@ -29,12 +29,12 @@ class scene {
          @brief Add an object to the scene
          @param obj The object to add
         */
-        void add_object(const object* obj);
+        void add_object(object* obj);
         /*!
          @brief Add a light to the scene
          @param light The light to add
         */
-        void add_light(const light* light);
+        void add_light(light* light);
         /*!
          @brief Initialize the scene
         */

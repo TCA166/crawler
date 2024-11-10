@@ -21,9 +21,18 @@ class object {
         const shader* object_shader;
         unsigned int vertex_count;
         unsigned int index_count;
+        // map name->texture
         std::map<std::string, texture*> textures;
         unsigned int texture_count;
         unsigned int normal_count;
+        /*!
+         @brief the data of the object (vertices, normals, texture coordinates, tangents and bitangents)
+        */
+        std::vector<float> data;
+        /*!
+         @brief the indices of the object
+        */
+        std::vector<unsigned int> indices;
     public:
         /*!
          @brief Constructs an object with a given shader and path to an obj file
@@ -35,6 +44,12 @@ class object {
         */
         object(const shader* object_shader, const std::string& path, double xpos, double ypos, double zpos);
         ~object();
+        /*!
+         @brief Initialize the object
+         @details Initializes the object by creating the VAO, VBO and EBO
+         @warning This function must be called before rendering the object, and should only be called once per context
+        */
+        void init();
         /*!
          @brief Render the object
          @param target_camera The camera to render the object with

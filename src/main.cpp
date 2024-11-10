@@ -35,7 +35,7 @@ int main() {
     sem_init(&semaphore, 0, 1);
 
     // renderer handles all the initialization
-    renderer current_renderer = renderer(&current_scene, WINDOW_WIDTH, WINDOW_HEIGHT, WINDOW_NAME, &semaphore);
+    renderer current_renderer = renderer(WINDOW_WIDTH, WINDOW_HEIGHT, WINDOW_NAME, &semaphore);
 
     shader textured_shader = shader("shaders/textured_vertex.glsl", "shaders/textured_fragment.glsl");
     texture ship_texture = texture("textures/spaceship.jpg");
@@ -50,6 +50,7 @@ int main() {
     current_scene.add_light(&yellow_sun);
     current_scene.add_object((object*)&ship);
 
+    current_renderer.change_scene(&current_scene);
     //std::thread renderer_thread = std::thread(render_thread, &current_renderer);
     // renderer loop
     current_renderer.run();

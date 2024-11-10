@@ -35,6 +35,70 @@ object::object(const shader* object_shader, const std::string& path, double xpos
         throw std::runtime_error("No meshes found in file");
     }
 
+    const aiMesh* mesh = scene->mMeshes[0];
+
+    for (unsigned int i = 0; i < mesh->mNumVertices; i++){
+        data.push_back(mesh->mVertices[i].x);
+        data.push_back(mesh->mVertices[i].y);
+        data.push_back(mesh->mVertices[i].z);
+        if (mesh->mNormals != nullptr) {
+            data.push_back(mesh->mNormals[i].x);
+            data.push_back(mesh->mNormals[i].y);
+            data.push_back(mesh->mNormals[i].z);
+        }
+        else {
+            data.push_back(0.0f);
+            data.push_back(0.0f);
+            data.push_back(0.0f);
+        }
+        if (mesh->mTextureCoords[0] != nullptr) {
+            data.push_back(mesh->mTextureCoords[0][i].x);
+            data.push_back(mesh->mTextureCoords[0][i].y);
+        }
+        else {
+            data.push_back(0.0f);
+            data.push_back(0.0f);
+        }
+        if (mesh->mTangents != nullptr) {
+            data.push_back(mesh->mTangents[i].x);
+            data.push_back(mesh->mTangents[i].y);
+            data.push_back(mesh->mTangents[i].z);
+        }
+        else {
+            data.push_back(0.0f);
+            data.push_back(0.0f);
+            data.push_back(0.0f);
+        }
+        if (mesh->mBitangents != nullptr) {
+            data.push_back(mesh->mBitangents[i].x);
+            data.push_back(mesh->mBitangents[i].y);
+            data.push_back(mesh->mBitangents[i].z);
+        }
+        else {
+            data.push_back(0.0f);
+            data.push_back(0.0f);
+            data.push_back(0.0f);
+        }
+    }
+    for (unsigned int i = 0; i < mesh->mNumFaces; i++){
+        aiFace face = mesh->mFaces[i];
+        // retrieve all indices of the face and store them in the indices vector
+        for (unsigned int j = 0; j < face.mNumIndices; j++)
+            indices.push_back(face.mIndices[j]);
+    }
+
+    vertex_count = mesh->mNumVertices;
+}
+
+object::~object() {
+    glDeleteVertexArrays(1, &VAO);
+    glDeleteBuffers(1, &VBO);
+    if(EBO != NO_EBO){
+        glDeleteBuffers(1, &EBO);
+    }
+}
+
+void object::init() {
     // we allow for the shader to have either color or texture attributes
     GLint posAttrib = object_shader->get_attrib_location(SHADER_VERTEX_POSITION);
     if(posAttrib == -1){
@@ -57,72 +121,32 @@ object::object(const shader* object_shader, const std::string& path, double xpos
         biTanAttrib = 4;
     }
 
-    const aiMesh* mesh = scene->mMeshes[0];
-
-    std::vector<float> textureCoord;
-    std::vector<unsigned int> indices;
-    for (unsigned int i = 0; i < mesh->mNumVertices; i++){
-        if (mesh->mTextureCoords[0] != nullptr) {
-            textureCoord.push_back(mesh->mTextureCoords[0][i].x);
-            textureCoord.push_back(mesh->mTextureCoords[0][i].y);
-        }
-        else {
-            textureCoord.push_back(0.0f);
-            textureCoord.push_back(0.0f);
-        }
-    }
-    for (unsigned int i = 0; i < mesh->mNumFaces; i++){
-        aiFace face = mesh->mFaces[i];
-        // retrieve all indices of the face and store them in the indices vector
-        for (unsigned int j = 0; j < face.mNumIndices; j++)
-            indices.push_back(face.mIndices[j]);
-    }
-
-    unsigned int vertexDataBufferSize = sizeof(float) * mesh->mNumVertices * 3;
-    vertex_count = mesh->mNumVertices;
-    unsigned int vertexNormalBufferSize = sizeof(float) * mesh->mNumVertices * 3;
-    unsigned int vertexTexBufferSize = sizeof(float) * mesh->mNumVertices * 2;
-    unsigned int vertexTangentBufferSize = sizeof(float) * mesh->mNumVertices * 3;
-    unsigned int vertexBiTangentBufferSize = sizeof(float) * mesh->mNumVertices * 3;
+    unsigned int vertexDataBufferSize = sizeof(float) * vertex_count * 3;
+    unsigned int vertexTexBufferSize = sizeof(float) * vertex_count * 2;
 
     glGenVertexArrays(1, &VAO);
     glBindVertexArray(VAO);
 
     glGenBuffers(1, &VBO);
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBufferData(GL_ARRAY_BUFFER, vertexDataBufferSize + vertexNormalBufferSize + vertexTexBufferSize + vertexTangentBufferSize + vertexBiTangentBufferSize, NULL, GL_STATIC_DRAW);
-
-    glBufferSubData(GL_ARRAY_BUFFER, 0, vertexDataBufferSize, mesh->mVertices);
-    glBufferSubData(GL_ARRAY_BUFFER, vertexDataBufferSize, vertexNormalBufferSize, mesh->mNormals);
-    glBufferSubData(GL_ARRAY_BUFFER, vertexDataBufferSize + vertexNormalBufferSize, vertexTexBufferSize, textureCoord.data());
-    glBufferSubData(GL_ARRAY_BUFFER, vertexDataBufferSize + vertexNormalBufferSize + vertexTexBufferSize, vertexTangentBufferSize, mesh->mTangents);
-    glBufferSubData(GL_ARRAY_BUFFER, vertexDataBufferSize + vertexNormalBufferSize + vertexTexBufferSize + vertexTangentBufferSize, vertexBiTangentBufferSize, mesh->mBitangents);
-
+    glBufferData(GL_ARRAY_BUFFER, vertexDataBufferSize * 4 + vertexTexBufferSize, data.data(), GL_STATIC_DRAW);
     glGenBuffers(1, &EBO);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * indices.size(), indices.data(), GL_STATIC_DRAW);
     index_count = indices.size();
 
-    glVertexAttribPointer(posAttrib, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
+    glVertexAttribPointer(posAttrib, 3, GL_FLOAT, GL_FALSE, 14 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(posAttrib);
-    glVertexAttribPointer(normAttrib, 3, GL_FLOAT, GL_FALSE, 0, (void*)(uintptr_t)(vertexDataBufferSize));
+    glVertexAttribPointer(normAttrib, 3, GL_FLOAT, GL_FALSE, 14 * sizeof(float), (void*)(3 * sizeof(float)));
     glEnableVertexAttribArray(normAttrib);
-    glVertexAttribPointer(texAttrib, 2, GL_FLOAT, GL_FALSE, 0, (void*)(uintptr_t)(vertexDataBufferSize + vertexNormalBufferSize));
+    glVertexAttribPointer(texAttrib, 2, GL_FLOAT, GL_FALSE, 14 * sizeof(float), (void*)(6 * sizeof(float)));
     glEnableVertexAttribArray(texAttrib);
-    glVertexAttribPointer(tanAttrib, 3, GL_FLOAT, GL_FALSE, 0, (void*)(uintptr_t)(vertexDataBufferSize + vertexNormalBufferSize + vertexTexBufferSize));
+    glVertexAttribPointer(tanAttrib, 3, GL_FLOAT, GL_FALSE, 14 * sizeof(float), (void*)(8 * sizeof(float)));
     glEnableVertexAttribArray(tanAttrib);
-    glVertexAttribPointer(biTanAttrib, 3, GL_FLOAT, GL_FALSE, 0, (void*)(uintptr_t)(vertexDataBufferSize + vertexNormalBufferSize + vertexTexBufferSize + vertexTangentBufferSize));
+    glVertexAttribPointer(biTanAttrib, 3, GL_FLOAT, GL_FALSE, 14 * sizeof(float), (void*)(11 * sizeof(float)));
     glEnableVertexAttribArray(biTanAttrib);
 
     glEnableVertexAttribArray(0);
-}
-
-object::~object() {
-    glDeleteVertexArrays(1, &VAO);
-    glDeleteBuffers(1, &VBO);
-    if(EBO != NO_EBO){
-        glDeleteBuffers(1, &EBO);
-    }
 }
 
 void object::render(const glm::mat4* viewProjection, glm::vec3 viewPos, const std::vector<const light*>& lights, glm::vec3 ambient) const {
@@ -149,13 +173,13 @@ void object::render(const glm::mat4* viewProjection, glm::vec3 viewPos, const st
     }
     object_shader->apply_uniform(lights.size(), "numLights");
 
-    glBindVertexArray(VAO);
     if (EBO != NO_EBO) {
         glDrawElements(GL_TRIANGLES, index_count, GL_UNSIGNED_INT, 0);
     } else {
+        glBindVertexArray(VAO);
         glDrawArrays(GL_TRIANGLES, 0, vertex_count);
+        glBindVertexArray(0);
     }
-    glBindVertexArray(0);
     glUseProgram(0);
 }
 
