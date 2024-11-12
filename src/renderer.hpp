@@ -69,12 +69,14 @@ class renderer {
          @param aspect_ratio The aspect ratio of the renderer
         */
         void set_aspect_ratio(float aspect_ratio);
+        void focus();
+        void unfocus();
         /*!
          @brief Handle a scroll event
          @param xoffset The x offset of the scroll
          @param yoffset The y offset of the scroll
         */
-        virtual void scroll_callback(double xoffset, double yoffset);
+        void scroll_callback(double xoffset, double yoffset);
         /*!
          @brief Handle a key event
          @param key The key that was pressed
@@ -82,18 +84,22 @@ class renderer {
          @param action The action that was performed
          @param mods The mods that were pressed
         */
-        virtual void key_callback(int key, int scancode, int action, int mods);
+        void key_callback(int key, int scancode, int action, int mods);
         /*!
          @brief Handle a mouse button event
          @param button The button that was pressed
          @param action The action that was performed
          @param mods The mods that were pressed
         */
-        virtual void mouse_button_callback(int button, int action, int mods);
+        void mouse_button_callback(int button, int action, int mods);
         /*!
          @brief Handle a mouse event
          @param xpos The x position of the mouse
          @param ypos The y position of the mouse
         */
-        virtual void mouse_callback(double xpos, double ypos);
+        void mouse_callback(double xpos, double ypos);
+        /*!
+         @brief Handle a close event
+        */
+        void close_callback();
 };

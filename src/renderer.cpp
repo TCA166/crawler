@@ -68,6 +68,16 @@ static void global_mouse_callback(GLFWwindow* window, double xpos, double ypos){
     instance->mouse_callback(xpos, ypos);
 }
 
+/*!
+ @brief Global window close callback
+ @details This function is called when the window is closed, it expects a renderer instance as the user pointer
+ @param window The window that should be closed
+*/
+static void global_window_close_callback(GLFWwindow* window){
+    renderer* instance = static_cast<renderer*>(glfwGetWindowUserPointer(window));
+    instance->close_callback();
+}
+
 renderer::renderer(int width, int height, const char* name, sem_t* semaphore, camera* render_camera) : renderer(width, height, name, semaphore, render_camera, NULL) {}
 
 renderer::renderer(int width, int height, const char* name, sem_t* semaphore, camera* render_camera, GLFWwindow* parent_window) {
@@ -91,6 +101,7 @@ renderer::renderer(int width, int height, const char* name, sem_t* semaphore, ca
     glfwSetMouseButtonCallback(window, global_mouse_button_callback);
     glfwSetScrollCallback(window, global_scroll_callback);
     glfwSetCursorPosCallback(window, global_mouse_callback);
+    glfwSetWindowCloseCallback(window, global_window_close_callback);
     
     this->aspect_ratio = width / float(height);
     this->focused = false;
@@ -128,8 +139,7 @@ void renderer::key_callback(int key, int scancode, int action, int mods){
     switch(key){
         case GLFW_KEY_ESCAPE:
             if(focused && action == GLFW_PRESS){
-                focused = false;
-                glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+                this->unfocus();
             }
             break;
         case GLFW_KEY_W:
@@ -151,17 +161,18 @@ void renderer::key_callback(int key, int scancode, int action, int mods){
             mv_down = pressed;
             break;
     }
+    this->target_scene->key_callback(key, scancode, action, mods);
 }
 
 void renderer::mouse_button_callback(int button, int action, int mods){
     if(button == GLFW_MOUSE_BUTTON_LEFT){
         if(action == GLFW_PRESS){
             if(!focused){
-                focused = true;
-                glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+                this->focus();
             }
         }
     }
+    this->target_scene->mouse_button_callback(button, action, mods);
 }
 
 void renderer::mouse_callback(double xpos, double ypos){
@@ -171,10 +182,12 @@ void renderer::mouse_callback(double xpos, double ypos){
         this->xpos = xpos;
         this->ypos = ypos;
     }
+    this->target_scene->mouse_callback(xpos, ypos);
 }
 
 void renderer::scroll_callback(double xoffset, double yoffset){
     target_camera->zoom(-yoffset);
+    this->target_scene->scroll_callback(xoffset, yoffset);
 }
 
 void renderer::run() {
@@ -223,4 +236,19 @@ void renderer::change_scene(scene* new_scene){
     new_scene->init();
     sem_post(semaphore);
     target_scene = new_scene;
+}
+
+void renderer::focus(){
+    focused = true;
+    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+}
+
+void renderer::unfocus(){
+    focused = false;
+    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+}
+
+void renderer::close_callback(){
+    glfwSetWindowShouldClose(window, GLFW_TRUE);
+    target_scene->close_callback();
 }

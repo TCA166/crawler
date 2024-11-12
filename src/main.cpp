@@ -13,11 +13,6 @@
 #define WINDOW_WIDTH 500
 #define WINDOW_HEIGHT 500
 
-static void render_thread(renderer* instance){
-    renderer second_renderer = instance->clone("Second Window");
-    second_renderer.run();
-}
-
 int main() {
     if(glfwInit() == GLFW_FALSE){
         std::cout << "Failed to initialize GLFW" << std::endl;
@@ -53,10 +48,11 @@ int main() {
     current_scene.add_object((object*)&ship);
 
     current_renderer.change_scene(&current_scene);
-    //std::thread renderer_thread = std::thread(render_thread, &current_renderer);
+
+    std::thread loop_thread = std::thread(&scene::main, &current_scene, &main_camera);
     // renderer loop
     current_renderer.run();
-    //renderer_thread.join();
+    loop_thread.join();
 
     glfwTerminate();
     return 0;

@@ -11,6 +11,9 @@ scene::~scene() {
 }
 
 void scene::add_object(object* obj) {
+    if(!initialized){
+        obj->init();
+    }
     objects.push_back(obj);
 }
 
@@ -19,6 +22,7 @@ void scene::add_light(light* light) {
 }
 
 void scene::init() {
+    initialized = true;
     for(object* obj : objects){
         obj->init();
     }
@@ -33,3 +37,28 @@ void scene::render(const camera* target_camera, float aspect_ratio) {
     }
 }
 
+void scene::main(camera* target_camera) {
+    while(!should_close){
+        // do nothing
+    }
+}
+
+void scene::scroll_callback(double xoffset, double yoffset) {
+    // do nothing
+}
+
+void scene::key_callback(int key, int scancode, int action, int mods) {
+    // do nothing
+}
+
+void scene::mouse_button_callback(int button, int action, int mods) {
+    // do nothing
+}
+
+void scene::mouse_callback(double xpos, double ypos) {
+    // do nothing
+}
+
+void scene::close_callback() {
+    should_close = true;
+}
