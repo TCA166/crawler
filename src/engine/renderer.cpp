@@ -13,8 +13,7 @@
 */
 static void global_framebuffer_size_callback(GLFWwindow* window, int width, int height){
     renderer* instance = static_cast<renderer*>(glfwGetWindowUserPointer(window));
-	instance->set_aspect_ratio(width / float(height));
-	glViewport(0, 0, width, height);
+	instance->resize(width, height);
 }
 
 /*!
@@ -81,6 +80,8 @@ static void global_window_close_callback(GLFWwindow* window){
 renderer::renderer(int width, int height, const char* name, sem_t* semaphore, camera* render_camera) : renderer(width, height, name, semaphore, render_camera, NULL) {}
 
 renderer::renderer(int width, int height, const char* name, sem_t* semaphore, camera* render_camera, GLFWwindow* parent_window) {
+    this->width = width;
+    this->height = height;
     this->window = glfwCreateWindow(width, height, name, NULL, parent_window);
     if (window == NULL) {
         throw std::runtime_error("Failed to create GLFW window");
@@ -109,7 +110,6 @@ renderer::renderer(int width, int height, const char* name, sem_t* semaphore, ca
     glfwSetCursorPosCallback(window, global_mouse_callback);
     glfwSetWindowCloseCallback(window, global_window_close_callback);
     
-    this->aspect_ratio = width / float(height);
     this->focused = false;
     this->semaphore = semaphore;
     this->target_camera = render_camera;
@@ -167,14 +167,16 @@ void renderer::run() {
     while(!glfwWindowShouldClose(window) && !target_scene->get_should_close()){
         sem_wait(semaphore);
         glfwMakeContextCurrent(window);
-        target_scene->render(target_camera, aspect_ratio);
+        glViewport(0, 0, width, height);
+        target_scene->render(target_camera, width / float(height));
         sem_post(semaphore);
         glfwSwapBuffers(window);
     }
 }
 
-void renderer::set_aspect_ratio(float aspect_ratio){
-    this->aspect_ratio = aspect_ratio;
+void renderer::resize(int width, int height){
+    this->width = width;
+    this->height = height;
 }
 
 void renderer::change_scene(scene* new_scene){

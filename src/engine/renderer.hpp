@@ -17,7 +17,7 @@ class renderer {
         GLFWwindow* window;
         scene* target_scene = NULL;
         camera* target_camera;
-        float aspect_ratio;
+        int width, height;
         bool focused;
         sem_t* semaphore;
     public:
@@ -63,9 +63,10 @@ class renderer {
         void change_scene(scene* new_scene);
         /*!
          @brief Set the aspect ratio of the renderer
-         @param aspect_ratio The aspect ratio of the renderer
+         @param width The width of the window
+         @param height The height of the window
         */
-        void set_aspect_ratio(float aspect_ratio);
+        void resize(int width, int height);
         /*!
          @brief Focus the renderer
         */
