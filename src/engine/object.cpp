@@ -11,8 +11,6 @@
 #include <vector>
 #include <iostream>
 
-#define NO_EBO 0
-
 #define SHADER_VERTEX_POSITION "vertexPosition"
 #define SHADER_VERTEX_COLOR "vertexColor"
 #define SHADER_VERTEX_TEXCOORD "vertexTexCoord"
@@ -25,6 +23,10 @@ object::object(const shader* object_shader, const std::string& path, double xpos
     this->xpos = xpos;
     this->ypos = ypos;
     this->zpos = zpos;
+    this->scale = 1.0;
+    this->xrot = 0.0;
+    this->yrot = 0.0;
+    this->zrot = 0.0;
     Assimp::Importer import;
 	const aiScene* scene = import.ReadFile(path, aiProcess_Triangulate | aiProcess_CalcTangentSpace);
 	if(!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode){
@@ -93,9 +95,7 @@ object::object(const shader* object_shader, const std::string& path, double xpos
 object::~object() {
     glDeleteVertexArrays(1, &VAO);
     glDeleteBuffers(1, &VBO);
-    if(EBO != NO_EBO){
-        glDeleteBuffers(1, &EBO);
-    }
+    glDeleteBuffers(1, &EBO);
 }
 
 void object::init() {
@@ -146,6 +146,9 @@ void object::init() {
     glVertexAttribPointer(biTanAttrib, 3, GL_FLOAT, GL_FALSE, 14 * sizeof(float), (void*)(11 * sizeof(float)));
     glEnableVertexAttribArray(biTanAttrib);
 
+    glBindVertexArray(0);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
     glEnableVertexAttribArray(0);
 }
 
@@ -158,7 +161,7 @@ void object::render(const glm::mat4* viewProjection, glm::vec3 viewPos, const st
         i++;
     }
 
-    glm::mat4 model = glm::translate(glm::mat4(1.0f), glm::vec3(xpos, ypos, zpos));
+    glm::mat4 model = glm::translate(glm::mat4(1.0f), glm::vec3(xpos, ypos, zpos)) * glm::scale(glm::mat4(1.0f), glm::vec3(scale)) * glm::rotate(glm::mat4(1.0f), (float)xrot, glm::vec3(1.0f, 0.0f, 0.0f)) * glm::rotate(glm::mat4(1.0f), (float)yrot, glm::vec3(0.0f, 1.0f, 0.0f)) * glm::rotate(glm::mat4(1.0f), (float)zrot, glm::vec3(0.0f, 0.0f, 1.0f));
 
     object_shader->apply_uniform_mat4(model, "model");
     object_shader->apply_uniform_mat4(*viewProjection, "viewProjection");
@@ -173,13 +176,12 @@ void object::render(const glm::mat4* viewProjection, glm::vec3 viewPos, const st
     }
     object_shader->apply_uniform(lights.size(), "numLights");
 
-    if (EBO != NO_EBO) {
-        glDrawElements(GL_TRIANGLES, index_count, GL_UNSIGNED_INT, 0);
-    } else {
-        glBindVertexArray(VAO);
-        glDrawArrays(GL_TRIANGLES, 0, vertex_count);
-        glBindVertexArray(0);
-    }
+    glBindVertexArray(VAO);
+    glDrawElements(GL_TRIANGLES, index_count, GL_UNSIGNED_INT, 0);
+    glBindVertexArray(0);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+    glBindTexture(GL_TEXTURE_2D, 0); // unbind texture
     glUseProgram(0);
 }
 

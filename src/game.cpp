@@ -14,23 +14,23 @@ game::game(glm::vec3 ambient_light, glm::vec3 background_color) : scene(ambient_
 }
 
 game::~game() {
-    
+    delete this->our;
+    delete this->textured_shader;
+    delete this->sun;
+    delete this->earth_obj;
+    delete this->planet_shader;
 }
 
 void game::init() {
-    // FIXME memory leak + no way of getting those objects later
-    shader* textured_shader = new shader("shaders/textured_vertex.glsl", "shaders/textured_fragment.glsl");
-    texture* ship_texture = new texture("textures/spaceship.jpg");
-    texture* ship_normal = new texture("textures/spaceship_normal.jpg");
-    object* ship = new object(textured_shader, "models/spaceship.obj", 1.0, 1.0, 0.0);
-    ship->add_texture(ship_texture, "texture0");
-    ship->add_texture(ship_normal, "normal0");
+    textured_shader = new shader("shaders/textured_vertex.glsl", "shaders/textured_fragment.glsl");
+    our = new ship(textured_shader, 1.0, 0.0, 0.0);
+    planet_shader = new shader("shaders/textured_vertex.glsl", "shaders/planet_fragment.glsl");
+    earth_obj = new earth(planet_shader, -2.0, 0.0, 0.0);
+    sun = new (light){glm::vec3(-5.0f, 2.5f, 5.0f), glm::vec3(0.0f, 0.9f, 0.0f), 1.0f, 0.09f, 0.032f};
 
-    light* blue_sun = new (light){glm::vec3(5.0f, 2.5f, 5.0f), glm::vec3(1.0f, 0.2f, 0.5f), 1.0f, 0.09f, 0.032f};
-    this->add_light(blue_sun);
-    light* yellow_sun = new (light){glm::vec3(-5.0f, 2.5f, 5.0f), glm::vec3(0.0f, 0.9f, 0.0f), 1.0f, 0.09f, 0.032f};
-    this->add_light(yellow_sun);
-    this->add_object(ship);
+    this->add_light(sun);
+    this->add_object(earth_obj);
+    this->add_object(our);
     scene::init();
 }
 

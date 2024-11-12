@@ -15,7 +15,7 @@ renderer.o: src/engine/renderer.cpp src/engine/renderer.hpp
 	$(CC) $(IFLAGS) $(CFLAGS) -c src/engine/renderer.cpp
 
 object.o: src/engine/object.cpp src/engine/object.hpp
-	$(CC) $(IFLAGS) $(CFLAGS) -c src/engineobject.cpp
+	$(CC) $(IFLAGS) $(CFLAGS) -c src/engine/object.cpp
 
 shader.o: src/engine/shader.cpp src/engine/shader.hpp
 	$(CC) $(IFLAGS) $(CFLAGS) -c src/engine/shader.cpp
@@ -29,8 +29,17 @@ engine.o: texture.o scene.o renderer.o object.o shader.o camera.o
 game.o: src/game.cpp src/game.hpp
 	$(CC) $(IFLAGS) $(CFLAGS) -c src/game.cpp
 
-main: src/main.cpp engine.o game.o
-	$(CC) $(IFLAGS) $(CFLAGS) -o main src/main.cpp engine.o game.o
+ship.o: src/objects/ship.cpp src/objects/ship.hpp
+	$(CC) $(IFLAGS) $(CFLAGS) -c src/objects/ship.cpp
+
+earth.o: src/objects/earth.cpp src/objects/earth.hpp
+	$(CC) $(IFLAGS) $(CFLAGS) -c src/objects/earth.cpp
+
+objects.o: ship.o earth.o
+	$(CC) $(CFLAGS) -r ship.o earth.o -o objects.o
+
+main: src/main.cpp engine.o game.o objects.o
+	$(CC) $(IFLAGS) $(CFLAGS) -o main src/main.cpp engine.o game.o objects.o
 
 clean:
 	rm -f *.o main

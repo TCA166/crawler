@@ -2,12 +2,19 @@
 #pragma once
 
 #include "engine.hpp"
+#include "objects/ship.hpp"
+#include "objects/earth.hpp"
 
 class game : public scene {
     private:
         double current_time, delta_time;
         bool mv_forward, mv_backward, mv_left, mv_right, mv_up, mv_down;
         double xpos, ypos;
+        ship* our;
+        earth* earth_obj;
+        shader* textured_shader;
+        shader* planet_shader;
+        light* sun;
     public:
         game(glm::vec3 ambient_light, glm::vec3 background_color);
         ~game();

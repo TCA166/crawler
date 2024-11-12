@@ -18,6 +18,8 @@ class object {
     protected:
         GLuint VAO, VBO, EBO;
         double xpos, ypos, zpos;
+        float scale;
+        double xrot, yrot, zrot;
         const shader* object_shader;
         unsigned int vertex_count;
         unsigned int index_count;
