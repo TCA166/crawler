@@ -13,7 +13,7 @@ camera::camera(glm::vec3 position, float speed, float fov, float look_speed, flo
     this->update_front();
 }
 
-camera::camera() : camera(glm::vec3(1.0f, 1.0f, 0.0f), 1.0f, 90.0f, 0.1f, 0.0f, 0.0f) {
+camera::camera(glm::vec3 position) : camera(position, 1.0f, 90.0f, 0.1f, 0.0f, 0.0f) {
 
 }
 

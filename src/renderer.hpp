@@ -16,12 +16,11 @@ class renderer {
     private:
         GLFWwindow* window;
         scene* target_scene = NULL;
-        camera target_camera;
+        camera* target_camera;
         float aspect_ratio;
         double xpos, ypos;
         bool focused;
-        double current_time;
-        double delta_time;
+        double current_time, delta_time;
         bool mv_forward, mv_backward, mv_left, mv_right, mv_up, mv_down;
         sem_t* semaphore;
     public:
@@ -31,20 +30,27 @@ class renderer {
          @param height The height of the window
          @param name The name of the window
          @param semaphore The semaphore to use for synchronization
+         @param target_camera The camera to use for rendering
          @note This will create a window and initialize GLEW
         */
-        renderer(int width, int height, const char* name, sem_t* semaphore);
+        renderer(int width, int height, const char* name, sem_t* semaphore, camera* target_camera);
         /*!
          @brief Constructs a renderer with a given scene, width, height, name and parent window.
          @param width The width of the window
          @param height The height of the window
          @param name The name of the window
          @param semaphore The semaphore to use for synchronization
+         @param target_camera The camera to use for rendering
          @param parent_window The parent window of the renderer
          @note This will create a window and initialize GLEW
         */
-        renderer(int width, int height, const char* name, sem_t* semaphore, GLFWwindow* parent_window);
+        renderer(int width, int height, const char* name, sem_t* semaphore, camera* target_camera, GLFWwindow* parent_window);
         ~renderer();
+        /*!
+         @brief Creates a new renderer based on this one, sharing the scene, semaphore and gl context
+         @param name The name of the new window
+         @return The new renderer
+        */
         renderer clone(const char* name);
         /*!
          @brief Run the renderer

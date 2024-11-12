@@ -31,11 +31,13 @@ int main() {
     // a scene is a collection of objects
     scene current_scene = scene(glm::vec3(ambient_strength, ambient_strength, ambient_strength), glm::vec3(0.0f, 0.3f, 0.3f));
 
+    camera main_camera = camera(glm::vec3(0.0f, 0.0f, 0.0f));
+
     sem_t semaphore;
     sem_init(&semaphore, 0, 1);
 
     // renderer handles all the initialization
-    renderer current_renderer = renderer(WINDOW_WIDTH, WINDOW_HEIGHT, WINDOW_NAME, &semaphore);
+    renderer current_renderer = renderer(WINDOW_WIDTH, WINDOW_HEIGHT, WINDOW_NAME, &semaphore, &main_camera);
 
     shader textured_shader = shader("shaders/textured_vertex.glsl", "shaders/textured_fragment.glsl");
     texture ship_texture = texture("textures/spaceship.jpg");

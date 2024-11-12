@@ -60,8 +60,9 @@ class camera {
         camera(glm::vec3 position, float speed, float fov, float look_speed, float pitch, float yaw);
         /*!
          @brief Constructs a camera with default values.
+         @param position The position of the camera
         */
-        camera();
+        camera(glm::vec3 position);
         ~camera();
         /*!
          @brief Move the camera up.

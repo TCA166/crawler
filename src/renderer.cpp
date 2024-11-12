@@ -56,14 +56,21 @@ static void global_scroll_callback(GLFWwindow* window, double xoffset, double yo
     instance->scroll_callback(xoffset, yoffset);
 }
 
+/*!
+ @brief Global mouse callback
+ @details This function is called when the mouse is moved, it expects a renderer instance as the user pointer
+ @param window The window that was resized
+ @param xpos The x position of the mouse
+ @param ypos The y position of the mouse
+*/
 static void global_mouse_callback(GLFWwindow* window, double xpos, double ypos){
     renderer* instance = static_cast<renderer*>(glfwGetWindowUserPointer(window));
     instance->mouse_callback(xpos, ypos);
 }
 
-renderer::renderer(int width, int height, const char* name, sem_t* semaphore) : renderer(width, height, name, semaphore, NULL) {}
+renderer::renderer(int width, int height, const char* name, sem_t* semaphore, camera* render_camera) : renderer(width, height, name, semaphore, render_camera, NULL) {}
 
-renderer::renderer(int width, int height, const char* name, sem_t* semaphore, GLFWwindow* parent_window) {
+renderer::renderer(int width, int height, const char* name, sem_t* semaphore, camera* render_camera, GLFWwindow* parent_window) {
     this->window = glfwCreateWindow(width, height, name, NULL, parent_window);
     if (window == NULL) {
         throw std::runtime_error("Failed to create GLFW window");
@@ -74,10 +81,10 @@ renderer::renderer(int width, int height, const char* name, sem_t* semaphore, GL
     if(glewInit() != GLEW_OK){
         throw std::runtime_error("Failed to initialize GLEW");
     }
-    sem_post(semaphore);
     glViewport(0, 0, width, height);
 
     glEnable(GL_DEPTH_TEST);
+    sem_post(semaphore);
 
     glfwSetFramebufferSizeCallback(window, global_framebuffer_size_callback);
     glfwSetKeyCallback(window, global_key_callback);
@@ -98,6 +105,7 @@ renderer::renderer(int width, int height, const char* name, sem_t* semaphore, GL
     this->mv_up = false;
     this->mv_down = false;
     this->semaphore = semaphore;
+    this->target_camera = render_camera;
 }
 
 renderer::~renderer() {
@@ -105,7 +113,9 @@ renderer::~renderer() {
 }
 
 renderer renderer::clone(const char* name){
-    renderer new_renderer = renderer(500, 500, name, semaphore, window);
+    int width, height;
+    glfwGetWindowSize(window, &width, &height);
+    renderer new_renderer = renderer(width, height, name, semaphore, target_camera, window);
     new_renderer.change_scene(target_scene);
     return new_renderer;
 }
@@ -157,40 +167,39 @@ void renderer::mouse_button_callback(int button, int action, int mods){
 void renderer::mouse_callback(double xpos, double ypos){
     ypos = -ypos;
     if(focused && (xpos != this->xpos || ypos != this->ypos)){
-        target_camera.rotate_front(xpos - this->xpos, ypos - this->ypos);
+        target_camera->rotate_front(xpos - this->xpos, ypos - this->ypos);
         this->xpos = xpos;
         this->ypos = ypos;
     }
 }
 
 void renderer::scroll_callback(double xoffset, double yoffset){
-    target_camera.zoom(-yoffset);
+    target_camera->zoom(-yoffset);
 }
 
 void renderer::run() {
     if(target_scene == NULL){
         throw std::runtime_error("No scene to render");
     }
-    //FIXME the rendering doesnt work for 
     while (!glfwWindowShouldClose(window)) {
         sem_wait(semaphore);
         glfwMakeContextCurrent(window);
         glfwPollEvents();
         if(focused){
             if(mv_forward){
-                target_camera.move_forward(delta_time);
+                target_camera->move_forward(delta_time);
             } else if(mv_backward){
-                target_camera.move_forward(-delta_time);
+                target_camera->move_forward(-delta_time);
             }
             if(mv_left){
-                target_camera.move_right(-delta_time);
+                target_camera->move_right(-delta_time);
             } else if(mv_right){
-                target_camera.move_right(delta_time);
+                target_camera->move_right(delta_time);
             }
             if(mv_up){
-                target_camera.move_up(delta_time);
+                target_camera->move_up(delta_time);
             } else if(mv_down){
-                target_camera.move_up(-delta_time);
+                target_camera->move_up(-delta_time);
             }
         }
         {
@@ -198,7 +207,7 @@ void renderer::run() {
             delta_time = new_time - current_time;
             current_time = new_time;
         }
-        target_scene->render(&target_camera, aspect_ratio);
+        target_scene->render(target_camera, aspect_ratio);
         sem_post(semaphore);
         glfwSwapBuffers(window);
     }
@@ -210,14 +219,8 @@ void renderer::set_aspect_ratio(float aspect_ratio){
 
 void renderer::change_scene(scene* new_scene){
     sem_wait(semaphore);
-    GLFWwindow* prev = glfwGetCurrentContext();
-    if(prev != window){
-        glfwMakeContextCurrent(window);
-    }
+    glfwMakeContextCurrent(window);
     new_scene->init();
-    if(prev != window){
-        glfwMakeContextCurrent(prev);
-    }
     sem_post(semaphore);
     target_scene = new_scene;
 }
