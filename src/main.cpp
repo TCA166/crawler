@@ -1,13 +1,9 @@
-#include "include.hpp"
 
 #include <iostream>
 #include <thread>
 
-#include "shader.hpp"
-#include "camera.hpp"
-#include "object.hpp"
-#include "scene.hpp"
-#include "renderer.hpp"
+#include "game.hpp"
+#include "engine/renderer.hpp"
 
 #define WINDOW_NAME "Crawler"
 #define WINDOW_WIDTH 500
@@ -24,7 +20,7 @@ int main() {
 
     float ambient_strength = 0.3f;
     // a scene is a collection of objects
-    scene current_scene = scene(glm::vec3(ambient_strength, ambient_strength, ambient_strength), glm::vec3(0.0f, 0.3f, 0.3f));
+    game game_scene = game(glm::vec3(ambient_strength, ambient_strength, ambient_strength), glm::vec3(0.0f, 0.3f, 0.3f));
 
     camera main_camera = camera(glm::vec3(0.0f, 0.0f, 0.0f));
 
@@ -34,22 +30,9 @@ int main() {
     // renderer handles all the initialization
     renderer current_renderer = renderer(WINDOW_WIDTH, WINDOW_HEIGHT, WINDOW_NAME, &semaphore, &main_camera);
 
-    shader textured_shader = shader("shaders/textured_vertex.glsl", "shaders/textured_fragment.glsl");
-    texture ship_texture = texture("textures/spaceship.jpg");
-    texture ship_normal = texture("textures/spaceship_normal.jpg");
-    object ship = object(&textured_shader, "models/spaceship.obj", 1.0, 1.0, 0.0);
-    ship.add_texture(&ship_texture, "texture0");
-    ship.add_texture(&ship_normal, "normal0");
+    current_renderer.change_scene(static_cast<scene*>(&game_scene));
 
-    light blue_sun = (light){glm::vec3(5.0f, 2.5f, 5.0f), glm::vec3(1.0f, 0.2f, 0.5f), 1.0f, 0.09f, 0.032f};
-    current_scene.add_light(&blue_sun);
-    light yellow_sun = (light){glm::vec3(-5.0f, 2.5f, 5.0f), glm::vec3(0.0f, 0.9f, 0.0f), 1.0f, 0.09f, 0.032f};
-    current_scene.add_light(&yellow_sun);
-    current_scene.add_object((object*)&ship);
-
-    current_renderer.change_scene(&current_scene);
-
-    std::thread loop_thread = std::thread(&scene::main, &current_scene, &main_camera);
+    std::thread loop_thread = std::thread(&game::main, &game_scene, &main_camera);
     // renderer loop
     current_renderer.run();
     loop_thread.join();

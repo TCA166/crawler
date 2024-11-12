@@ -11,7 +11,7 @@ scene::~scene() {
 }
 
 void scene::add_object(object* obj) {
-    if(!initialized){
+    if(initialized){
         obj->init();
     }
     objects.push_back(obj);
@@ -43,7 +43,7 @@ void scene::main(camera* target_camera) {
     }
 }
 
-void scene::scroll_callback(double xoffset, double yoffset) {
+void scene::scroll_callback(double xoffset, double yoffset, camera* target_camera) {
     // do nothing
 }
 
@@ -51,14 +51,18 @@ void scene::key_callback(int key, int scancode, int action, int mods) {
     // do nothing
 }
 
-void scene::mouse_button_callback(int button, int action, int mods) {
+void scene::mouse_button_callback(int button, int action, int mods, camera* target_camera) {
     // do nothing
 }
 
-void scene::mouse_callback(double xpos, double ypos) {
+void scene::mouse_callback(double xpos, double ypos, camera* target_camera) {
     // do nothing
 }
 
 void scene::close_callback() {
     should_close = true;
+}
+
+bool scene::get_should_close() const {
+    return should_close;
 }

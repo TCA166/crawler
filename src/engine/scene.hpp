@@ -57,7 +57,7 @@ class scene {
          @param xoffset The x offset of the scroll
          @param yoffset The y offset of the scroll
         */
-        virtual void scroll_callback(double xoffset, double yoffset);
+        virtual void scroll_callback(double xoffset, double yoffset, camera* target_camera);
         /*!
          @brief Handle a key event
          @param key The key that was pressed
@@ -72,15 +72,16 @@ class scene {
          @param action The action that was performed
          @param mods The mods that were pressed
         */
-        virtual void mouse_button_callback(int button, int action, int mods);
+        virtual void mouse_button_callback(int button, int action, int mods, camera* target_camera);
         /*!
          @brief Handle a mouse event
          @param xpos The x position of the mouse
          @param ypos The y position of the mouse
         */
-        virtual void mouse_callback(double xpos, double ypos);
+        virtual void mouse_callback(double xpos, double ypos, camera* target_camera);
         /*!
          @brief Handle a close event
         */
         void close_callback();
+        bool get_should_close() const;
 };

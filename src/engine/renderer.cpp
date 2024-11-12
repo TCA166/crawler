@@ -105,16 +105,6 @@ renderer::renderer(int width, int height, const char* name, sem_t* semaphore, ca
     
     this->aspect_ratio = width / float(height);
     this->focused = false;
-    this->current_time = glfwGetTime();
-    this->delta_time = 0.0;
-    this->xpos = 0.0;
-    this->ypos = 0.0;
-    this->mv_forward = false;
-    this->mv_backward = false;
-    this->mv_left = false;
-    this->mv_right = false;
-    this->mv_up = false;
-    this->mv_down = false;
     this->semaphore = semaphore;
     this->target_camera = render_camera;
 }
@@ -132,62 +122,36 @@ renderer renderer::clone(const char* name){
 }
 
 void renderer::key_callback(int key, int scancode, int action, int mods){
-    if(action == GLFW_REPEAT){
+    if(!focused){
         return;
     }
-    bool pressed = action == GLFW_PRESS;
-    switch(key){
-        case GLFW_KEY_ESCAPE:
-            if(focused && action == GLFW_PRESS){
-                this->unfocus();
-            }
-            break;
-        case GLFW_KEY_W:
-            mv_forward = pressed; 
-            break;
-        case GLFW_KEY_S:
-            mv_backward = pressed;
-            break;
-        case GLFW_KEY_A:
-            mv_left = pressed;
-            break;
-        case GLFW_KEY_D:
-            mv_right = pressed;
-            break;
-        case GLFW_KEY_SPACE:
-            mv_up = pressed;
-            break;
-        case GLFW_KEY_LEFT_SHIFT:
-            mv_down = pressed;
-            break;
+    if(action == GLFW_PRESS && key == GLFW_KEY_ESCAPE){
+        this->unfocus();
     }
     this->target_scene->key_callback(key, scancode, action, mods);
 }
 
 void renderer::mouse_button_callback(int button, int action, int mods){
-    if(button == GLFW_MOUSE_BUTTON_LEFT){
-        if(action == GLFW_PRESS){
-            if(!focused){
-                this->focus();
-            }
-        }
+    if(button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS && !focused){
+        this->focus();
     }
-    this->target_scene->mouse_button_callback(button, action, mods);
+    if(focused){
+        this->target_scene->mouse_button_callback(button, action, mods, target_camera);
+    }
 }
 
 void renderer::mouse_callback(double xpos, double ypos){
-    ypos = -ypos;
-    if(focused && (xpos != this->xpos || ypos != this->ypos)){
-        target_camera->rotate_front(xpos - this->xpos, ypos - this->ypos);
-        this->xpos = xpos;
-        this->ypos = ypos;
+    if(!focused){
+        return;
     }
-    this->target_scene->mouse_callback(xpos, ypos);
+    ypos = -ypos;
+    this->target_scene->mouse_callback(xpos, ypos, target_camera);
 }
 
 void renderer::scroll_callback(double xoffset, double yoffset){
-    target_camera->zoom(-yoffset);
-    this->target_scene->scroll_callback(xoffset, yoffset);
+    if(focused){
+        this->target_scene->scroll_callback(xoffset, yoffset, target_camera);
+    }
 }
 
 void renderer::run() {
@@ -198,28 +162,6 @@ void renderer::run() {
         sem_wait(semaphore);
         glfwMakeContextCurrent(window);
         glfwPollEvents();
-        if(focused){
-            if(mv_forward){
-                target_camera->move_forward(delta_time);
-            } else if(mv_backward){
-                target_camera->move_forward(-delta_time);
-            }
-            if(mv_left){
-                target_camera->move_right(-delta_time);
-            } else if(mv_right){
-                target_camera->move_right(delta_time);
-            }
-            if(mv_up){
-                target_camera->move_up(delta_time);
-            } else if(mv_down){
-                target_camera->move_up(-delta_time);
-            }
-        }
-        {
-            double new_time = glfwGetTime();
-            delta_time = new_time - current_time;
-            current_time = new_time;
-        }
         target_scene->render(target_camera, aspect_ratio);
         sem_post(semaphore);
         glfwSwapBuffers(window);

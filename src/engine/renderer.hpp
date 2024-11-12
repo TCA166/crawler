@@ -18,10 +18,7 @@ class renderer {
         scene* target_scene = NULL;
         camera* target_camera;
         float aspect_ratio;
-        double xpos, ypos;
         bool focused;
-        double current_time, delta_time;
-        bool mv_forward, mv_backward, mv_left, mv_right, mv_up, mv_down;
         sem_t* semaphore;
     public:
         /*!
