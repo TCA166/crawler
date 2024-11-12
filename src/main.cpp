@@ -2,8 +2,8 @@
 #include <iostream>
 #include <thread>
 
+#include "engine.hpp"
 #include "game.hpp"
-#include "engine/renderer.hpp"
 
 #define WINDOW_NAME "Crawler"
 #define WINDOW_WIDTH 500
@@ -40,5 +40,3 @@ int main() {
     glfwTerminate();
     return 0;
 }
-
-

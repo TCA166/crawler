@@ -63,7 +63,7 @@ void game::scroll_callback(double xoffset, double yoffset, camera* target_camera
     target_camera->zoom(yoffset);
 }
 
-void game::key_callback(int key, int scancode, int action, int mods) {
+void game::key_callback(int key, int scancode, int action, int mods, camera* target_camera) {
     if(action == GLFW_REPEAT){
         return;
     }

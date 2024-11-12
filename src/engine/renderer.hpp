@@ -66,7 +66,13 @@ class renderer {
          @param aspect_ratio The aspect ratio of the renderer
         */
         void set_aspect_ratio(float aspect_ratio);
+        /*!
+         @brief Focus the renderer
+        */
         void focus();
+        /*!
+         @brief Unfocus the renderer
+        */
         void unfocus();
         /*!
          @brief Handle a scroll event

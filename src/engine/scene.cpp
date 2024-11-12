@@ -47,7 +47,7 @@ void scene::scroll_callback(double xoffset, double yoffset, camera* target_camer
     // do nothing
 }
 
-void scene::key_callback(int key, int scancode, int action, int mods) {
+void scene::key_callback(int key, int scancode, int action, int mods, camera* target_camera) {
     // do nothing
 }
 

@@ -128,7 +128,7 @@ void renderer::key_callback(int key, int scancode, int action, int mods){
     if(action == GLFW_PRESS && key == GLFW_KEY_ESCAPE){
         this->unfocus();
     }
-    this->target_scene->key_callback(key, scancode, action, mods);
+    this->target_scene->key_callback(key, scancode, action, mods, target_camera);
 }
 
 void renderer::mouse_button_callback(int button, int action, int mods){
@@ -158,7 +158,7 @@ void renderer::run() {
     if(target_scene == NULL){
         throw std::runtime_error("No scene to render");
     }
-    while (!glfwWindowShouldClose(window)) {
+    while(!glfwWindowShouldClose(window) && !target_scene->get_should_close()){
         sem_wait(semaphore);
         glfwMakeContextCurrent(window);
         glfwPollEvents();

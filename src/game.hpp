@@ -1,7 +1,7 @@
 
 #pragma once
 
-#include "engine/scene.hpp"
+#include "engine.hpp"
 
 class game : public scene {
     private:
@@ -33,7 +33,7 @@ class game : public scene {
          @param action The action that was performed
          @param mods The mods that were pressed
         */
-        virtual void key_callback(int key, int scancode, int action, int mods);
+        virtual void key_callback(int key, int scancode, int action, int mods, camera* target_camera);
         /*!
          @brief Handle a mouse button event
          @param button The button that was pressed

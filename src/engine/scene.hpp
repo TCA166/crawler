@@ -56,6 +56,7 @@ class scene {
          @brief Handle a scroll event
          @param xoffset The x offset of the scroll
          @param yoffset The y offset of the scroll
+         @param target_camera The camera to scroll
         */
         virtual void scroll_callback(double xoffset, double yoffset, camera* target_camera);
         /*!
@@ -64,24 +65,31 @@ class scene {
          @param scancode The scancode of the key
          @param action The action that was performed
          @param mods The mods that were pressed
+         @param target_camera The camera to handle the key event
         */
-        virtual void key_callback(int key, int scancode, int action, int mods);
+        virtual void key_callback(int key, int scancode, int action, int mods, camera* target_camera);
         /*!
          @brief Handle a mouse button event
          @param button The button that was pressed
          @param action The action that was performed
          @param mods The mods that were pressed
+         @param target_camera The camera to handle the mouse button event
         */
         virtual void mouse_button_callback(int button, int action, int mods, camera* target_camera);
         /*!
          @brief Handle a mouse event
          @param xpos The x position of the mouse
          @param ypos The y position of the mouse
+         @param target_camera The camera to handle the mouse event
         */
         virtual void mouse_callback(double xpos, double ypos, camera* target_camera);
         /*!
          @brief Handle a close event
         */
         void close_callback();
+        /*!
+         @brief Get the should close value
+         @return The should close value
+        */
         bool get_should_close() const;
 };
