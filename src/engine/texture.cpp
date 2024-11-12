@@ -5,18 +5,43 @@
 
 #include <stdexcept>
 
-texture::texture(const std::string& path){
+static void flip_y(unsigned char* img, int width, int height, int channels){
+	int i, j;
+	for( j = 0; j*2 < height; ++j ){
+		int index1 = j * width * channels;
+		int index2 = (height - 1 - j) * width * channels;
+		for( i = width * channels; i > 0; --i ){
+			unsigned char temp = img[index1];
+			img[index1] = img[index2];
+			img[index2] = temp;
+			++index1;
+			++index2;
+		}
+	}
+}
+
+// by default flip the image, this is because SOIL loads the image upside down
+texture::texture(const std::string& path) : texture(path, true) {}
+
+texture::texture(const std::string& path, bool flip){
     glGenTextures(1, &texture_id);
 	glBindTexture(GL_TEXTURE_2D, texture_id);
 	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-	unsigned char* image = SOIL_load_image(path.c_str(), &width, &height, &nr_channels, SOIL_LOAD_RGBA);
+	unsigned char* image = SOIL_load_image(path.c_str(), &width, &height, &nr_channels, SOIL_LOAD_AUTO);
     if (image == nullptr) {
         throw std::runtime_error("Failed to load texture");
     }
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, image);
+	if(flip){
+		flip_y(image, width, height, nr_channels); //FIXME this doesn't work for PNG?
+	}
+	int format = GL_RGB;
+	if(nr_channels == 4){
+		format = GL_RGBA;
+	}
+	glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, image);
 	glGenerateMipmap(GL_TEXTURE_2D);
 	SOIL_free_image_data(image);
 }

@@ -19,6 +19,12 @@ class texture {
         /*!
          @brief Constructs a texture based on a path
          @param path Path to the texture
+         @param flip Whether to flip the texture
+        */
+        texture(const std::string& path, bool flip);
+        /*!
+         @brief Constructs a texture based on a path
+         @param path Path to the texture
         */
         texture(const std::string& path);
         ~texture();

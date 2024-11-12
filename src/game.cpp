@@ -26,7 +26,7 @@ void game::init() {
     our = new ship(textured_shader, 1.0, 0.0, 0.0);
     planet_shader = new shader("shaders/textured_vertex.glsl", "shaders/planet_fragment.glsl");
     earth_obj = new earth(planet_shader, -2.0, 0.0, 0.0);
-    sun = new (light){glm::vec3(-5.0f, 2.5f, 5.0f), glm::vec3(0.0f, 0.9f, 0.0f), 1.0f, 0.09f, 0.032f};
+    sun = new (light){glm::vec3(-5.0f, 2.5f, 5.0f), glm::vec3(1.0f, 1.0f, 1.0f), 1.0f, 0.09f, 0.032f};
 
     this->add_light(sun);
     this->add_object(earth_obj);
@@ -36,6 +36,7 @@ void game::init() {
 
 void game::main(camera* target_camera) {
     while(!this->get_should_close()){
+        glfwPollEvents();
         if(mv_forward){
             target_camera->move_forward(delta_time);
         } else if(mv_backward){
@@ -56,6 +57,7 @@ void game::main(camera* target_camera) {
             delta_time = new_time - current_time;
             current_time = new_time;
         }
+        this->earth_obj->set_rotation(0.0, -current_time * 0.1, 0.0);
     }
 }
 

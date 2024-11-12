@@ -168,6 +168,7 @@ void object::render(const glm::mat4* viewProjection, glm::vec3 viewPos, const st
     object_shader->apply_uniform_vec3(ambient, "ambientLight");
     object_shader->apply_uniform_vec3(viewPos, "viewPos");
     object_shader->apply_uniform_scalar(0.1f, "shininess");
+    object_shader->apply_uniform_scalar(glfwGetTime(), "time");
 
     // Pass light properties to the shader
     for (size_t i = 0; i < lights.size(); ++i) {
@@ -192,4 +193,20 @@ void object::render(const camera* target_camera, float aspect_ratio, const std::
 
 void object::add_texture(texture* tex, std::string name){
     textures[name] = tex;
+}
+
+void object::set_position(double xpos, double ypos, double zpos){
+    this->xpos = xpos;
+    this->ypos = ypos;
+    this->zpos = zpos;
+}
+
+void object::set_scale(float scale){
+    this->scale = scale;
+}
+
+void object::set_rotation(double xrot, double yrot, double zrot){
+    this->xrot = xrot;
+    this->yrot = yrot;
+    this->zrot = zrot;
 }

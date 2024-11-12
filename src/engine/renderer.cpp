@@ -94,6 +94,12 @@ renderer::renderer(int width, int height, const char* name, sem_t* semaphore, ca
     glViewport(0, 0, width, height);
 
     glEnable(GL_DEPTH_TEST);
+
+    glClearColor(0.0, 0.0, 0.0, 1.0f);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+    glfwSwapBuffers(window);
+
     sem_post(semaphore);
 
     glfwSetFramebufferSizeCallback(window, global_framebuffer_size_callback);
@@ -161,7 +167,6 @@ void renderer::run() {
     while(!glfwWindowShouldClose(window) && !target_scene->get_should_close()){
         sem_wait(semaphore);
         glfwMakeContextCurrent(window);
-        glfwPollEvents();
         target_scene->render(target_camera, aspect_ratio);
         sem_post(semaphore);
         glfwSwapBuffers(window);

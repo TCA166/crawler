@@ -70,4 +70,23 @@ class object {
          @param tex The texture to add
         */
         void add_texture(texture* tex, std::string name);
+        /*!
+         @brief Set the position of the object
+         @param xpos The x position of the object
+         @param ypos The y position of the object
+         @param zpos The z position of the object
+        */
+        void set_position(double xpos, double ypos, double zpos);
+        /*!
+         @brief Set the scale of the object
+         @param scale The scale of the object
+        */
+        void set_scale(float scale);
+        /*!
+         @brief Set the rotation of the object
+         @param xrot The x rotation of the object
+         @param yrot The y rotation of the object
+         @param zrot The z rotation of the object
+        */
+        void set_rotation(double xrot, double yrot, double zrot);
 };
