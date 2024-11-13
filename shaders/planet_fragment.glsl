@@ -32,7 +32,7 @@ out vec4 out_color;
 
 float cloud_move_speed = 0.001;
 
-vec3 calculate_light(vec3 norm, struct Light light) {
+vec3 calculate_light(vec3 norm, Light light){
     vec3 lightDir = normalize(light.position - fragPos);
     // Check if the light should affect the fragment
     float lightEffect = dot(lightDir, norm);
