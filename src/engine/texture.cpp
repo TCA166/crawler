@@ -32,10 +32,10 @@ texture::texture(const std::string& path, bool flip){
 	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 	unsigned char* image = SOIL_load_image(path.c_str(), &width, &height, &nr_channels, SOIL_LOAD_AUTO);
     if (image == nullptr) {
-        throw std::runtime_error("Failed to load texture");
+        throw std::runtime_error(SOIL_last_result());
     }
 	if(flip){
-		flip_y(image, width, height, nr_channels); //FIXME this doesn't work for PNG?
+		flip_y(image, width, height, nr_channels);
 	}
 	int format = GL_RGB;
 	if(nr_channels == 4){

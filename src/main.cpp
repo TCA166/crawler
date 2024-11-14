@@ -18,9 +18,8 @@ int main() {
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-    float ambient_strength = 0.3f;
     // a scene is a collection of objects
-    game game_scene = game(glm::vec3(ambient_strength, ambient_strength, ambient_strength), glm::vec3(0.0f, 0.3f, 0.3f));
+    game game_scene = game();
 
     camera main_camera = camera(glm::vec3(0.0f, 0.0f, 0.0f));
 

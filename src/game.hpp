@@ -4,6 +4,7 @@
 #include "engine.hpp"
 #include "objects/ship.hpp"
 #include "objects/earth.hpp"
+#include "objects/moon.hpp"
 
 class game : public scene {
     private:
@@ -12,11 +13,12 @@ class game : public scene {
         double xpos, ypos;
         ship* our;
         earth* earth_obj;
+        moon* moon_obj;
         shader* textured_shader;
         shader* planet_shader;
         light* sun;
     public:
-        game(glm::vec3 ambient_light, glm::vec3 background_color);
+        game();
         ~game();
         /*!
          @brief Initialize the scene

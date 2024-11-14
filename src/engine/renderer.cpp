@@ -3,6 +3,7 @@
 
 #include <stdexcept>
 #include <iostream>
+#include <thread>
 
 /*!
  @brief Global framebuffer size callback
@@ -179,10 +180,22 @@ void renderer::resize(int width, int height){
     this->height = height;
 }
 
+static void keep_alive_thread(const bool* poll) {
+    while(*poll){
+        std::this_thread::sleep_for(std::chrono::seconds(1));
+        glfwPollEvents();
+    }
+}
+
 void renderer::change_scene(scene* new_scene){
     sem_wait(semaphore);
     glfwMakeContextCurrent(window);
+    // we need to make sure something is polling events, else the OS will think the program is unresponsive
+    bool poll = true;
+    std::thread keep_alive(keep_alive_thread, &poll);
     new_scene->init();
+    poll = false;
+    keep_alive.join();
     sem_post(semaphore);
     target_scene = new_scene;
 }

@@ -1,6 +1,6 @@
 #include "game.hpp"
 
-game::game(glm::vec3 ambient_light, glm::vec3 background_color) : scene(ambient_light, background_color) {
+game::game() : scene(glm::vec3(0.0), glm::vec3(0.0)) {
     this->current_time = glfwGetTime();
     this->delta_time = 0.0;
     this->xpos = 0.0;
@@ -24,13 +24,18 @@ game::~game() {
 void game::init() {
     textured_shader = new shader("shaders/textured_vertex.glsl", "shaders/textured_fragment.glsl");
     our = new ship(textured_shader, 1.0, 0.0, 0.0);
+    
+    moon_obj = new moon(textured_shader, 2.0, 0.0, 0.0);
+    
     planet_shader = new shader("shaders/textured_vertex.glsl", "shaders/planet_fragment.glsl");
     earth_obj = new earth(planet_shader, -2.0, 0.0, 0.0);
+    
     sun = new (light){glm::vec3(-5.0f, 2.5f, 5.0f), glm::vec3(1.0f, 1.0f, 1.0f), 1.0f, 0.09f, 0.032f};
 
     this->add_light(sun);
     this->add_object(earth_obj);
     this->add_object(our);
+    this->add_object(moon_obj);
     scene::init();
 }
 

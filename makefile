@@ -26,20 +26,11 @@ camera.o: src/engine/camera.cpp src/engine/camera.hpp
 engine.o: texture.o scene.o renderer.o object.o shader.o camera.o
 	$(CC) $(CFLAGS) -r texture.o scene.o renderer.o object.o shader.o camera.o -o engine.o
 
-game.o: src/game.cpp src/game.hpp
+game.o: src/game.cpp src/game.hpp src/objects/*
 	$(CC) $(IFLAGS) $(CFLAGS) -c src/game.cpp
 
-ship.o: src/objects/ship.cpp src/objects/ship.hpp
-	$(CC) $(IFLAGS) $(CFLAGS) -c src/objects/ship.cpp
-
-earth.o: src/objects/earth.cpp src/objects/earth.hpp
-	$(CC) $(IFLAGS) $(CFLAGS) -c src/objects/earth.cpp
-
-objects.o: ship.o earth.o
-	$(CC) $(CFLAGS) -r ship.o earth.o -o objects.o
-
-main: src/main.cpp engine.o game.o objects.o
-	$(CC) $(IFLAGS) $(CFLAGS) -o main src/main.cpp engine.o game.o objects.o
+main: src/main.cpp engine.o game.o
+	$(CC) $(IFLAGS) $(CFLAGS) -o main src/main.cpp engine.o game.o
 
 clean:
 	rm -f *.o main
