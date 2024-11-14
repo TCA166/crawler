@@ -26,11 +26,17 @@ camera.o: src/engine/camera.cpp src/engine/camera.hpp
 engine.o: texture.o scene.o renderer.o object.o shader.o camera.o
 	$(CC) $(CFLAGS) -r texture.o scene.o renderer.o object.o shader.o camera.o -o engine.o
 
+entity.o: src/physics/entity.cpp src/physics/entity.hpp
+	$(CC) $(IFLAGS) $(CFLAGS) -c src/physics/entity.cpp
+
+physics.o: entity.o
+	$(CC) $(CFLAGS) -r entity.o -o physics.o
+
 game.o: src/game.cpp src/game.hpp src/objects/*
 	$(CC) $(IFLAGS) $(CFLAGS) -c src/game.cpp
 
-main: src/main.cpp engine.o game.o
-	$(CC) $(IFLAGS) $(CFLAGS) -o main src/main.cpp engine.o game.o
+main: src/main.cpp engine.o game.o physics.o
+	$(CC) $(IFLAGS) $(CFLAGS) -o main src/main.cpp engine.o game.o physics.o
 
 clean:
 	rm -f *.o main

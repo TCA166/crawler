@@ -62,7 +62,8 @@ void game::main(camera* target_camera) {
             delta_time = new_time - current_time;
             current_time = new_time;
         }
-        this->earth_obj->set_rotation(0.0, -current_time * 0.1, 0.0);
+        this->earth_obj->set_rotation(0.0, -current_time * 0.05, 0.0);
+        this->moon_obj->set_rotation(0.0, -current_time * 0.1, 0.0);
     }
 }
 
