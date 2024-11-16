@@ -89,4 +89,14 @@ class object {
          @param zrot The z rotation of the object
         */
         void set_rotation(double xrot, double yrot, double zrot);
+        /*!
+         @brief Translate the object
+         @param translation The translation to apply
+        */
+        void translate(glm::vec3 translation);
+        /*!
+         @brief Get the position of the object
+         @return The position of the object
+        */
+        glm::vec3 get_position() const;
 };

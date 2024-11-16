@@ -5,10 +5,11 @@
 
 class entity {
     private:
-        double mass;
-        glm::vec3 momentum;
+        float mass;
+        glm::vec3 velocity;
+        glm::vec3 force_accumulator;
     public:
-        entity(double mass, glm::vec3 momentum);
+        entity(float mass, glm::vec3 velocity);
         ~entity();
         /*!
          @brief Gets the force this entity enacts at another object with a given mass at a distance
@@ -16,7 +17,7 @@ class entity {
          @param mass the mass of the other objects
          @return the gravitational force enacted
         */
-        double get_gravity(double distance, double mass) const;
+        float get_gravity(float distance, float mass) const;
         /*!
          @brief Applies a given force upon this entity
          @param force the force to apply
@@ -26,10 +27,15 @@ class entity {
          @brief Gets the mass of the entity
          @return the mass
         */
-        double get_mass() const;
+        float get_mass() const;
         /*!
          @brief Gets the momentum of the entity
          @return the momentum
         */
-        glm::vec3 get_momentum() const;
+        glm::vec3 get_velocity() const;
+        /*!
+         @brief Evaluates the entity
+         @param delta_time the time since the last evaluation
+        */
+        virtual void evaluate(double delta_time);
 };

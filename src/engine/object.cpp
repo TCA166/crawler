@@ -210,3 +210,13 @@ void object::set_rotation(double xrot, double yrot, double zrot){
     this->yrot = yrot;
     this->zrot = zrot;
 }
+
+void object::translate(glm::vec3 translation){
+    xpos += translation.x;
+    ypos += translation.y;
+    zpos += translation.z;
+}
+
+glm::vec3 object::get_position() const {
+    return glm::vec3(xpos, ypos, zpos);
+}

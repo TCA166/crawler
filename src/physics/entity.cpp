@@ -1,21 +1,33 @@
 #include "entity.hpp"
 
-entity::entity(double mass, glm::vec3 momentum) : mass(mass), momentum(momentum) {
+#define GRAVITATIONAL_CONSTANT 6.67430e-11
+
+entity::entity(float mass, glm::vec3 velocity) : mass(mass), velocity(velocity), force_accumulator(glm::vec3(0.0f)) {
 
 }
 
-double entity::get_gravity(double distance, double mass) const {
-    return (this->mass * mass) / (distance * distance)
+float entity::get_gravity(float distance, float mass) const {
+    return (GRAVITATIONAL_CONSTANT * this->mass * mass) / (distance * distance);
 }
 
 void entity::apply_force(glm::vec3 force) {
-    this->momentum += force;
+    force_accumulator += force;
 }
 
-double entity::get_mass() const {
+float entity::get_mass() const {
     return mass;
 }
 
-glm::vec3 entity::get_momentum() const {
-    return momentum;
+glm::vec3 entity::get_velocity() const {
+    return velocity;
+}
+
+void entity::evaluate(double delta_time) {
+    glm::vec3 acceleration = force_accumulator / mass;
+    velocity += acceleration * (float)delta_time;
+    force_accumulator = glm::vec3(0.0f);
+}
+
+entity::~entity() {
+    
 }

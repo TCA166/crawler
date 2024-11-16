@@ -1,5 +1,7 @@
 #include "game.hpp"
 
+#define SCALE 10.0
+
 game::game() : scene(glm::vec3(0.0), glm::vec3(0.0)) {
     this->current_time = glfwGetTime();
     this->delta_time = 0.0;
@@ -25,12 +27,12 @@ void game::init() {
     textured_shader = new shader("shaders/textured_vertex.glsl", "shaders/textured_fragment.glsl");
     our = new ship(textured_shader, 1.0, 0.0, 0.0);
     
-    moon_obj = new moon(textured_shader, 2.0, 0.0, 0.0);
+    moon_obj = new moon(textured_shader, SCALE, 0.0, 0.0);
     
     planet_shader = new shader("shaders/textured_vertex.glsl", "shaders/planet_fragment.glsl");
-    earth_obj = new earth(planet_shader, -2.0, 0.0, 0.0);
+    earth_obj = new earth(planet_shader, 0.0, 0.0, 0.0);
     
-    sun = new (light){glm::vec3(-5.0f, 2.5f, 5.0f), glm::vec3(1.0f, 1.0f, 1.0f), 1.0f, 0.09f, 0.032f};
+    sun = new (light){glm::vec3(-5.0f, 2.5f, 5.0f), glm::vec3(1.0f, 1.0f, 1.0f), 1.0f, 0.0f, 0.0f};
 
     this->add_light(sun);
     this->add_object(earth_obj);
@@ -62,8 +64,15 @@ void game::main(camera* target_camera) {
             delta_time = new_time - current_time;
             current_time = new_time;
         }
-        this->earth_obj->set_rotation(0.0, -current_time * 0.05, 0.0);
-        this->moon_obj->set_rotation(0.0, -current_time * 0.1, 0.0);
+        earth_obj->set_rotation(0.0, -current_time * 0.05, 0.0);
+        moon_obj->set_rotation(0.0, -current_time * 0.1, 0.0);
+        {
+            glm::vec3 direction = earth_obj->get_position() - moon_obj->get_position();
+            float distance = glm::length(direction);
+            glm::vec3 gravity = glm::normalize(direction) * earth_obj->get_gravity(distance, moon_obj->get_mass());
+            moon_obj->apply_force(gravity);
+        }
+        moon_obj->evaluate(delta_time * 1e-5);
     }
 }
 
