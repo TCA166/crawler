@@ -45,7 +45,7 @@ class object {
          @param zpos The z position of the object
         */
         object(const shader* object_shader, const std::string& path, double xpos, double ypos, double zpos);
-        ~object();
+        virtual ~object();
         /*!
          @brief Initialize the object
          @details Initializes the object by creating the VAO, VBO and EBO

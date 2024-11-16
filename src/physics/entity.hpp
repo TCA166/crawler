@@ -9,8 +9,13 @@ class entity {
         glm::vec3 velocity;
         glm::vec3 force_accumulator;
     public:
+        /*!
+         @brief Constructs an entity with a given mass and velocity
+         @param mass the mass of the entity
+         @param velocity the velocity of the entity
+        */
         entity(float mass, glm::vec3 velocity);
-        ~entity();
+        virtual ~entity();
         /*!
          @brief Gets the force this entity enacts at another object with a given mass at a distance
          @param distance the distance to the other object

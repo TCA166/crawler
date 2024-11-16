@@ -2,7 +2,6 @@
 #include <iostream>
 #include <thread>
 
-#include "engine.hpp"
 #include "game.hpp"
 
 #define WINDOW_NAME "Crawler"

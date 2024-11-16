@@ -1,13 +1,14 @@
 
 #pragma once
 
-#include "engine.hpp"
+#include "engine/engine.hpp"
 #include "objects/ship.hpp"
 #include "objects/earth.hpp"
 #include "objects/moon.hpp"
 
 class game : public scene {
     private:
+        double time_scale;
         double current_time, delta_time;
         bool mv_forward, mv_backward, mv_left, mv_right, mv_up, mv_down;
         double xpos, ypos;

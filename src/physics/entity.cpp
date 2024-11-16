@@ -1,6 +1,6 @@
 #include "entity.hpp"
 
-#define GRAVITATIONAL_CONSTANT 6.67430e-11
+#include "constants.hpp"
 
 entity::entity(float mass, glm::vec3 velocity) : mass(mass), velocity(velocity), force_accumulator(glm::vec3(0.0f)) {
 

@@ -9,7 +9,6 @@
 
 #include <stdexcept>
 #include <vector>
-#include <iostream>
 
 #define SHADER_VERTEX_POSITION "vertexPosition"
 #define SHADER_VERTEX_COLOR "vertexColor"
