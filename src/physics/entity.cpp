@@ -7,7 +7,7 @@ entity::entity(float mass, glm::vec3 velocity) : mass(mass), velocity(velocity),
 }
 
 float entity::get_gravity(float distance, float mass) const {
-    return (GRAVITATIONAL_CONSTANT * this->mass * mass) / (distance * distance);
+    return (gravitational_constant * this->mass * mass) / (distance * distance);
 }
 
 void entity::apply_force(glm::vec3 force) {

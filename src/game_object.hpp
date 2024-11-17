@@ -27,8 +27,9 @@ class game_object : public object, public entity {
 
 /*!
  @brief Calculate the gravitational force between two objects
- @param obj1 The first object
- @param obj2 The second object
+ @param obj1 The object exerting the gravitational force
+ @param obj2 The object experiencing
  @return The gravitational force between the two objects
+ @note Naturally you can always invert the force to get the force exerted by obj2 on obj1, but the argument order is important
 */
 glm::vec3 calculate_gravity(const game_object* obj1, const game_object* obj2);

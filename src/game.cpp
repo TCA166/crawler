@@ -25,11 +25,11 @@ void game::init() {
     textured_shader = new shader("shaders/textured_vertex.glsl", "shaders/textured_fragment.glsl");
     our = new ship(textured_shader, 1.0, 0.0, 0.0);
     
-    moon_obj = new moon(textured_shader, EARTH_MOON_DISTANCE, 0.0, 0.0);
-    
     planet_shader = new shader("shaders/textured_vertex.glsl", "shaders/planet_fragment.glsl");
     earth_obj = new earth(planet_shader, 0.0, 0.0, 0.0);
     
+    moon_obj = new moon(textured_shader, earth_moon_distance, 0.0, 0.0);
+
     sun = new (light){glm::vec3(-5.0f, 2.5f, 5.0f), glm::vec3(1.0f, 1.0f, 1.0f), 1.0f, 0.0f, 0.0f};
 
     this->add_light(sun);
@@ -66,7 +66,7 @@ void game::main(camera* target_camera) {
         earth_obj->set_rotation(0.0, -current_time * 0.05, 0.0);
         moon_obj->set_rotation(0.0, -current_time * 0.1, 0.0);
         {
-            glm::vec3 gravity = calculate_gravity(moon_obj, earth_obj);
+            glm::vec3 gravity = calculate_gravity(earth_obj, moon_obj);
             moon_obj->apply_force(gravity);
             earth_obj->apply_force(-gravity);
         }

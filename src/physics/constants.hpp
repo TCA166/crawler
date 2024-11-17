@@ -3,12 +3,12 @@
 
 #define SCALE 1e-4
 
-#define GRAVITATIONAL_CONSTANT 6.67430e-11
+const double gravitational_constant = 6.67430e-11;
 
-#define MOON_MASS (7.34767309e22 * SCALE)
-#define MOON_RADIUS (1737.4 * SCALE)
+const double moon_mass = 7.34767309e22 * SCALE;
+const double moon_radius = 1737.4 * SCALE;
 
-#define EARTH_MASS (5.972e24 * SCALE)
-#define EARTH_RADIUS (6378.0 * SCALE)
+const double earth_mass = 5.972e24 * SCALE;
+const double earth_radius = 6378.0 * SCALE;
 
-#define EARTH_MOON_DISTANCE (384400.0 * SCALE)
+const double earth_moon_distance = 384400.0 * SCALE;

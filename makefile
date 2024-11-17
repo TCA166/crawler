@@ -29,13 +29,13 @@ engine.o: texture.o scene.o renderer.o object.o shader.o camera.o
 entity.o: src/physics/entity.cpp src/physics/entity.hpp
 	$(CC) $(IFLAGS) $(CFLAGS) -c src/physics/entity.cpp
 
-physics.o: entity.o src/physics/constants.hpp
+physics.o: entity.o
 	$(CC) $(CFLAGS) -r entity.o -o physics.o
 
 game_object.o: src/game_object.cpp src/game_object.hpp
 	$(CC) $(IFLAGS) $(CFLAGS) -c src/game_object.cpp
 
-game.o: src/game.cpp src/game.hpp src/objects/*
+game.o: src/game.cpp src/game.hpp src/objects/* src/physics/constants.hpp
 	$(CC) $(IFLAGS) $(CFLAGS) -c src/game.cpp
 
 main: src/main.cpp engine.o game.o physics.o game_object.o

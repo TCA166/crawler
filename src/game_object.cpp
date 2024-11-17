@@ -18,6 +18,5 @@ void game_object::evaluate(double delta_time) {
 glm::vec3 calculate_gravity(const game_object* obj1, const game_object* obj2) {
     glm::vec3 direction = obj1->get_position() - obj2->get_position();
     float distance = glm::length(direction);
-    std::cout << "Distance: " << distance << std::endl;
     return glm::normalize(direction) * obj1->get_gravity(distance, obj2->get_mass());
 }
