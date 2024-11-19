@@ -20,3 +20,17 @@ glm::vec3 calculate_gravity(const game_object* obj1, const game_object* obj2) {
     float distance = glm::length(direction);
     return glm::normalize(direction) * obj1->get_gravity(distance, obj2->get_mass());
 }
+
+void resolve_gravity(std::vector<game_object*> objects) {
+    size_t i = 0, j = 1;
+    for(; j < objects.size(); i++, j++){
+        glm::vec3 force = calculate_gravity(objects[i], objects[j]);
+        objects[j]->apply_force(force);
+        objects[i]->apply_force(-force);
+    }
+    if(objects.size() % 2 == 1){
+        glm::vec3 force = calculate_gravity(objects[i], objects[0]);
+        objects[0]->apply_force(force);
+        objects[i]->apply_force(-force);
+    }
+}

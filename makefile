@@ -20,11 +20,14 @@ object.o: src/engine/object.cpp src/engine/object.hpp
 shader.o: src/engine/shader.cpp src/engine/shader.hpp
 	$(CC) $(IFLAGS) $(CFLAGS) -c src/engine/shader.cpp
 
+light.o: src/engine/light.cpp src/engine/light.hpp
+	$(CC) $(IFLAGS) $(CFLAGS) -c src/engine/light.cpp
+
 camera.o: src/engine/camera.cpp src/engine/camera.hpp
 	$(CC) $(IFLAGS) $(CFLAGS) -c src/engine/camera.cpp
 
-engine.o: texture.o scene.o renderer.o object.o shader.o camera.o
-	$(CC) $(CFLAGS) -r texture.o scene.o renderer.o object.o shader.o camera.o -o engine.o
+engine.o: texture.o scene.o renderer.o object.o shader.o camera.o light.o
+	$(CC) $(CFLAGS) -r texture.o scene.o renderer.o object.o shader.o camera.o light.o -o engine.o
 
 entity.o: src/physics/entity.cpp src/physics/entity.hpp
 	$(CC) $(IFLAGS) $(CFLAGS) -c src/physics/entity.cpp

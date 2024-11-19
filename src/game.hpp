@@ -5,6 +5,7 @@
 #include "objects/ship.hpp"
 #include "objects/earth.hpp"
 #include "objects/moon.hpp"
+#include "objects/sun.hpp"
 
 class game : public scene {
     private:
@@ -15,9 +16,8 @@ class game : public scene {
         ship* our;
         earth* earth_obj;
         moon* moon_obj;
-        shader* textured_shader;
-        shader* planet_shader;
-        light* sun;
+        shader* textured_shader, *planet_shader, *sun_shader;
+        sun* sun_obj;
     public:
         game();
         ~game();

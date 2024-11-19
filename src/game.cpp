@@ -1,6 +1,7 @@
 #include "game.hpp"
+#include <iostream>
 
-game::game() : scene(glm::vec3(0.0), glm::vec3(0.0)), time_scale(1e-4), earth_obj(nullptr), moon_obj(nullptr) {
+game::game() : scene(glm::vec3(0.0), glm::vec3(0.0)), time_scale(1e-7), earth_obj(nullptr), moon_obj(nullptr) {
     this->current_time = glfwGetTime();
     this->delta_time = 0.0;
     this->xpos = 0.0;
@@ -16,23 +17,26 @@ game::game() : scene(glm::vec3(0.0), glm::vec3(0.0)), time_scale(1e-4), earth_ob
 game::~game() {
     delete this->our;
     delete this->textured_shader;
-    delete this->sun;
+    delete this->sun_obj;
     delete this->earth_obj;
     delete this->planet_shader;
 }
 
 void game::init() {
+    //TODO the system might be unstable
     textured_shader = new shader("shaders/textured_vertex.glsl", "shaders/textured_fragment.glsl");
     our = new ship(textured_shader, 1.0, 0.0, 0.0);
     
     planet_shader = new shader("shaders/textured_vertex.glsl", "shaders/planet_fragment.glsl");
     earth_obj = new earth(planet_shader, 0.0, 0.0, 0.0);
     
-    moon_obj = new moon(textured_shader, earth_moon_distance, 0.0, 0.0);
+    moon_obj = new moon(textured_shader, -earth_moon_distance, 0.0, 0.0);
 
-    sun = new (light){glm::vec3(0.0f, 0.0f, earth_sun_distance), glm::vec3(1.0f, 1.0f, 1.0f), 1.0f, 0.0f, 0.0f};
+    sun_shader = new shader("shaders/textured_vertex.glsl", "shaders/sun_fragment.glsl");
+    sun_obj = new sun(sun_shader, earth_sun_distance, 0.0, 0.0);
 
-    this->add_light(sun);
+    this->add_light(sun_obj);
+    this->add_object(sun_obj);
     this->add_object(earth_obj);
     this->add_object(our);
     this->add_object(moon_obj);
@@ -40,6 +44,7 @@ void game::init() {
 }
 
 void game::main(camera* target_camera) {
+    std::vector<game_object*> objects = {earth_obj, moon_obj, sun_obj};
     while(!this->get_should_close()){
         {
             double new_time = glfwGetTime();
@@ -65,13 +70,15 @@ void game::main(camera* target_camera) {
         delta_time *= time_scale;
         earth_obj->set_rotation(0.0, -current_time * 0.05, 0.0);
         moon_obj->set_rotation(0.0, -current_time * 0.1, 0.0);
-        {
-            glm::vec3 gravity = calculate_gravity(earth_obj, moon_obj);
-            moon_obj->apply_force(gravity);
-            earth_obj->apply_force(-gravity);
-        }
+        resolve_gravity(objects);
         moon_obj->evaluate(delta_time);
         earth_obj->evaluate(delta_time);
+        sun_obj->evaluate(delta_time);
+        /*
+        std::cout << "moon" << moon_obj->get_position().x << " " << moon_obj->get_position().y << " " << moon_obj->get_position().z << std::endl;
+        std::cout << "earth" << earth_obj->get_position().x << " " << earth_obj->get_position().y << " " << earth_obj->get_position().z << std::endl;
+        std::cout << "sun" << sun_obj->get_position().x << " " << sun_obj->get_position().y << " " << sun_obj->get_position().z << std::endl;
+        */
     }
 }
 

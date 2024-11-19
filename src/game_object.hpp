@@ -33,3 +33,10 @@ class game_object : public object, public entity {
  @note Naturally you can always invert the force to get the force exerted by obj2 on obj1, but the argument order is important
 */
 glm::vec3 calculate_gravity(const game_object* obj1, const game_object* obj2);
+
+/*!
+ @brief Resolve the gravitational forces between a list of objects
+ @param objects The list of objects to resolve the gravitational forces between
+ @note This function will apply the forces to the objects in the list, you must evaluate the objects after calling this function
+*/
+void resolve_gravity(std::vector<game_object*> objects);
