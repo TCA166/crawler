@@ -22,7 +22,7 @@ class game_object : public object, public entity {
          @brief Evaluate the object
          @param delta_time The time since the last evaluation
         */
-        void evaluate(double delta_time);
+        virtual void evaluate(double delta_time);
 };
 
 /*!

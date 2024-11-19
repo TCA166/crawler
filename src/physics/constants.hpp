@@ -12,3 +12,4 @@ const double earth_mass = 5.972e24 * SCALE;
 const double earth_radius = 6378.0 * SCALE;
 
 const double earth_moon_distance = 384400.0 * SCALE;
+const double earth_sun_distance = 149.6e6 * SCALE;

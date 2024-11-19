@@ -32,6 +32,8 @@ out vec4 out_color;
 
 float cloud_move_speed = 0.001;
 
+float sunset_threshold = 0.1;
+
 vec3 calculate_light(vec3 norm, Light light){
     vec3 lightDir = normalize(light.position - fragPos);
     // Check if the light should affect the fragment
@@ -68,6 +70,8 @@ void main()
     vec4 color;
     if(result == ambientLight) { // Night
         color = texture(night, texCoord);
+    } else if (result.x < sunset_threshold && result.y < sunset_threshold && result.z < sunset_threshold) { // Sunset
+        color = mix(texture(ground, texCoord), texture(night, texCoord), 0.5);
     } else { // Day    
         color = texture(ground, texCoord);
     }

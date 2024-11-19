@@ -1,6 +1,6 @@
 #include "game.hpp"
 
-game::game() : scene(glm::vec3(0.0), glm::vec3(0.0)), time_scale(1e-4) {
+game::game() : scene(glm::vec3(0.0), glm::vec3(0.0)), time_scale(1e-4), earth_obj(nullptr), moon_obj(nullptr) {
     this->current_time = glfwGetTime();
     this->delta_time = 0.0;
     this->xpos = 0.0;
@@ -30,7 +30,7 @@ void game::init() {
     
     moon_obj = new moon(textured_shader, earth_moon_distance, 0.0, 0.0);
 
-    sun = new (light){glm::vec3(-5.0f, 2.5f, 5.0f), glm::vec3(1.0f, 1.0f, 1.0f), 1.0f, 0.0f, 0.0f};
+    sun = new (light){glm::vec3(0.0f, 0.0f, earth_sun_distance), glm::vec3(1.0f, 1.0f, 1.0f), 1.0f, 0.0f, 0.0f};
 
     this->add_light(sun);
     this->add_object(earth_obj);
@@ -75,11 +75,11 @@ void game::main(camera* target_camera) {
     }
 }
 
-void game::scroll_callback(double xoffset, double yoffset, camera* target_camera) {
+void game::scroll_callback(double, double yoffset, camera* target_camera) {
     target_camera->zoom(yoffset);
 }
 
-void game::key_callback(int key, int scancode, int action, int mods, camera* target_camera) {
+void game::key_callback(int key, int, int action, int, camera*) {
     if(action == GLFW_REPEAT){
         return;
     }
@@ -104,10 +104,6 @@ void game::key_callback(int key, int scancode, int action, int mods, camera* tar
             mv_down = pressed;
             break;
     }
-}
-
-void game::mouse_button_callback(int button, int action, int mods, camera* target_camera) {
-    // do nothing
 }
 
 void game::mouse_callback(double xpos, double ypos, camera* target_camera) {

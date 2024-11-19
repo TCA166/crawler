@@ -37,25 +37,25 @@ void scene::render(const camera* target_camera, float aspect_ratio) {
     }
 }
 
-void scene::main(camera* target_camera) {
+void scene::main(camera*) {
     while(!should_close){
         // do nothing
     }
 }
 
-void scene::scroll_callback(double xoffset, double yoffset, camera* target_camera) {
+void scene::scroll_callback(double, double, camera*) {
     // do nothing
 }
 
-void scene::key_callback(int key, int scancode, int action, int mods, camera* target_camera) {
+void scene::key_callback(int, int, int, int, camera*) {
     // do nothing
 }
 
-void scene::mouse_button_callback(int button, int action, int mods, camera* target_camera) {
+void scene::mouse_button_callback(int, int, int, camera*) {
     // do nothing
 }
 
-void scene::mouse_callback(double xpos, double ypos, camera* target_camera) {
+void scene::mouse_callback(double, double, camera*) {
     // do nothing
 }
 

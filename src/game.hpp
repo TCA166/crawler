@@ -45,13 +45,6 @@ class game : public scene {
         */
         virtual void key_callback(int key, int scancode, int action, int mods, camera* target_camera);
         /*!
-         @brief Handle a mouse button event
-         @param button The button that was pressed
-         @param action The action that was performed
-         @param mods The mods that were pressed
-        */
-        virtual void mouse_button_callback(int button, int action, int mods, camera* target_camera);
-        /*!
          @brief Handle a mouse event
          @param xpos The x position of the mouse
          @param ypos The y position of the mouse
