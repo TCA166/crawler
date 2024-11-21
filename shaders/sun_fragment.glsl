@@ -1,15 +1,20 @@
 #version 430 core
 
-#define MAX_LIGHTS 10
-
 in vec2 texCoord;
 in vec3 fragPos;
 in vec3 normal;
 in mat3 TBN;
 
+uniform sampler2D texture0;
+
+uniform vec3 viewPos;
+uniform float shininess;
+uniform vec3 ambientLight;
+
 out vec4 out_color;
 
 void main()
 {
-    out_color = vec4(vec3(1.0), 1.0);
+    vec4 color = texture(texture0, texCoord);
+    out_color = vec4(color.rgb, color.a);
 }

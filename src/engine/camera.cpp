@@ -3,7 +3,7 @@
 #include "include.hpp"
 
 #define NEAR_PLANE 0.1f
-#define FAR_PLANE 1000.0f
+#define FAR_PLANE 100000.0f
 
 #define MAX_TURN 89.0f
 
@@ -72,4 +72,8 @@ glm::mat4 camera::get_projection_matrix(float aspect_ratio) const {
 
 glm::vec3 camera::get_position() const {
     return position;
+}
+
+void camera::set_position(glm::vec3 position) {
+    this->position = position;
 }

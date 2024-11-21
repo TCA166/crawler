@@ -92,6 +92,11 @@ class camera {
         */
         void rotate_front(double xoffset, double yoffset);
         /*!
+         @brief Set the position of the camera
+         @param position The new position of the camera
+        */
+        void set_position(glm::vec3 position);
+        /*!
          @brief Get the view matrix of the camera
          @return The view matrix of the camera
         */
