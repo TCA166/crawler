@@ -77,3 +77,7 @@ glm::vec3 camera::get_position() const {
 void camera::set_position(glm::vec3 position) {
     this->position = position;
 }
+
+void camera::set_speed(float speed) {
+    this->speed = speed;
+}

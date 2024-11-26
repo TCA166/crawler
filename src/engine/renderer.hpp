@@ -20,6 +20,7 @@ class renderer {
         int width, height;
         bool focused;
         sem_t* semaphore;
+        void show_loading();
     public:
         /*!
          @brief Constructs a renderer with a given scene, width, height and name.

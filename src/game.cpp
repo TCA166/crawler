@@ -1,7 +1,7 @@
 #include "game.hpp"
 #include <iostream>
 
-game::game() : scene(glm::vec3(0.0), glm::vec3(0.0)), time_scale(1e-6), earth_obj(nullptr), moon_obj(nullptr) {
+game::game() : scene(glm::vec3(0.0), glm::vec3(0.0)), time_scale(1e-5), earth_obj(nullptr), moon_obj(nullptr) {
     this->current_time = glfwGetTime();
     this->delta_time = 0.0;
     this->xpos = 0.0;
@@ -43,6 +43,7 @@ void game::init() {
 }
 
 void game::main(camera* target_camera) {
+    target_camera->set_speed(40.0f);
     std::vector<game_object*> objects = {earth_obj, moon_obj, sun_obj};
     while(!this->get_should_close()){
         {
@@ -67,20 +68,14 @@ void game::main(camera* target_camera) {
             target_camera->move_up(-delta_time);
         }
         delta_time *= time_scale;
-        earth_obj->set_rotation(0.0, -current_time * 0.05, 0.0);
-        moon_obj->set_rotation(0.0, -current_time * 0.1, 0.0);
+        earth_obj->set_rotation(0.0, -current_time, 0.0);
+        moon_obj->set_rotation(0.0, -current_time, 0.0);
         resolve_gravity(objects); 
         moon_obj->evaluate(delta_time);
         sun_obj->evaluate(delta_time);
-        glm::vec3 earth_pos = earth_obj->get_position();
         earth_obj->evaluate(delta_time);
-        target_camera->set_position(earth_obj->get_position() + target_camera->get_position() - earth_pos);
-        std::cout << "earth-moon distance: " << glm::length(earth_obj->get_position() - moon_obj->get_position()) << std::endl;
-        /*
-        std::cout << "moon" << moon_obj->get_position().x << " " << moon_obj->get_position().y << " " << moon_obj->get_position().z << std::endl;
-        std::cout << "earth" << earth_obj->get_position().x << " " << earth_obj->get_position().y << " " << earth_obj->get_position().z << std::endl;
-        std::cout << "sun" << sun_obj->get_position().x << " " << sun_obj->get_position().y << " " << sun_obj->get_position().z << std::endl;
-        */
+        //target_camera->set_position(target_camera->get_position() + (earth_obj->get_velocity() * (float)delta_time));
+        //std::cout << "earth-moon distance: " << glm::length(earth_obj->get_position() - moon_obj->get_position()) << std::endl;
     }
 }
 

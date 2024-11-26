@@ -5,6 +5,8 @@
 #include <iostream>
 #include <thread>
 
+static const glm::vec3 loading_color = glm::vec3(038.0f, 206.0f, 0.0f);
+
 /*!
  @brief Global framebuffer size callback
  @details This function is called when the window is resized, it expects a renderer instance as the user pointer
@@ -129,7 +131,7 @@ renderer renderer::clone(const char* name){
 }
 
 void renderer::key_callback(int key, int scancode, int action, int mods){
-    if(!focused){
+    if(!focused || target_scene == nullptr){
         return;
     }
     if(action == GLFW_PRESS && key == GLFW_KEY_ESCAPE){
@@ -142,13 +144,13 @@ void renderer::mouse_button_callback(int button, int action, int mods){
     if(button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS && !focused){
         this->focus();
     }
-    if(focused){
+    if(focused && target_scene != nullptr){
         this->target_scene->mouse_button_callback(button, action, mods, target_camera);
     }
 }
 
 void renderer::mouse_callback(double xpos, double ypos){
-    if(!focused){
+    if(!focused || target_scene == nullptr){
         return;
     }
     ypos = -ypos;
@@ -156,7 +158,7 @@ void renderer::mouse_callback(double xpos, double ypos){
 }
 
 void renderer::scroll_callback(double xoffset, double yoffset){
-    if(focused){
+    if(focused && target_scene != nullptr){
         this->target_scene->scroll_callback(xoffset, yoffset, target_camera);
     }
 }
@@ -182,7 +184,7 @@ void renderer::resize(int width, int height){
 
 static void keep_alive_thread(const bool* poll) {
     while(*poll){
-        std::this_thread::sleep_for(std::chrono::seconds(1));
+        std::this_thread::sleep_for(std::chrono::milliseconds(500));
         glfwPollEvents();
     }
 }
@@ -190,6 +192,7 @@ static void keep_alive_thread(const bool* poll) {
 void renderer::change_scene(scene* new_scene){
     sem_wait(semaphore);
     glfwMakeContextCurrent(window);
+    show_loading();
     // we need to make sure something is polling events, else the OS will think the program is unresponsive
     bool poll = true;
     std::thread keep_alive(keep_alive_thread, &poll);
@@ -213,4 +216,10 @@ void renderer::unfocus(){
 void renderer::close_callback(){
     glfwSetWindowShouldClose(window, GLFW_TRUE);
     target_scene->close_callback();
+}
+
+void renderer::show_loading(){
+    glClearColor(loading_color.r, loading_color.g, loading_color.b, 1.0f);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glfwSwapBuffers(window);
 }

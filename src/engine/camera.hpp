@@ -112,4 +112,9 @@ class camera {
          @return The position of the camera
         */
         glm::vec3 get_position() const;
+        /*!
+         @brief Set the speed of the camera
+         @param speed The new speed of the camera
+        */
+        void set_speed(float speed);
 };
