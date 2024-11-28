@@ -1,7 +1,7 @@
 #include "game.hpp"
 #include <iostream>
 
-game::game() : scene(glm::vec3(0.0), glm::vec3(0.0)), time_scale(1e-5), earth_obj(nullptr), moon_obj(nullptr) {
+game::game() : scene(glm::vec3(0.0), glm::vec3(0.0)), time_scale(2e-5), earth_obj(nullptr), moon_obj(nullptr) {
     this->current_time = glfwGetTime();
     this->delta_time = 0.0;
     this->xpos = 0.0;
@@ -43,7 +43,7 @@ void game::init() {
 }
 
 void game::main(camera* target_camera) {
-    target_camera->set_speed(40.0f);
+    target_camera->set_speed(10.0f);
     std::vector<game_object*> objects = {earth_obj, moon_obj, sun_obj};
     while(!this->get_should_close()){
         {
@@ -74,7 +74,7 @@ void game::main(camera* target_camera) {
         moon_obj->evaluate(delta_time);
         sun_obj->evaluate(delta_time);
         earth_obj->evaluate(delta_time);
-        //target_camera->set_position(target_camera->get_position() + (earth_obj->get_velocity() * (float)delta_time));
+        target_camera->set_position(target_camera->get_position() + (earth_obj->get_velocity() * (float)delta_time));
         //std::cout << "earth-moon distance: " << glm::length(earth_obj->get_position() - moon_obj->get_position()) << std::endl;
     }
 }

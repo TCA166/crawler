@@ -11,6 +11,7 @@ uniform sampler2D ground;
 uniform sampler2D night;
 uniform sampler2D clouds;
 uniform sampler2D ground_normal;
+uniform sampler2D spec;
 
 struct Light {
     vec3 position;
@@ -51,8 +52,9 @@ vec3 calculate_light(vec3 norm, Light light){
     // Specular shading
     vec3 viewDir = normalize(viewPos - fragPos);
     vec3 halfwayDir = normalize(lightDir + viewDir);
-    float spec = pow(max(dot(norm, halfwayDir), 0.0), shininess);
-    vec3 specular = spec * light.color * attenuation;
+    float specMap = texture(spec, texCoord).r;
+    float spec = pow(max(dot(norm, halfwayDir), 0.0), 1.0) * specMap;
+    vec3 specular = spec * light.color;
 
     return diffuse + specular;
 }
