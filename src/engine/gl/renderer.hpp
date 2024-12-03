@@ -1,10 +1,10 @@
 
 #pragma once
 
-#include "include.hpp"
+#include "../include.hpp"
 
-#include "scene.hpp"
-#include "camera.hpp"
+#include "../scene/scene.hpp"
+#include "../scene/camera.hpp"
 
 #include <semaphore.h>
 

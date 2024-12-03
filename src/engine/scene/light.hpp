@@ -1,7 +1,7 @@
 
 #pragma once
 
-#include "include.hpp"
+#include "../include.hpp"
 
 class light {
     private:

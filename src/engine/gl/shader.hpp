@@ -1,10 +1,8 @@
 #pragma once
 
-#include "include.hpp"
-
 #include <string>
 
-#include "light.hpp"
+#include "../scene/light.hpp"
 
 /*!
  @brief Shader class to handle shader programs.

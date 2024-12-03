@@ -1,7 +1,7 @@
 
 #pragma once
 
-#include "object.hpp"
+#include "../renderable/object.hpp"
 
 #include <vector>
 

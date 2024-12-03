@@ -1,7 +1,7 @@
 
 #pragma once
 
-#include "include.hpp"
+#include "../include.hpp"
 
 /*!
  @brief Camera class to handle camera movement.

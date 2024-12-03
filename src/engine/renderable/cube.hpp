@@ -1,7 +1,6 @@
 
 #pragma once
 
-#include "include.hpp"
 #include "object.hpp"
 
 class cube : public object {

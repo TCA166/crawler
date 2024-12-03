@@ -1,9 +1,15 @@
 #pragma once
 
+// All the underlying lib headers
 #include "include.hpp"
-#include "camera.hpp"
-#include "light.hpp"
-#include "object.hpp"
-#include "cube.hpp"
-#include "scene.hpp"
-#include "renderer.hpp"
+// gl folder
+#include "gl/renderer.hpp"
+#include "gl/shader.hpp"
+#include "gl/texture.hpp"
+// scene folder
+#include "scene/camera.hpp"
+#include "scene/light.hpp"
+#include "scene/scene.hpp"
+// renderable folder
+#include "renderable/object.hpp"
+#include "renderable/cube.hpp"

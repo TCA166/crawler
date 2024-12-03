@@ -4,8 +4,6 @@
 #include <sstream>
 #include <stdexcept>
 
-#include "include.hpp"
-
 /*!
  @brief Read a file and return its contents as a string
  @param file_path The path to the file

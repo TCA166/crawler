@@ -1,15 +1,13 @@
 
 #pragma once
 
-#include "include.hpp"
-
 #include <vector>
 #include <map>
 
-#include "shader.hpp"
-#include "camera.hpp"
-#include "texture.hpp"
-#include "light.hpp"
+#include "../gl/shader.hpp"
+#include "../scene/camera.hpp"
+#include "../gl/texture.hpp"
+#include "../scene/light.hpp"
 
 /*!
  @brief Object class to handle rendering of objects.

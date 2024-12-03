@@ -1,7 +1,5 @@
 #include "camera.hpp"
 
-#include "include.hpp"
-
 #define NEAR_PLANE 0.1f
 #define FAR_PLANE 100000.0f
 

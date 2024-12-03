@@ -3,7 +3,7 @@
 
 #include "../game_object.hpp"
 #include "../physics/constants.hpp"
-#include "../engine/light.hpp"
+#include "../engine/engine.hpp"
 
 class sun : public game_object, public light {
     private:
