@@ -91,6 +91,20 @@ object::object(const shader* object_shader, const std::string& path, double xpos
     vertex_count = mesh->mNumVertices;
 }
 
+object::object(const shader* object_shader, const std::vector<float>& data, const std::vector<unsigned int>& indices, double xpos, double ypos, double zpos) {
+    this->object_shader = object_shader;
+    this->data = data;
+    this->indices = indices;
+    this->xpos = xpos;
+    this->ypos = ypos;
+    this->zpos = zpos;
+    this->scale = 1.0;
+    this->xrot = 0.0;
+    this->yrot = 0.0;
+    this->zrot = 0.0;
+    vertex_count = data.size() / 14;
+}
+
 object::~object() {
     glDeleteVertexArrays(1, &VAO);
     glDeleteBuffers(1, &VBO);

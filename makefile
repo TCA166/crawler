@@ -17,6 +17,9 @@ renderer.o: src/engine/renderer.cpp src/engine/renderer.hpp
 object.o: src/engine/object.cpp src/engine/object.hpp
 	$(CC) $(IFLAGS) $(CFLAGS) -c src/engine/object.cpp
 
+cube.o: src/engine/cube.cpp src/engine/cube.hpp
+	$(CC) $(IFLAGS) $(CFLAGS) -c src/engine/cube.cpp
+
 shader.o: src/engine/shader.cpp src/engine/shader.hpp
 	$(CC) $(IFLAGS) $(CFLAGS) -c src/engine/shader.cpp
 
@@ -26,8 +29,8 @@ light.o: src/engine/light.cpp src/engine/light.hpp
 camera.o: src/engine/camera.cpp src/engine/camera.hpp
 	$(CC) $(IFLAGS) $(CFLAGS) -c src/engine/camera.cpp
 
-engine.o: texture.o scene.o renderer.o object.o shader.o camera.o light.o
-	$(CC) $(CFLAGS) -r texture.o scene.o renderer.o object.o shader.o camera.o light.o -o engine.o
+engine.o: texture.o scene.o renderer.o object.o shader.o camera.o light.o cube.o
+	$(CC) $(CFLAGS) -r texture.o scene.o renderer.o object.o shader.o camera.o light.o cube.o -o engine.o
 
 entity.o: src/physics/entity.cpp src/physics/entity.hpp
 	$(CC) $(IFLAGS) $(CFLAGS) -c src/physics/entity.cpp

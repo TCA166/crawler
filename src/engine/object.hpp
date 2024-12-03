@@ -45,6 +45,16 @@ class object {
          @param zpos The z position of the object
         */
         object(const shader* object_shader, const std::string& path, double xpos, double ypos, double zpos);
+        /*!
+         @brief Constructs an object with a given shader and data
+         @param object_shader The shader to use for rendering
+         @param data The data of the object
+         @param indices The indices of the object
+         @param xpos The x position of the object
+         @param ypos The y position of the object
+         @param zpos The z position of the object
+        */
+        object(const shader* object_shader, const std::vector<float>& data, const std::vector<unsigned int>& indices, double xpos, double ypos, double zpos);
         virtual ~object();
         /*!
          @brief Initialize the object
