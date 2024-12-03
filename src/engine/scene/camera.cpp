@@ -20,15 +20,15 @@ camera::~camera() {
 }
 
 void camera::move_up(float scale) {
-    position.y += scale * speed;
+    this->translate(UP * scale * speed);
 }
 
 void camera::move_forward(float scale) {
-    position += front * scale * speed;
+    this->translate(front * scale * speed);
 }
 
 void camera::move_right(float scale) {
-    position += glm::normalize(glm::cross(front, glm::vec3(0.0f, 1.0f, 0.0f))) * scale * speed;
+    this->translate(glm::normalize(glm::cross(front, glm::vec3(0.0f, 1.0f, 0.0f))) * scale * speed);
 }
 
 void camera::zoom(float value) {
@@ -72,8 +72,12 @@ glm::vec3 camera::get_position() const {
     return position;
 }
 
-void camera::set_position(glm::vec3 position) {
-    this->position = position;
+void camera::set_position(double x, double y, double z) {
+    this->position = glm::vec3(x, y, z);
+}
+
+void camera::translate(glm::vec3 translation) {
+    position += translation;
 }
 
 void camera::set_speed(float speed) {

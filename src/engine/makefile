@@ -33,3 +33,6 @@ camera.o: scene/camera.cpp scene/camera.hpp
 
 engine.o: texture.o scene.o renderer.o object.o shader.o camera.o light.o cube.o
 	$(CC) $(CFLAGS) -r texture.o scene.o renderer.o object.o shader.o camera.o light.o cube.o -o engine.o
+
+clean:
+	rm -f *.o

@@ -8,22 +8,13 @@
 #include "../scene/camera.hpp"
 #include "../gl/texture.hpp"
 #include "../scene/light.hpp"
+#include "../abc/moveable.hpp"
 
 /*!
  @brief Object class to handle rendering of objects.
 */
-class object {
-    protected:
-        GLuint VAO, VBO, EBO;
-        double xpos, ypos, zpos;
-        float scale;
-        double xrot, yrot, zrot;
-        const shader* object_shader;
-        unsigned int vertex_count;
-        unsigned int index_count;
-        // map name->texture
-        std::map<std::string, texture*> textures;
-        unsigned int texture_count;
+class object : public moveable {
+    private:
         unsigned int normal_count;
         /*!
          @brief the data of the object (vertices, normals, texture coordinates, tangents and bitangents)
@@ -33,6 +24,18 @@ class object {
          @brief the indices of the object
         */
         std::vector<unsigned int> indices;
+        GLuint VAO, VBO, EBO;
+        double xpos, ypos, zpos;
+        float scale;
+        double xrot, yrot, zrot;
+        const shader* object_shader;
+        unsigned int vertex_count;
+        unsigned int index_count;
+    protected:
+        // map name->texture
+        std::map<std::string, texture*> textures;
+        unsigned int texture_count;
+        std::vector<moveable*> children;
     public:
         /*!
          @brief Constructs an object with a given shader and path to an obj file
@@ -107,4 +110,9 @@ class object {
          @return The position of the object
         */
         glm::vec3 get_position() const;
+        /*!
+         @brief Adds a child to the object
+         @param child The child to add
+        */
+        void add_child(moveable* child);
 };

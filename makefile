@@ -5,7 +5,7 @@ CC = g++
 
 all: main
 
-engine.o:
+engine.o: src/engine/makefile src/engine/*/*.cpp src/engine/*.hpp
 	$(MAKE) -C src/engine IFLAGS="$(IFLAGS)" CFLAGS="$(CFLAGS)" CC="$(CC)"
 	cp src/engine/engine.o .
 
@@ -26,6 +26,7 @@ main: src/main.cpp engine.o game.o physics.o game_object.o
 
 clean:
 	rm -f *.o main
+	$(MAKE) -C src/engine clean
 
 dependencies:
 	sudo dnf install -y glfw-devel assimp-devel glew-devel glm-devel SOIL-devel glibc-devel.i686

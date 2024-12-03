@@ -2,11 +2,12 @@
 #pragma once
 
 #include "../include.hpp"
+#include "../abc/moveable.hpp"
 
 /*!
  @brief Camera class to handle camera movement.
 */
-class camera {
+class camera : public moveable {
     private:
         /*!
          @brief The position of the camera
@@ -92,11 +93,6 @@ class camera {
         */
         void rotate_front(double xoffset, double yoffset);
         /*!
-         @brief Set the position of the camera
-         @param position The new position of the camera
-        */
-        void set_position(glm::vec3 position);
-        /*!
          @brief Get the view matrix of the camera
          @return The view matrix of the camera
         */
@@ -117,4 +113,16 @@ class camera {
          @param speed The new speed of the camera
         */
         void set_speed(float speed);
+        /*!
+         @brief Translate the object
+         @param translation The translation to apply
+        */
+        void translate(glm::vec3 translation);
+        /*!
+         @brief Set the position of the object
+         @param xpos The x position of the object
+         @param ypos The y position of the object
+         @param zpos The z position of the object
+        */
+        void set_position(double xpos, double ypos, double zpos);
 };

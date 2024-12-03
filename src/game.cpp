@@ -45,6 +45,7 @@ void game::init() {
 void game::main(camera* target_camera) {
     target_camera->set_speed(10.0f);
     std::vector<game_object*> objects = {earth_obj, moon_obj, sun_obj};
+    earth_obj->add_child(target_camera);
     while(!this->get_should_close()){
         {
             double new_time = glfwGetTime();
@@ -74,7 +75,6 @@ void game::main(camera* target_camera) {
         moon_obj->evaluate(delta_time);
         sun_obj->evaluate(delta_time);
         earth_obj->evaluate(delta_time);
-        target_camera->set_position(target_camera->get_position() + (earth_obj->get_velocity() * (float)delta_time));
         //std::cout << "earth-moon distance: " << glm::length(earth_obj->get_position() - moon_obj->get_position()) << std::endl;
     }
 }

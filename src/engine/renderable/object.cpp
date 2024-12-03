@@ -210,6 +210,9 @@ void object::set_position(double xpos, double ypos, double zpos){
     this->xpos = xpos;
     this->ypos = ypos;
     this->zpos = zpos;
+    for(moveable* child : children){
+        child->set_position(xpos, ypos, zpos);
+    }
 }
 
 void object::set_scale(float scale){
@@ -226,8 +229,15 @@ void object::translate(glm::vec3 translation){
     xpos += translation.x;
     ypos += translation.y;
     zpos += translation.z;
+    for(moveable* child : children){
+        child->translate(translation);
+    }
 }
 
 glm::vec3 object::get_position() const {
     return glm::vec3(xpos, ypos, zpos);
+}
+
+void object::add_child(moveable* child){
+    children.push_back(child);
 }
