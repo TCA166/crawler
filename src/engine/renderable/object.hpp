@@ -101,6 +101,13 @@ class object : public moveable {
         */
         void set_rotation(double xrot, double yrot, double zrot);
         /*!
+         @brief Rotate the object
+         @param xrot The x rotation of the object
+         @param yrot The y rotation of the object
+         @param zrot The z rotation of the object
+        */
+        void rotate(double xrot, double yrot, double zrot);
+        /*!
          @brief Translate the object
          @param translation The translation to apply
         */

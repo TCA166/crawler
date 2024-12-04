@@ -219,10 +219,20 @@ void object::set_scale(float scale){
     this->scale = scale;
 }
 
+void object::rotate(double xrot, double yrot, double zrot){
+    this->xrot += xrot;
+    this->yrot += yrot;
+    this->zrot += zrot;
+    for(moveable* child : children){
+        child->rotate(xrot, yrot, zrot);
+    }
+}
+
 void object::set_rotation(double xrot, double yrot, double zrot){
-    this->xrot = xrot;
-    this->yrot = yrot;
-    this->zrot = zrot;
+    double xdiff = xrot - this->xrot;
+    double ydiff = yrot - this->yrot;
+    double zdiff = zrot - this->zrot;
+    this->rotate(xdiff, ydiff, zdiff);
 }
 
 void object::translate(glm::vec3 translation){

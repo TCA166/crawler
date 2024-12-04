@@ -125,4 +125,18 @@ class camera : public moveable {
          @param zpos The z position of the object
         */
         void set_position(double xpos, double ypos, double zpos);
+        /*!
+         @brief Rotate the object
+         @param xrot The rotation around the x axis
+         @param yrot The rotation around the y axis
+         @param zrot The rotation around the z axis
+        */
+        void rotate(double xrot, double yrot, double zrot);
+        /*!
+         @brief Set the rotation of the object
+         @param xrot The rotation around the x axis
+         @param yrot The rotation around the y axis
+         @param zrot The rotation around the z axis
+        */
+        void set_rotation(double xrot, double yrot, double zrot);
 };

@@ -83,3 +83,13 @@ void camera::translate(glm::vec3 translation) {
 void camera::set_speed(float speed) {
     this->speed = speed;
 }
+
+void camera::rotate(double xrot, double yrot, double zrot) {
+    this->rotate_front(xrot, yrot);
+}
+
+void camera::set_rotation(double xrot, double yrot, double zrot) {
+    this->pitch = xrot;
+    this->yaw = yrot;
+    this->update_front();
+}
