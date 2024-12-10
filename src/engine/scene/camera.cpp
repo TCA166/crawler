@@ -84,11 +84,11 @@ void camera::set_speed(float speed) {
     this->speed = speed;
 }
 
-void camera::rotate(double xrot, double yrot, double zrot) {
+void camera::rotate(double xrot, double yrot, double) {
     this->rotate_front(xrot, yrot);
 }
 
-void camera::set_rotation(double xrot, double yrot, double zrot) {
+void camera::set_rotation(double xrot, double yrot, double) {
     this->pitch = xrot;
     this->yaw = yrot;
     this->update_front();

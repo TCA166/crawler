@@ -26,7 +26,7 @@ class object : public moveable {
         std::vector<unsigned int> indices;
         GLuint VAO, VBO, EBO;
         double xpos, ypos, zpos;
-        float scale;
+        float scalex, scaley, scalez;
         double xrot, yrot, zrot;
         const shader* object_shader;
         unsigned int vertex_count;
@@ -90,7 +90,14 @@ class object : public moveable {
         void set_position(double xpos, double ypos, double zpos);
         /*!
          @brief Set the scale of the object
-         @param scale The scale of the object
+         @param scalex The x scale of the object
+         @param scaley The y scale of the object
+         @param scalez The z scale of the object
+        */
+        void set_scale(float scalex, float scaley, float scalez);
+        /*!
+         @brief Set the rotation of the object
+         @param scale The scale to apply
         */
         void set_scale(float scale);
         /*!

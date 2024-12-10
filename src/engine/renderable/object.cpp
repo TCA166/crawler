@@ -20,7 +20,9 @@ object::object(const shader* object_shader, const std::string& path, double xpos
     this->xpos = xpos;
     this->ypos = ypos;
     this->zpos = zpos;
-    this->scale = 1.0;
+    this->scalex = 1.0;
+    this->scaley = 1.0;
+    this->scalez = 1.0;
     this->xrot = 0.0;
     this->yrot = 0.0;
     this->zrot = 0.0;
@@ -96,7 +98,9 @@ object::object(const shader* object_shader, const std::vector<float>& data, cons
     this->xpos = xpos;
     this->ypos = ypos;
     this->zpos = zpos;
-    this->scale = 1.0;
+    this->scalex = 1.0;
+    this->scaley = 1.0;
+    this->scalez = 1.0;
     this->xrot = 0.0;
     this->yrot = 0.0;
     this->zrot = 0.0;
@@ -172,7 +176,7 @@ void object::render(const glm::mat4* viewProjection, glm::vec3 viewPos, const st
         i++;
     }
 
-    glm::mat4 model = glm::translate(glm::mat4(1.0f), glm::vec3(xpos, ypos, zpos)) * glm::scale(glm::mat4(1.0f), glm::vec3(scale)) * glm::rotate(glm::mat4(1.0f), (float)xrot, glm::vec3(1.0f, 0.0f, 0.0f)) * glm::rotate(glm::mat4(1.0f), (float)yrot, glm::vec3(0.0f, 1.0f, 0.0f)) * glm::rotate(glm::mat4(1.0f), (float)zrot, glm::vec3(0.0f, 0.0f, 1.0f));
+    glm::mat4 model = glm::translate(glm::mat4(1.0f), glm::vec3(xpos, ypos, zpos)) * glm::rotate(glm::mat4(1.0f), (float)xrot, glm::vec3(1.0f, 0.0f, 0.0f)) * glm::rotate(glm::mat4(1.0f), (float)yrot, glm::vec3(0.0f, 1.0f, 0.0f)) * glm::rotate(glm::mat4(1.0f), (float)zrot, glm::vec3(0.0f, 0.0f, 1.0f)) * glm::scale(glm::mat4(1.0f), glm::vec3(scalex, scaley, scalez));
 
     object_shader->apply_uniform_mat4(model, "model");
     object_shader->apply_uniform_mat4(*viewProjection, "viewProjection");
@@ -215,8 +219,16 @@ void object::set_position(double xpos, double ypos, double zpos){
     }
 }
 
+void object::set_scale(float scalex, float scaley, float scalez){
+    this->scalex = scalex;
+    this->scaley = scaley;
+    this->scalez = scalez;
+}
+
 void object::set_scale(float scale){
-    this->scale = scale;
+    this->scalex = scale;
+    this->scaley = scale;
+    this->scalez = scale;
 }
 
 void object::rotate(double xrot, double yrot, double zrot){
