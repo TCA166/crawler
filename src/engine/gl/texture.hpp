@@ -33,3 +33,12 @@ class texture {
         */
         void set_active_texture(const shader* target_shader, int texture_unit, std::string name) const;
 };
+
+/*!
+ @brief Flip an image vertically
+ @param img The image to flip
+ @param width The width of the image
+ @param height The height of the image
+ @param channels The number of channels in the image
+*/
+void flip_y(unsigned char* img, int width, int height, int channels);

@@ -5,7 +5,7 @@
 
 #include <stdexcept>
 
-static void flip_y(unsigned char* img, int width, int height, int channels){
+void flip_y(unsigned char* img, int width, int height, int channels){
 	int i, j;
 	for( j = 0; j*2 < height; ++j ){
 		int index1 = j * width * channels;
