@@ -32,7 +32,7 @@ class texture {
      @note flips the texture
     */
     texture(const std::string &path);
-    ~texture();
+    virtual ~texture();
     /*!
      @brief Set the active texture
      @param target_shader The shader to set the texture in

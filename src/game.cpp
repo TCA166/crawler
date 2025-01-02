@@ -19,6 +19,7 @@ game::~game() {
     delete this->cube1;
     delete this->cube2;
     delete this->lght;
+    delete this->sky;
 }
 
 void game::init() {
@@ -28,9 +29,11 @@ void game::init() {
     cube2 = new debug_cube(textured_shader, 1.0, 0.0, 1.0);
     lght = new light(glm::vec3(2.0, 0.0, 2.0), glm::vec3(1.0, 1.0, 1.0), 1.0,
                      0.09, 0.032);
+    sky = new skybox();
     this->add_light(lght);
     this->add_object(cube1);
     this->add_object(cube2);
+    this->add_object(sky);
     scene::init();
 }
 

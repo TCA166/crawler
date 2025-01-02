@@ -12,6 +12,9 @@ texture.o: gl/texture.cpp gl/texture.hpp
 shader.o: gl/shader.cpp gl/shader.hpp
 	$(CC) $(IFLAGS) $(CFLAGS) -c gl/shader.cpp
 
+cubemap.o: gl/cubemap.cpp gl/cubemap.hpp
+	$(CC) $(IFLAGS) $(CFLAGS) -c gl/cubemap.cpp
+
 # renderable subfolder
 
 cube.o: renderable/cube.cpp renderable/cube.hpp
@@ -31,8 +34,8 @@ light.o: scene/light.cpp scene/light.hpp
 camera.o: scene/camera.cpp scene/camera.hpp
 	$(CC) $(IFLAGS) $(CFLAGS) -c scene/camera.cpp
 
-engine.o: texture.o scene.o renderer.o object.o shader.o camera.o light.o cube.o
-	$(CC) $(CFLAGS) -r texture.o scene.o renderer.o object.o shader.o camera.o light.o cube.o -o engine.o
+engine.o: texture.o scene.o renderer.o object.o shader.o camera.o light.o cube.o cubemap.o
+	$(CC) $(CFLAGS) -r texture.o scene.o renderer.o object.o shader.o camera.o light.o cube.o cubemap.o -o engine.o
 
 clean:
 	rm -f *.o
