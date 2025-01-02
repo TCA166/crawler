@@ -4,13 +4,8 @@
 
 #include "shader.hpp"
 
-class cubemap {
-  private:
-    GLuint texture_id;
-
+class cubemap : public texture {
   public:
     cubemap(const std::vector<std::string> &paths);
     ~cubemap();
-    void set_active_texture(const shader *target_shader, int texture_unit,
-                            std::string name) const;
 };

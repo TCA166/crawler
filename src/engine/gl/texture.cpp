@@ -20,6 +20,8 @@ void flip_y(unsigned char *img, int width, int height, int channels) {
     }
 }
 
+texture::texture(GLuint texture_id) : texture_id(texture_id) {}
+
 // by default flip the image, this is because SOIL loads the image upside down
 texture::texture(const std::string &path) : texture(path, true) {}
 
@@ -32,6 +34,7 @@ texture::texture(const std::string &path, bool flip) {
                     GL_LINEAR_MIPMAP_LINEAR);
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    int width, height, nr_channels;
     unsigned char *image = SOIL_load_image(path.c_str(), &width, &height,
                                            &nr_channels, SOIL_LOAD_AUTO);
     if (image == nullptr) {

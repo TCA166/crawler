@@ -12,9 +12,14 @@
 class texture {
   private:
     GLuint texture_id;
-    int width, height, nr_channels;
 
   public:
+    /*!
+     @brief Initializes the object assuming a texture has already been loaded
+     @param texture_id The id of the texture
+     @note Meant to be used in inherited classes
+    */
+    texture(GLuint texture_id);
     /*!
      @brief Constructs a texture based on a path
      @param path Path to the texture
@@ -24,6 +29,7 @@ class texture {
     /*!
      @brief Constructs a texture based on a path
      @param path Path to the texture
+     @note flips the texture
     */
     texture(const std::string &path);
     ~texture();

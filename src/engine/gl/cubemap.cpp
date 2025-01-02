@@ -6,7 +6,13 @@
 
 #include <stdexcept>
 
-cubemap::cubemap(const std::vector<std::string> &paths) {
+/*!
+ @brief helper function to actually do what a cubemap constructor should do
+ because C++ is DUMB
+ @param paths The paths to the cubemap textures
+*/
+static GLuint load_cubemap(const std::vector<std::string> &paths) {
+    GLuint texture_id;
     glGenTextures(1, &texture_id);
     glBindTexture(GL_TEXTURE_CUBE_MAP, texture_id);
     for (unsigned int i = 0; i < paths.size(); i++) {
@@ -30,13 +36,9 @@ cubemap::cubemap(const std::vector<std::string> &paths) {
     glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+    return texture_id;
 }
+cubemap::cubemap(const std::vector<std::string> &paths)
+    : texture(load_cubemap(paths)) {}
 
-cubemap::~cubemap() { glDeleteTextures(1, &texture_id); }
-
-void cubemap::set_active_texture(const shader *target_shader, int texture_unit,
-                                 std::string name) const {
-    glActiveTexture(GL_TEXTURE0 + texture_unit);
-    glBindTexture(GL_TEXTURE_CUBE_MAP, texture_id);
-    target_shader->apply_uniform(texture_unit, name);
-}
+cubemap::~cubemap() {}
