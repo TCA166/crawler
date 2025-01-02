@@ -19,15 +19,14 @@ game::~game() {
     delete this->cube1;
     delete this->cube2;
     delete this->lght;
-    delete this->textured_shader;
 }
 
 void game::init() {
     textured_shader = new shader("shaders/textured_vertex.glsl",
                                  "shaders/textured_fragment.glsl");
-    cube1 = new cube(textured_shader, 0.0, 0.0, 0.0);
-    cube2 = new cube(textured_shader, 1.0, 0.0, 0.0);
-    lght = new light(glm::vec3(2.0, 0.0, 0.0), glm::vec3(1.0, 1.0, 1.0), 1.0,
+    cube1 = new debug_cube(textured_shader, 0.0, 0.0, 0.0);
+    cube2 = new debug_cube(textured_shader, 1.0, 0.0, 1.0);
+    lght = new light(glm::vec3(2.0, 0.0, 2.0), glm::vec3(1.0, 1.0, 1.0), 1.0,
                      0.09, 0.032);
     this->add_light(lght);
     this->add_object(cube1);

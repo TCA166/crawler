@@ -2,6 +2,7 @@
 #pragma once
 
 #include "engine/engine.hpp"
+#include "objects/debug_cube.hpp"
 
 class game : public scene {
   private:
@@ -9,7 +10,7 @@ class game : public scene {
     double current_time, delta_time;
     bool mv_forward, mv_backward, mv_left, mv_right, mv_up, mv_down;
     double xpos, ypos;
-    cube *cube1, *cube2;
+    debug_cube *cube1, *cube2;
     light *lght;
     shader *textured_shader;
 

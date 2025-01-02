@@ -11,5 +11,7 @@
 #include "scene/light.hpp"
 #include "scene/scene.hpp"
 // renderable folder
-#include "renderable/object.hpp"
 #include "renderable/cube.hpp"
+#include "renderable/object.hpp"
+
+#define TEXTURE_PATH(name) "textures/" name
