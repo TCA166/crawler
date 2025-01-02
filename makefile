@@ -18,7 +18,7 @@ physics.o: entity.o
 game_object.o: src/game_object.cpp src/game_object.hpp
 	$(CC) $(IFLAGS) $(CFLAGS) -c src/game_object.cpp
 
-game.o: src/game.cpp src/game.hpp src/objects/* src/physics/constants.hpp
+game.o: src/game.cpp src/game.hpp src/objects/*.cpp src/physics/constants.hpp
 	$(CC) $(IFLAGS) $(CFLAGS) -c src/game.cpp
 
 main: src/main.cpp engine.o game.o physics.o game_object.o

@@ -1,5 +1,8 @@
 #include "cube.hpp"
 
+// clang-format off
+
+// so that the auto formatter doesn't mess up the nice human readable format
 // x, y, z, nx, ny, nz, tx, ty, tanx, tany, tanz, bitanx, bitany, bitanz
 
 static const std::vector<float> cube_data = {
@@ -23,10 +26,9 @@ static const std::vector<unsigned int> cube_indices = {
     1, 3, 5, 3, 5, 7
 };
 
-cube::cube(const shader* object_shader, double xpos, double ypos, double zpos) : object(object_shader, cube_data, cube_indices, xpos, ypos, zpos) {
+// clang-format on
 
-}
+cube::cube(const shader *object_shader, double xpos, double ypos, double zpos)
+    : object(object_shader, cube_data, cube_indices, xpos, ypos, zpos) {}
 
-cube::~cube() {
-    
-}
+cube::~cube() {}

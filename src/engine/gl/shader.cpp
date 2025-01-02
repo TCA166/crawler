@@ -9,7 +9,7 @@
  @param file_path The path to the file
  @return The contents of the file as a string
 */
-static std::string read_file(const std::string& file_path) {
+static std::string read_file(const std::string &file_path) {
     std::ifstream file(file_path);
     if (!file.is_open()) {
         throw std::runtime_error("Could not open file");
@@ -26,9 +26,9 @@ static std::string read_file(const std::string& file_path) {
  @param type The type of the shader
  @return The compiled shader
 */
-static GLuint compile_shader(const std::string& source, GLenum type) {
+static GLuint compile_shader(const std::string &source, GLenum type) {
     GLuint shader = glCreateShader(type);
-    const char* src = source.c_str();
+    const char *src = source.c_str();
     glShaderSource(shader, 1, &src, NULL);
     glCompileShader(shader);
 
@@ -37,7 +37,7 @@ static GLuint compile_shader(const std::string& source, GLenum type) {
     if (success == GL_FALSE) {
         GLint length;
         glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &length);
-        char* message = (char*)alloca(length * sizeof(char));
+        char *message = (char *)alloca(length * sizeof(char));
         glGetShaderInfoLog(shader, length, &length, message);
         throw std::runtime_error(message);
     }
@@ -50,7 +50,8 @@ shader::shader(const std::string vertex_path, const std::string fragment_Path) {
     std::string fragment_source = read_file(fragment_Path);
 
     GLuint vertex_shader = compile_shader(vertex_source, GL_VERTEX_SHADER);
-    GLuint fragment_shader = compile_shader(fragment_source, GL_FRAGMENT_SHADER);
+    GLuint fragment_shader =
+        compile_shader(fragment_source, GL_FRAGMENT_SHADER);
 
     program = glCreateProgram();
     glAttachShader(program, vertex_shader);
@@ -62,7 +63,7 @@ shader::shader(const std::string vertex_path, const std::string fragment_Path) {
     if (success == GL_FALSE) {
         GLint length;
         glGetProgramiv(program, GL_INFO_LOG_LENGTH, &length);
-        char* message = (char*)alloca(length * sizeof(char));
+        char *message = (char *)alloca(length * sizeof(char));
         glGetProgramInfoLog(program, length, &length, message);
         throw std::runtime_error(message);
     }
@@ -71,38 +72,43 @@ shader::shader(const std::string vertex_path, const std::string fragment_Path) {
     glDeleteShader(fragment_shader);
 }
 
-shader::~shader() {
-    glDeleteProgram(program);
+shader::~shader() { glDeleteProgram(program); }
+
+void shader::use() const { glUseProgram(program); }
+
+void shader::apply_uniform_mat4(glm::mat4 matrix,
+                                const std::string &name) const {
+    glUniformMatrix4fv(glGetUniformLocation(program, name.c_str()), 1, GL_FALSE,
+                       (float *)&matrix);
 }
 
-void shader::use() const {
-    glUseProgram(program);
-}
-
-void shader::apply_uniform_mat4(glm::mat4 matrix, const std::string& name) const {
-    glUniformMatrix4fv(glGetUniformLocation(program, name.c_str()), 1, GL_FALSE, (float*)&matrix);
-}
-
-GLint shader::get_attrib_location(const std::string& name) const {
+GLint shader::get_attrib_location(const std::string &name) const {
     return glGetAttribLocation(program, name.c_str());
 }
 
-void shader::apply_uniform(int value, const std::string& name) const {
+void shader::apply_uniform(int value, const std::string &name) const {
     glUniform1i(glGetUniformLocation(program, name.c_str()), value);
 }
 
-void shader::apply_uniform_scalar(float scalar, const std::string& name) const {
+void shader::apply_uniform_scalar(float scalar, const std::string &name) const {
     glUniform1f(glGetUniformLocation(program, name.c_str()), scalar);
 }
 
-void shader::apply_uniform_vec3(glm::vec3 vector, const std::string& name) const {
-    glUniform3fv(glGetUniformLocation(program, name.c_str()), 1, (float*)&vector);
+void shader::apply_uniform_vec3(glm::vec3 vector,
+                                const std::string &name) const {
+    glUniform3fv(glGetUniformLocation(program, name.c_str()), 1,
+                 (float *)&vector);
 }
 
-void shader::apply_light(const light* light, const std::string& name) const {
-    glUniform3fv(glGetUniformLocation(program, (name + ".position").c_str()), 1, (float*)light->get_position());
-    glUniform3fv(glGetUniformLocation(program, (name + ".color").c_str()), 1, (float*)light->get_color());
-    glUniform1f(glGetUniformLocation(program, (name + ".constant").c_str()), light->get_constant());
-    glUniform1f(glGetUniformLocation(program, (name + ".linear").c_str()), light->get_linear());
-    glUniform1f(glGetUniformLocation(program, (name + ".quadratic").c_str()), light->get_quadratic());
+void shader::apply_light(const light *light, const std::string &name) const {
+    glUniform3fv(glGetUniformLocation(program, (name + ".position").c_str()), 1,
+                 (float *)light->get_position());
+    glUniform3fv(glGetUniformLocation(program, (name + ".color").c_str()), 1,
+                 (float *)light->get_color());
+    glUniform1f(glGetUniformLocation(program, (name + ".constant").c_str()),
+                light->get_constant());
+    glUniform1f(glGetUniformLocation(program, (name + ".linear").c_str()),
+                light->get_linear());
+    glUniform1f(glGetUniformLocation(program, (name + ".quadratic").c_str()),
+                light->get_quadratic());
 }

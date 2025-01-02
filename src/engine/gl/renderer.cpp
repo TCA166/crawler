@@ -1,88 +1,108 @@
 
 #include "renderer.hpp"
 
-#include <stdexcept>
 #include <iostream>
+#include <stdexcept>
 #include <thread>
 
 static const glm::vec3 loading_color = glm::vec3(038.0f, 206.0f, 0.0f);
 
 /*!
  @brief Global framebuffer size callback
- @details This function is called when the window is resized, it expects a renderer instance as the user pointer
+ @details This function is called when the window is resized, it expects a
+ renderer instance as the user pointer
  @param window The window that was resized
  @param width The new width of the window
  @param height The new height of the window
 */
-static void global_framebuffer_size_callback(GLFWwindow* window, int width, int height){
-    renderer* instance = static_cast<renderer*>(glfwGetWindowUserPointer(window));
-	instance->resize(width, height);
+static void global_framebuffer_size_callback(GLFWwindow *window, int width,
+                                             int height) {
+    renderer *instance =
+        static_cast<renderer *>(glfwGetWindowUserPointer(window));
+    instance->resize(width, height);
 }
 
 /*!
  @brief Global key callback
- @details This function is called when a key is pressed, it expects a renderer instance as the user pointer
+ @details This function is called when a key is pressed, it expects a renderer
+ instance as the user pointer
  @param window The window that was resized
  @param key The key that was pressed
  @param scancode The scancode of the key
  @param action The action that was performed
  @param mods The mods that were pressed
 */
-static void global_key_callback(GLFWwindow* window, int key, int scancode, int action, int mods){
-    renderer* instance = static_cast<renderer*>(glfwGetWindowUserPointer(window));
+static void global_key_callback(GLFWwindow *window, int key, int scancode,
+                                int action, int mods) {
+    renderer *instance =
+        static_cast<renderer *>(glfwGetWindowUserPointer(window));
     instance->key_callback(key, scancode, action, mods);
 }
 
 /*!
  @brief Global mouse button callback
- @details This function is called when a mouse button is pressed, it expects a renderer instance as the user pointer
+ @details This function is called when a mouse button is pressed, it expects a
+ renderer instance as the user pointer
  @param window The window that was resized
  @param button The button that was pressed
  @param action The action that was performed
  @param mods The mods that were pressed
 */
-static void global_mouse_button_callback(GLFWwindow* window, int button, int action, int mods){
-    renderer* instance = static_cast<renderer*>(glfwGetWindowUserPointer(window));
+static void global_mouse_button_callback(GLFWwindow *window, int button,
+                                         int action, int mods) {
+    renderer *instance =
+        static_cast<renderer *>(glfwGetWindowUserPointer(window));
     instance->mouse_button_callback(button, action, mods);
 }
 
 /*!
  @brief Global scroll callback
- @details This function is called when the mouse is scrolled, it expects a renderer instance as the user pointer
+ @details This function is called when the mouse is scrolled, it expects a
+ renderer instance as the user pointer
  @param window The window that was resized
  @param xoffset The x offset of the scroll
  @param yoffset The y offset of the scroll
 */
-static void global_scroll_callback(GLFWwindow* window, double xoffset, double yoffset){
-    renderer* instance = static_cast<renderer*>(glfwGetWindowUserPointer(window));
+static void global_scroll_callback(GLFWwindow *window, double xoffset,
+                                   double yoffset) {
+    renderer *instance =
+        static_cast<renderer *>(glfwGetWindowUserPointer(window));
     instance->scroll_callback(xoffset, yoffset);
 }
 
 /*!
  @brief Global mouse callback
- @details This function is called when the mouse is moved, it expects a renderer instance as the user pointer
+ @details This function is called when the mouse is moved, it expects a renderer
+ instance as the user pointer
  @param window The window that was resized
  @param xpos The x position of the mouse
  @param ypos The y position of the mouse
 */
-static void global_mouse_callback(GLFWwindow* window, double xpos, double ypos){
-    renderer* instance = static_cast<renderer*>(glfwGetWindowUserPointer(window));
+static void global_mouse_callback(GLFWwindow *window, double xpos,
+                                  double ypos) {
+    renderer *instance =
+        static_cast<renderer *>(glfwGetWindowUserPointer(window));
     instance->mouse_callback(xpos, ypos);
 }
 
 /*!
  @brief Global window close callback
- @details This function is called when the window is closed, it expects a renderer instance as the user pointer
+ @details This function is called when the window is closed, it expects a
+ renderer instance as the user pointer
  @param window The window that should be closed
 */
-static void global_window_close_callback(GLFWwindow* window){
-    renderer* instance = static_cast<renderer*>(glfwGetWindowUserPointer(window));
+static void global_window_close_callback(GLFWwindow *window) {
+    renderer *instance =
+        static_cast<renderer *>(glfwGetWindowUserPointer(window));
     instance->close_callback();
 }
 
-renderer::renderer(int width, int height, const char* name, sem_t* semaphore, camera* render_camera) : renderer(width, height, name, semaphore, render_camera, NULL) {}
+renderer::renderer(int width, int height, const char *name, sem_t *semaphore,
+                   camera *render_camera)
+    : renderer(width, height, name, semaphore, render_camera, NULL) {}
 
-renderer::renderer(int width, int height, const char* name, sem_t* semaphore, camera* render_camera, GLFWwindow* parent_window) {
+renderer::renderer(int width, int height, const char *name, sem_t *semaphore,
+                   camera *render_camera, GLFWwindow *parent_window) {
     this->width = width;
     this->height = height;
     this->window = glfwCreateWindow(width, height, name, NULL, parent_window);
@@ -92,7 +112,7 @@ renderer::renderer(int width, int height, const char* name, sem_t* semaphore, ca
     glfwSetWindowUserPointer(window, this);
     sem_wait(semaphore);
     glfwMakeContextCurrent(window);
-    if(glewInit() != GLEW_OK){
+    if (glewInit() != GLEW_OK) {
         throw std::runtime_error("Failed to initialize GLEW");
     }
     glViewport(0, 0, width, height);
@@ -100,7 +120,7 @@ renderer::renderer(int width, int height, const char* name, sem_t* semaphore, ca
     glEnable(GL_DEPTH_TEST);
 
     glClearColor(0.0, 0.0, 0.0, 1.0f);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     glfwSwapBuffers(window);
 
@@ -112,62 +132,64 @@ renderer::renderer(int width, int height, const char* name, sem_t* semaphore, ca
     glfwSetScrollCallback(window, global_scroll_callback);
     glfwSetCursorPosCallback(window, global_mouse_callback);
     glfwSetWindowCloseCallback(window, global_window_close_callback);
-    
+
     this->focused = false;
     this->semaphore = semaphore;
     this->target_camera = render_camera;
 }
 
-renderer::~renderer() {
-    glfwDestroyWindow(window);
-}
+renderer::~renderer() { glfwDestroyWindow(window); }
 
-renderer renderer::clone(const char* name){
+renderer renderer::clone(const char *name) {
     int width, height;
     glfwGetWindowSize(window, &width, &height);
-    renderer new_renderer = renderer(width, height, name, semaphore, target_camera, window);
+    renderer new_renderer =
+        renderer(width, height, name, semaphore, target_camera, window);
     new_renderer.change_scene(target_scene);
     return new_renderer;
 }
 
-void renderer::key_callback(int key, int scancode, int action, int mods){
-    if(!focused || target_scene == nullptr){
+void renderer::key_callback(int key, int scancode, int action, int mods) {
+    if (!focused || target_scene == nullptr) {
         return;
     }
-    if(action == GLFW_PRESS && key == GLFW_KEY_ESCAPE){
+    if (action == GLFW_PRESS && key == GLFW_KEY_ESCAPE) {
         this->unfocus();
     }
-    this->target_scene->key_callback(key, scancode, action, mods, target_camera);
+    this->target_scene->key_callback(key, scancode, action, mods,
+                                     target_camera);
 }
 
-void renderer::mouse_button_callback(int button, int action, int mods){
-    if(button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS && !focused){
+void renderer::mouse_button_callback(int button, int action, int mods) {
+    if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS && !focused) {
         this->focus();
     }
-    if(focused && target_scene != nullptr){
-        this->target_scene->mouse_button_callback(button, action, mods, target_camera);
+    if (focused && target_scene != nullptr) {
+        this->target_scene->mouse_button_callback(button, action, mods,
+                                                  target_camera);
     }
 }
 
-void renderer::mouse_callback(double xpos, double ypos){
-    if(!focused || target_scene == nullptr){
+void renderer::mouse_callback(double xpos, double ypos) {
+    if (!focused || target_scene == nullptr) {
         return;
     }
     ypos = -ypos;
     this->target_scene->mouse_callback(xpos, ypos, target_camera);
 }
 
-void renderer::scroll_callback(double xoffset, double yoffset){
-    if(focused && target_scene != nullptr){
+void renderer::scroll_callback(double xoffset, double yoffset) {
+    if (focused && target_scene != nullptr) {
         this->target_scene->scroll_callback(xoffset, yoffset, target_camera);
     }
 }
 
 void renderer::run() {
-    if(target_scene == NULL){
+    if (target_scene == NULL) {
         throw std::runtime_error("No scene to render");
     }
-    while(!glfwWindowShouldClose(window) && !target_scene->get_should_close()){
+    while (!glfwWindowShouldClose(window) &&
+           !target_scene->get_should_close()) {
         sem_wait(semaphore);
         glfwMakeContextCurrent(window);
         glViewport(0, 0, width, height);
@@ -177,23 +199,24 @@ void renderer::run() {
     }
 }
 
-void renderer::resize(int width, int height){
+void renderer::resize(int width, int height) {
     this->width = width;
     this->height = height;
 }
 
-static void keep_alive_thread(const bool* poll) {
-    while(*poll){
+static void keep_alive_thread(const bool *poll) {
+    while (*poll) {
         std::this_thread::sleep_for(std::chrono::milliseconds(500));
         glfwPollEvents();
     }
 }
 
-void renderer::change_scene(scene* new_scene){
+void renderer::change_scene(scene *new_scene) {
     sem_wait(semaphore);
     glfwMakeContextCurrent(window);
     show_loading();
-    // we need to make sure something is polling events, else the OS will think the program is unresponsive
+    // we need to make sure something is polling events, else the OS will think
+    // the program is unresponsive
     bool poll = true;
     std::thread keep_alive(keep_alive_thread, &poll);
     new_scene->init();
@@ -203,22 +226,22 @@ void renderer::change_scene(scene* new_scene){
     target_scene = new_scene;
 }
 
-void renderer::focus(){
+void renderer::focus() {
     focused = true;
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 }
 
-void renderer::unfocus(){
+void renderer::unfocus() {
     focused = false;
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
 }
 
-void renderer::close_callback(){
+void renderer::close_callback() {
     glfwSetWindowShouldClose(window, GLFW_TRUE);
     target_scene->close_callback();
 }
 
-void renderer::show_loading(){
+void renderer::show_loading() {
     glClearColor(loading_color.r, loading_color.g, loading_color.b, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glfwSwapBuffers(window);

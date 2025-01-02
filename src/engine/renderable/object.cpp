@@ -2,8 +2,8 @@
 #include "object.hpp"
 
 #include <assimp/Importer.hpp>
-#include <assimp/scene.h>
 #include <assimp/postprocess.h>
+#include <assimp/scene.h>
 
 #include <stdexcept>
 #include <vector>
@@ -15,7 +15,8 @@
 #define SHADER_VERTEX_TANGENT "vertexTangent"
 #define SHADER_VERTEX_BITANGENT "vertexBitangent"
 
-object::object(const shader* object_shader, const std::string& path, double xpos, double ypos, double zpos) {
+object::object(const shader *object_shader, const std::string &path,
+               double xpos, double ypos, double zpos) {
     this->object_shader = object_shader;
     this->xpos = xpos;
     this->ypos = ypos;
@@ -27,18 +28,21 @@ object::object(const shader* object_shader, const std::string& path, double xpos
     this->yrot = 0.0;
     this->zrot = 0.0;
     Assimp::Importer import;
-	const aiScene* scene = import.ReadFile(path, aiProcess_Triangulate | aiProcess_CalcTangentSpace);
-	if(!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode){
-		throw std::runtime_error("ERROR::ASSIMP::" + std::string(import.GetErrorString()));
-	}
-    
-    if(scene->mNumMeshes == 0){
+    const aiScene *scene = import.ReadFile(
+        path, aiProcess_Triangulate | aiProcess_CalcTangentSpace);
+    if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE ||
+        !scene->mRootNode) {
+        throw std::runtime_error("ERROR::ASSIMP::" +
+                                 std::string(import.GetErrorString()));
+    }
+
+    if (scene->mNumMeshes == 0) {
         throw std::runtime_error("No meshes found in file");
     }
 
-    const aiMesh* mesh = scene->mMeshes[0];
+    const aiMesh *mesh = scene->mMeshes[0];
 
-    for (unsigned int i = 0; i < mesh->mNumVertices; i++){
+    for (unsigned int i = 0; i < mesh->mNumVertices; i++) {
         data.push_back(mesh->mVertices[i].x);
         data.push_back(mesh->mVertices[i].y);
         data.push_back(mesh->mVertices[i].z);
@@ -46,8 +50,7 @@ object::object(const shader* object_shader, const std::string& path, double xpos
             data.push_back(mesh->mNormals[i].x);
             data.push_back(mesh->mNormals[i].y);
             data.push_back(mesh->mNormals[i].z);
-        }
-        else {
+        } else {
             data.push_back(0.0f);
             data.push_back(0.0f);
             data.push_back(0.0f);
@@ -55,8 +58,7 @@ object::object(const shader* object_shader, const std::string& path, double xpos
         if (mesh->mTextureCoords[0] != nullptr) {
             data.push_back(mesh->mTextureCoords[0][i].x);
             data.push_back(mesh->mTextureCoords[0][i].y);
-        }
-        else {
+        } else {
             data.push_back(0.0f);
             data.push_back(0.0f);
         }
@@ -64,8 +66,7 @@ object::object(const shader* object_shader, const std::string& path, double xpos
             data.push_back(mesh->mTangents[i].x);
             data.push_back(mesh->mTangents[i].y);
             data.push_back(mesh->mTangents[i].z);
-        }
-        else {
+        } else {
             data.push_back(0.0f);
             data.push_back(0.0f);
             data.push_back(0.0f);
@@ -74,14 +75,13 @@ object::object(const shader* object_shader, const std::string& path, double xpos
             data.push_back(mesh->mBitangents[i].x);
             data.push_back(mesh->mBitangents[i].y);
             data.push_back(mesh->mBitangents[i].z);
-        }
-        else {
+        } else {
             data.push_back(0.0f);
             data.push_back(0.0f);
             data.push_back(0.0f);
         }
     }
-    for (unsigned int i = 0; i < mesh->mNumFaces; i++){
+    for (unsigned int i = 0; i < mesh->mNumFaces; i++) {
         aiFace face = mesh->mFaces[i];
         // retrieve all indices of the face and store them in the indices vector
         for (unsigned int j = 0; j < face.mNumIndices; j++)
@@ -91,7 +91,9 @@ object::object(const shader* object_shader, const std::string& path, double xpos
     vertex_count = mesh->mNumVertices;
 }
 
-object::object(const shader* object_shader, const std::vector<float>& data, const std::vector<unsigned int>& indices, double xpos, double ypos, double zpos) {
+object::object(const shader *object_shader, const std::vector<float> &data,
+               const std::vector<unsigned int> &indices, double xpos,
+               double ypos, double zpos) {
     this->object_shader = object_shader;
     this->data = data;
     this->indices = indices;
@@ -115,24 +117,28 @@ object::~object() {
 
 void object::init() {
     // we allow for the shader to have either color or texture attributes
-    GLint posAttrib = object_shader->get_attrib_location(SHADER_VERTEX_POSITION);
-    if(posAttrib == -1){
-        throw std::runtime_error("Failed to find " SHADER_VERTEX_POSITION " attribute in shader");
+    GLint posAttrib =
+        object_shader->get_attrib_location(SHADER_VERTEX_POSITION);
+    if (posAttrib == -1) {
+        throw std::runtime_error("Failed to find " SHADER_VERTEX_POSITION
+                                 " attribute in shader");
     }
-    GLint texAttrib = object_shader->get_attrib_location(SHADER_VERTEX_TEXCOORD);
-    if(texAttrib == -1){
+    GLint texAttrib =
+        object_shader->get_attrib_location(SHADER_VERTEX_TEXCOORD);
+    if (texAttrib == -1) {
         texAttrib = 1;
     }
     GLint normAttrib = object_shader->get_attrib_location(SHADER_VERTEX_NORMAL);
-    if(normAttrib == -1){
+    if (normAttrib == -1) {
         normAttrib = 2;
     }
     GLint tanAttrib = object_shader->get_attrib_location(SHADER_VERTEX_TANGENT);
-    if(tanAttrib == -1){
+    if (tanAttrib == -1) {
         tanAttrib = 3;
     }
-    GLint biTanAttrib = object_shader->get_attrib_location(SHADER_VERTEX_BITANGENT);
-    if(biTanAttrib == -1){
+    GLint biTanAttrib =
+        object_shader->get_attrib_location(SHADER_VERTEX_BITANGENT);
+    if (biTanAttrib == -1) {
         biTanAttrib = 4;
     }
 
@@ -144,21 +150,29 @@ void object::init() {
 
     glGenBuffers(1, &VBO);
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBufferData(GL_ARRAY_BUFFER, vertexDataBufferSize * 4 + vertexTexBufferSize, data.data(), GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER,
+                 vertexDataBufferSize * 4 + vertexTexBufferSize, data.data(),
+                 GL_STATIC_DRAW);
     glGenBuffers(1, &EBO);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * indices.size(), indices.data(), GL_STATIC_DRAW);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * indices.size(),
+                 indices.data(), GL_STATIC_DRAW);
     index_count = indices.size();
 
-    glVertexAttribPointer(posAttrib, 3, GL_FLOAT, GL_FALSE, 14 * sizeof(float), (void*)0);
+    glVertexAttribPointer(posAttrib, 3, GL_FLOAT, GL_FALSE, 14 * sizeof(float),
+                          (void *)0);
     glEnableVertexAttribArray(posAttrib);
-    glVertexAttribPointer(normAttrib, 3, GL_FLOAT, GL_FALSE, 14 * sizeof(float), (void*)(3 * sizeof(float)));
+    glVertexAttribPointer(normAttrib, 3, GL_FLOAT, GL_FALSE, 14 * sizeof(float),
+                          (void *)(3 * sizeof(float)));
     glEnableVertexAttribArray(normAttrib);
-    glVertexAttribPointer(texAttrib, 2, GL_FLOAT, GL_FALSE, 14 * sizeof(float), (void*)(6 * sizeof(float)));
+    glVertexAttribPointer(texAttrib, 2, GL_FLOAT, GL_FALSE, 14 * sizeof(float),
+                          (void *)(6 * sizeof(float)));
     glEnableVertexAttribArray(texAttrib);
-    glVertexAttribPointer(tanAttrib, 3, GL_FLOAT, GL_FALSE, 14 * sizeof(float), (void*)(8 * sizeof(float)));
+    glVertexAttribPointer(tanAttrib, 3, GL_FLOAT, GL_FALSE, 14 * sizeof(float),
+                          (void *)(8 * sizeof(float)));
     glEnableVertexAttribArray(tanAttrib);
-    glVertexAttribPointer(biTanAttrib, 3, GL_FLOAT, GL_FALSE, 14 * sizeof(float), (void*)(11 * sizeof(float)));
+    glVertexAttribPointer(biTanAttrib, 3, GL_FLOAT, GL_FALSE,
+                          14 * sizeof(float), (void *)(11 * sizeof(float)));
     glEnableVertexAttribArray(biTanAttrib);
 
     glBindVertexArray(0);
@@ -167,16 +181,23 @@ void object::init() {
     glEnableVertexAttribArray(0);
 }
 
-void object::render(const glm::mat4* viewProjection, glm::vec3 viewPos, const std::vector<const light*>& lights, glm::vec3 ambient) const {
+void object::render(const glm::mat4 *viewProjection, glm::vec3 viewPos,
+                    const std::vector<const light *> &lights,
+                    glm::vec3 ambient) const {
     object_shader->use();
 
     size_t i = 0;
-    for (const auto& pair : textures) {
+    for (const auto &pair : textures) {
         pair.second->set_active_texture(object_shader, i, pair.first);
         i++;
     }
 
-    glm::mat4 model = glm::translate(glm::mat4(1.0f), glm::vec3(xpos, ypos, zpos)) * glm::rotate(glm::mat4(1.0f), (float)xrot, glm::vec3(1.0f, 0.0f, 0.0f)) * glm::rotate(glm::mat4(1.0f), (float)yrot, glm::vec3(0.0f, 1.0f, 0.0f)) * glm::rotate(glm::mat4(1.0f), (float)zrot, glm::vec3(0.0f, 0.0f, 1.0f)) * glm::scale(glm::mat4(1.0f), glm::vec3(scalex, scaley, scalez));
+    glm::mat4 model =
+        glm::translate(glm::mat4(1.0f), glm::vec3(xpos, ypos, zpos)) *
+        glm::rotate(glm::mat4(1.0f), (float)xrot, glm::vec3(1.0f, 0.0f, 0.0f)) *
+        glm::rotate(glm::mat4(1.0f), (float)yrot, glm::vec3(0.0f, 1.0f, 0.0f)) *
+        glm::rotate(glm::mat4(1.0f), (float)zrot, glm::vec3(0.0f, 0.0f, 1.0f)) *
+        glm::scale(glm::mat4(1.0f), glm::vec3(scalex, scaley, scalez));
 
     object_shader->apply_uniform_mat4(model, "model");
     object_shader->apply_uniform_mat4(*viewProjection, "viewProjection");
@@ -201,65 +222,66 @@ void object::render(const glm::mat4* viewProjection, glm::vec3 viewPos, const st
     glUseProgram(0);
 }
 
-void object::render(const camera* target_camera, float aspect_ratio, const std::vector<const light*>& lights, glm::vec3 ambient) const{
-    glm::mat4 viewProjection = target_camera->get_projection_matrix(aspect_ratio) * target_camera->get_view_matrix();
-    this->render(&viewProjection, target_camera->get_position(), lights, ambient);
+void object::render(const camera *target_camera, float aspect_ratio,
+                    const std::vector<const light *> &lights,
+                    glm::vec3 ambient) const {
+    glm::mat4 viewProjection =
+        target_camera->get_projection_matrix(aspect_ratio) *
+        target_camera->get_view_matrix();
+    this->render(&viewProjection, target_camera->get_position(), lights,
+                 ambient);
 }
 
-void object::add_texture(texture* tex, std::string name){
+void object::add_texture(texture *tex, std::string name) {
     textures[name] = tex;
 }
 
-void object::set_position(double xpos, double ypos, double zpos){
+void object::set_position(double xpos, double ypos, double zpos) {
     this->xpos = xpos;
     this->ypos = ypos;
     this->zpos = zpos;
-    for(moveable* child : children){
+    for (moveable *child : children) {
         child->set_position(xpos, ypos, zpos);
     }
 }
 
-void object::set_scale(float scalex, float scaley, float scalez){
+void object::set_scale(float scalex, float scaley, float scalez) {
     this->scalex = scalex;
     this->scaley = scaley;
     this->scalez = scalez;
 }
 
-void object::set_scale(float scale){
+void object::set_scale(float scale) {
     this->scalex = scale;
     this->scaley = scale;
     this->scalez = scale;
 }
 
-void object::rotate(double xrot, double yrot, double zrot){
+void object::rotate(double xrot, double yrot, double zrot) {
     this->xrot += xrot;
     this->yrot += yrot;
     this->zrot += zrot;
-    for(moveable* child : children){
+    for (moveable *child : children) {
         child->rotate(xrot, yrot, zrot);
     }
 }
 
-void object::set_rotation(double xrot, double yrot, double zrot){
+void object::set_rotation(double xrot, double yrot, double zrot) {
     double xdiff = xrot - this->xrot;
     double ydiff = yrot - this->yrot;
     double zdiff = zrot - this->zrot;
     this->rotate(xdiff, ydiff, zdiff);
 }
 
-void object::translate(glm::vec3 translation){
+void object::translate(glm::vec3 translation) {
     xpos += translation.x;
     ypos += translation.y;
     zpos += translation.z;
-    for(moveable* child : children){
+    for (moveable *child : children) {
         child->translate(translation);
     }
 }
 
-glm::vec3 object::get_position() const {
-    return glm::vec3(xpos, ypos, zpos);
-}
+glm::vec3 object::get_position() const { return glm::vec3(xpos, ypos, zpos); }
 
-void object::add_child(moveable* child){
-    children.push_back(child);
-}
+void object::add_child(moveable *child) { children.push_back(child); }

@@ -9,7 +9,7 @@
 #define WINDOW_HEIGHT 500
 
 int main() {
-    if(glfwInit() == GLFW_FALSE){
+    if (glfwInit() == GLFW_FALSE) {
         std::cout << "Failed to initialize GLFW" << std::endl;
         return -1;
     }
@@ -26,11 +26,13 @@ int main() {
     sem_init(&semaphore, 0, 1);
 
     // renderer handles all the initialization
-    renderer current_renderer = renderer(WINDOW_WIDTH, WINDOW_HEIGHT, WINDOW_NAME, &semaphore, &main_camera);
+    renderer current_renderer = renderer(WINDOW_WIDTH, WINDOW_HEIGHT,
+                                         WINDOW_NAME, &semaphore, &main_camera);
 
-    current_renderer.change_scene(static_cast<scene*>(&game_scene));
+    current_renderer.change_scene(static_cast<scene *>(&game_scene));
 
-    std::thread loop_thread = std::thread(&game::main, &game_scene, &main_camera);
+    std::thread loop_thread =
+        std::thread(&game::main, &game_scene, &main_camera);
     // renderer loop
     current_renderer.run();
     loop_thread.join();
