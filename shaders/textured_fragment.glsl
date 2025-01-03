@@ -11,11 +11,8 @@ uniform sampler2D texture0;
 uniform sampler2D normal0;
 
 struct Light {
-    vec3 position;
+    vec3 direction;
     vec3 color;
-    float constant;
-    float linear;
-    float quadratic;
 };
 
 uniform Light lights[MAX_LIGHTS];
@@ -35,24 +32,17 @@ void main()
 
     vec3 result = ambientLight;
     for (int i = 0; i < numLights; ++i) {
-        vec3 lightDir = normalize(lights[i].position - fragPos);
-        // Check if the light should affect the fragment
-        float lightEffect = dot(lightDir, norm);
-        if (lightEffect <= 0.0) {
-            continue;
-        }
-        float distance = length(lights[i].position - fragPos);
-        float attenuation = 1.0 / (lights[i].constant + lights[i].linear * distance + lights[i].quadratic * distance * distance);
-
+        vec3 lightDir = normalize(-lights[i].direction);
+        
         // Diffuse shading
         float diff = max(dot(norm, lightDir), 0.0);
-        vec3 diffuse = diff * lights[i].color * attenuation;
+        vec3 diffuse = diff * lights[i].color;
 
         // Specular shading
         vec3 viewDir = normalize(viewPos - fragPos);
-        vec3 halfwayDir = normalize(lightDir + viewDir);
-        float spec = pow(max(dot(norm, halfwayDir), 0.0), shininess);
-        vec3 specular = spec * lights[i].color * attenuation;
+        vec3 reflectDir = reflect(-lightDir, norm);
+        float spec = pow(max(dot(viewDir, reflectDir), 0.0), shininess);
+        vec3 specular = spec * lights[i].color;
 
         result += diffuse + specular;
     }

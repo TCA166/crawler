@@ -101,14 +101,8 @@ void shader::apply_uniform_vec3(glm::vec3 vector,
 }
 
 void shader::apply_light(const light *light, const std::string &name) const {
-    glUniform3fv(glGetUniformLocation(program, (name + ".position").c_str()), 1,
-                 (float *)light->get_position());
+    glUniform3fv(glGetUniformLocation(program, (name + ".direction").c_str()),
+                 1, (float *)&light->get_direction());
     glUniform3fv(glGetUniformLocation(program, (name + ".color").c_str()), 1,
-                 (float *)light->get_color());
-    glUniform1f(glGetUniformLocation(program, (name + ".constant").c_str()),
-                light->get_constant());
-    glUniform1f(glGetUniformLocation(program, (name + ".linear").c_str()),
-                light->get_linear());
-    glUniform1f(glGetUniformLocation(program, (name + ".quadratic").c_str()),
-                light->get_quadratic());
+                 (float *)&light->get_color());
 }

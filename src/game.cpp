@@ -19,6 +19,8 @@ game::~game() {
     delete this->skybox_shader;
     delete this->cube1;
     delete this->cube2;
+    delete this->wall;
+    delete this->floor;
     delete this->lght;
     delete this->sky;
 }
@@ -27,14 +29,17 @@ void game::init() {
     textured_shader = new shader(SHADER_PATH("textured_vertex.glsl"),
                                  SHADER_PATH("textured_fragment.glsl"));
     cube1 = new debug_cube(textured_shader, 0.0, 0.0, 0.0);
+    this->add_object(cube1);
     cube2 = new debug_cube(textured_shader, 1.0, 0.0, 1.0);
+    this->add_object(cube2);
     wall = new debug_wall(textured_shader, 0.0, 1.0, -5.0);
     wall->set_scale(10.0, 3.0, 1.0);
+    this->add_object(wall);
     floor = new debug_wall(textured_shader, 0.0, -0.5, 0.0);
     floor->set_rotation(1.57, 0.0, 0.0);
     floor->set_scale(10.0, 10.0, 1.0);
-    lght = new light(glm::vec3(2.0, 1.0, 2.0), glm::vec3(1.0, 1.0, 1.0), 1.0,
-                     0.09, 0.032);
+    this->add_object(floor);
+    lght = new light(wall->get_position(), glm::vec3(1.0, 1.0, 1.0));
     skybox_shader = new shader(SHADER_PATH("skybox_vertex.glsl"),
                                SHADER_PATH("skybox_fragment.glsl"));
     std::vector<std::string> paths = {
@@ -44,10 +49,6 @@ void game::init() {
     sky = new skybox(skybox_shader, paths);
     this->set_skybox(sky);
     this->add_light(lght);
-    this->add_object(cube1);
-    this->add_object(cube2);
-    this->add_object(wall);
-    this->add_object(floor);
     scene::init();
 }
 
