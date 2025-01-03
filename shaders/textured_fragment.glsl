@@ -13,6 +13,8 @@ uniform sampler2D normal0;
 struct Light {
     vec3 direction;
     vec3 color;
+    mat4 lightView;
+    sampler2D shadowMap;
 };
 
 uniform Light lights[MAX_LIGHTS];
@@ -24,6 +26,36 @@ uniform vec3 ambientLight;
 
 out vec4 out_color;
 
+vec3 CalcDirectionalLight(Light light, vec3 norm)
+{
+    vec3 lightDir = normalize(-light.direction);
+        
+    // Diffuse shading
+    float diff = max(dot(norm, lightDir), 0.0);
+    vec3 diffuse = diff * light.color;
+
+    // Specular shading
+    vec3 viewDir = normalize(viewPos - fragPos);
+    vec3 reflectDir = reflect(-lightDir, norm);
+    float spec = pow(max(dot(viewDir, reflectDir), 0.0), shininess);
+    vec3 specular = spec * light.color;
+
+    // Shadow calculation
+    vec4 fragPosLightSpace = light.lightView * vec4(fragPos, 1.0);
+    vec3 projCoords = fragPosLightSpace.xyz / fragPosLightSpace.w;
+    projCoords = projCoords * 0.5 + 0.5;
+
+    float closestDepth = texture(light.shadowMap, projCoords.xy).r;
+    float currentDepth = projCoords.z;
+    float shadow = currentDepth > closestDepth ? 1.0 : 0.0;
+
+    // Apply shadow to diffuse and specular components
+    diffuse *= (1.0 - shadow);
+    specular *= (1.0 - shadow);
+
+    return diffuse + specular;
+}
+
 void main()
 {
     vec3 norm = texture(normal0, texCoord).rgb;
@@ -32,19 +64,7 @@ void main()
 
     vec3 result = ambientLight;
     for (int i = 0; i < numLights; ++i) {
-        vec3 lightDir = normalize(-lights[i].direction);
-        
-        // Diffuse shading
-        float diff = max(dot(norm, lightDir), 0.0);
-        vec3 diffuse = diff * lights[i].color;
-
-        // Specular shading
-        vec3 viewDir = normalize(viewPos - fragPos);
-        vec3 reflectDir = reflect(-lightDir, norm);
-        float spec = pow(max(dot(viewDir, reflectDir), 0.0), shininess);
-        vec3 specular = spec * lights[i].color;
-
-        result += diffuse + specular;
+        result += CalcDirectionalLight(lights[i], norm);
     }
 
     vec4 color = texture(texture0, texCoord);

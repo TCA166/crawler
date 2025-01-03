@@ -43,3 +43,8 @@ void light::bind_depth_map() const {
     glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
     glClear(GL_DEPTH_BUFFER_BIT);
 }
+
+void light::use_depth_map(int texture_unit) const {
+    glActiveTexture(GL_TEXTURE0 + texture_unit);
+    glBindTexture(GL_TEXTURE_2D, depthMap);
+}

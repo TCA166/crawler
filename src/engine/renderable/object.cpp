@@ -197,10 +197,10 @@ void object::render(const glm::mat4 *viewProjection, glm::vec3 viewPos,
                     glm::vec3 ambient) const {
     object_shader->use();
 
-    size_t i = 0;
+    size_t tex_i = 0;
     for (const auto &pair : textures) {
-        pair.second->set_active_texture(object_shader, i, pair.first);
-        i++;
+        pair.second->set_active_texture(object_shader, tex_i, pair.first);
+        tex_i++;
     }
 
     glm::mat4 model = this->get_model_matrix();
@@ -216,6 +216,9 @@ void object::render(const glm::mat4 *viewProjection, glm::vec3 viewPos,
     for (size_t i = 0; i < lights.size(); ++i) {
         std::string name = "lights[" + std::to_string(i) + "]";
         object_shader->apply_light(lights[i], name);
+        lights[i]->use_depth_map(tex_i);
+        object_shader->apply_uniform(tex_i, name + ".depthMap");
+        tex_i++;
     }
     object_shader->apply_uniform(lights.size(), "numLights");
     this->draw();

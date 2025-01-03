@@ -5,7 +5,7 @@
 #include <iostream>
 
 const static glm::mat4 lightProjection =
-    glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, 1.0f, 10.0f);
+    glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, 1.0f, 100.0f);
 
 scene::scene(glm::vec3 ambient_light, glm::vec3 background_color)
     : ambient_light(ambient_light), background_color(background_color),

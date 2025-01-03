@@ -3,6 +3,8 @@
 
 #include "../include.hpp"
 
+#include <string>
+
 /*!
  @brief a simple invisible directional light (like the sun)
  @note Infinite strength, infinite distance away
@@ -50,4 +52,5 @@ class light {
      @brief Binds the depth map of the light
     */
     void bind_depth_map() const;
+    void use_depth_map(int texture_unit) const;
 };
