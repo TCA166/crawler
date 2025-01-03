@@ -37,6 +37,15 @@ class light {
      @return the color of the light
     */
     const glm::vec3 &get_color() const;
+    /*!
+     @brief Gets the position of the light
+     @return the position of the light
+    */
+    const glm::vec3 &get_position() const;
+    /*!
+     @brief Get the view matrix of the light
+     @return the view matrix of the light
+    */
     const glm::mat4 get_light_view() const;
     /*!
      @brief Sets the direction of the light
@@ -52,5 +61,9 @@ class light {
      @brief Binds the depth map of the light
     */
     void bind_depth_map() const;
+    /*!
+     @brief Uses the depth map of the light
+     @param texture_unit the texture unit to use
+    */
     void use_depth_map(int texture_unit) const;
 };

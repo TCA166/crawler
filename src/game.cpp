@@ -1,7 +1,8 @@
 #include "game.hpp"
 #include <iostream>
 
-game::game() : scene(glm::vec3(0.0), glm::vec3(0.0)), time_scale(2e-5) {
+game::game()
+    : scene(glm::vec3(0.1, 0.1, 0.1), glm::vec3(0.0)), time_scale(2e-5) {
     this->current_time = glfwGetTime();
     this->delta_time = 0.0;
     this->xpos = 0.0;

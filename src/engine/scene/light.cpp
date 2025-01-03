@@ -30,8 +30,10 @@ const glm::vec3 &light::get_direction() const { return direction; }
 
 const glm::vec3 &light::get_color() const { return color; }
 
+const glm::vec3 &light::get_position() const { return position; }
+
 const glm::mat4 light::get_light_view() const {
-    return glm::lookAt(this->position, this->position + this->get_direction(),
+    return glm::lookAt(this->get_position(), this->get_direction(),
                        glm::vec3(0.0f, 1.0f, 0.0f));
 }
 

@@ -5,7 +5,7 @@
 #include <iostream>
 
 const static glm::mat4 lightProjection =
-    glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, 1.0f, 100.0f);
+    glm::perspective(90.0f, 1.0f, 1.0f, 100.0f);
 
 scene::scene(glm::vec3 ambient_light, glm::vec3 background_color)
     : ambient_light(ambient_light), background_color(background_color),
@@ -56,6 +56,7 @@ void scene::render(const camera *target_camera, float aspect_ratio) {
 }
 
 void scene::shadow_pass() const {
+    glCullFace(GL_FRONT);
     // resize the viewport to the shadow resolution
     glViewport(0, 0, SHADOW_RES, SHADOW_RES);
     // activate the super simple shader for the shadow pass
@@ -66,7 +67,7 @@ void scene::shadow_pass() const {
         light_pass_shader->apply_uniform_mat4(lightSpaceMatrix,
                                               "lightSpaceMatrix");
         // draw all the objects
-        for (const object *obj : objects) {
+        for (object *obj : objects) {
             light_pass_shader->apply_uniform_mat4(obj->get_model_matrix(),
                                                   "model");
             obj->draw();
@@ -75,6 +76,7 @@ void scene::shadow_pass() const {
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
     }
     glUseProgram(0);
+    glCullFace(GL_BACK);
 }
 
 void scene::main(camera *) {

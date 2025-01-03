@@ -15,8 +15,8 @@ class debug_wall : public wall {
 inline debug_wall::debug_wall(const shader *object_shader, double xpos,
                               double ypos, double zpos)
     : wall(object_shader, xpos, ypos, zpos) {
-    wall_texture = new texture(TEXTURE_PATH("gray.png"));
-    wall_normal = new texture(TEXTURE_PATH("gray_normal.png"));
+    wall_texture = new texture(TEXTURE_PATH("spaceship.jpg"));
+    wall_normal = new texture(TEXTURE_PATH("spaceship_normal.jpg"));
     this->add_texture(wall_texture, "texture0");
     this->add_texture(wall_normal, "normal0");
 }

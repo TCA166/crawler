@@ -209,7 +209,8 @@ void object::render(const glm::mat4 *viewProjection, glm::vec3 viewPos,
     object_shader->apply_uniform_mat4(*viewProjection, "viewProjection");
     object_shader->apply_uniform_vec3(ambient, "ambientLight");
     object_shader->apply_uniform_vec3(viewPos, "viewPos");
-    object_shader->apply_uniform_scalar(0.1f, "shininess");
+    // TODO do something about shininess
+    object_shader->apply_uniform_scalar(1e10, "shininess");
     object_shader->apply_uniform_scalar(glfwGetTime(), "time");
 
     // Pass light properties to the shader
@@ -228,7 +229,7 @@ void object::render(const glm::mat4 *viewProjection, glm::vec3 viewPos,
 
 void object::draw() const {
     glBindVertexArray(VAO);
-    glDrawElements(GL_TRIANGLES, index_count, GL_UNSIGNED_INT, 0);
+    glDrawElements(GL_TRIANGLES, index_count, GL_UNSIGNED_INT, NULL);
     glBindVertexArray(0);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);

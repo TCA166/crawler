@@ -1,6 +1,7 @@
 #version 430 core
 
 #define MAX_LIGHTS 10
+#define bias 0.005
 
 in vec2 texCoord;
 in vec3 fragPos;
@@ -47,7 +48,7 @@ vec3 CalcDirectionalLight(Light light, vec3 norm)
 
     float closestDepth = texture(light.shadowMap, projCoords.xy).r;
     float currentDepth = projCoords.z;
-    float shadow = currentDepth > closestDepth ? 1.0 : 0.0;
+    float shadow = currentDepth - bias > closestDepth ? 1.0 : 0.0;
 
     // Apply shadow to diffuse and specular components
     diffuse *= (1.0 - shadow);
