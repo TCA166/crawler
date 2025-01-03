@@ -15,5 +15,8 @@
 #include "renderable/cube.hpp"
 #include "renderable/object.hpp"
 #include "renderable/skybox.hpp"
+#include "renderable/wall.hpp"
 
 #define TEXTURE_PATH(name) "textures/" name
+#define SHADER_PATH(name) "shaders/" name
+#define MODEL_PATH(name) "models/" name

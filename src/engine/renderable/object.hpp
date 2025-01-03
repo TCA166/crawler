@@ -112,17 +112,17 @@ class object : public moveable {
     */
     void set_scale(float scale);
     /*!
-     @brief Set the rotation of the object
-     @param xrot The x rotation of the object
-     @param yrot The y rotation of the object
-     @param zrot The z rotation of the object
+     @brief Set the rotation of the object in radians
+     @param xrot The x rotation of the object in radians
+     @param yrot The y rotation of the object in radians
+     @param zrot The z rotation of the object in radians
     */
     void set_rotation(double xrot, double yrot, double zrot);
     /*!
-     @brief Rotate the object
-     @param xrot The x rotation of the object
-     @param yrot The y rotation of the object
-     @param zrot The z rotation of the object
+     @brief Rotate the object in radians
+     @param xrot The delta x rotation
+     @param yrot The delta y rotation
+     @param zrot The delta z rotation
     */
     void rotate(double xrot, double yrot, double zrot);
     /*!

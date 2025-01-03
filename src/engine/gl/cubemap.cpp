@@ -38,6 +38,7 @@ static GLuint load_cubemap(const std::vector<std::string> &paths) {
     glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
     return texture_id;
 }
+
 cubemap::cubemap(const std::vector<std::string> &paths)
     : texture(load_cubemap(paths)) {}
 

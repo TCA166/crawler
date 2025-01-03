@@ -3,6 +3,7 @@
 
 #include "engine/engine.hpp"
 #include "objects/debug_cube.hpp"
+#include "objects/debug_wall.hpp"
 
 class game : public scene {
   private:
@@ -11,6 +12,7 @@ class game : public scene {
     bool mv_forward, mv_backward, mv_left, mv_right, mv_up, mv_down;
     double xpos, ypos;
     debug_cube *cube1, *cube2;
+    debug_wall *floor, *wall;
     skybox *sky;
     light *lght;
     shader *textured_shader, *skybox_shader;
