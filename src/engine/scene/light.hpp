@@ -43,10 +43,11 @@ class light {
     */
     const glm::vec3 &get_position() const;
     /*!
-     @brief Get the view matrix of the light
-     @return the view matrix of the light
+     @brief Get the light space matrix
+     @return the matrix that transforms coordinates from the world space to the
+        light space
     */
-    const glm::mat4 get_light_view() const;
+    const glm::mat4 get_light_space() const;
     /*!
      @brief Sets the direction of the light
      @param direction the new direction of the light
@@ -57,6 +58,7 @@ class light {
      @param color the new color of the light
     */
     void set_color(glm::vec3 color);
+    void set_position(glm::vec3 position);
     /*!
      @brief Binds the depth map of the light
     */

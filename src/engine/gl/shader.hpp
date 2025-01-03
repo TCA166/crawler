@@ -57,10 +57,4 @@ class shader {
      @param name The name of the uniform variable
     */
     void apply_uniform_vec3(glm::vec3 vector, const std::string &name) const;
-    /*!
-     @brief Set a light in the shader program
-     @param light The light to set
-     @param name The name of the light
-    */
-    void apply_light(const light *light, const std::string &name) const;
 };

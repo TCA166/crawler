@@ -14,7 +14,7 @@ uniform sampler2D normal0;
 struct Light {
     vec3 direction;
     vec3 color;
-    mat4 lightView;
+    mat4 lightSpaceMatrix;
     sampler2D shadowMap;
 };
 
@@ -42,7 +42,7 @@ vec3 CalcDirectionalLight(Light light, vec3 norm)
     vec3 specular = spec * light.color;
 
     // Shadow calculation
-    vec4 fragPosLightSpace = light.lightView * vec4(fragPos, 1.0);
+    vec4 fragPosLightSpace = light.lightSpaceMatrix * vec4(fragPos, 1.0);
     vec3 projCoords = fragPosLightSpace.xyz / fragPosLightSpace.w;
     projCoords = projCoords * 0.5 + 0.5;
 
@@ -50,11 +50,7 @@ vec3 CalcDirectionalLight(Light light, vec3 norm)
     float currentDepth = projCoords.z;
     float shadow = currentDepth - bias > closestDepth ? 1.0 : 0.0;
 
-    // Apply shadow to diffuse and specular components
-    diffuse *= (1.0 - shadow);
-    specular *= (1.0 - shadow);
-
-    return diffuse + specular;
+    return (1.0 - shadow) * (diffuse + specular);
 }
 
 void main()

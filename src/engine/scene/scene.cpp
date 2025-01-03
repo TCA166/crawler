@@ -4,9 +4,6 @@
 
 #include <iostream>
 
-const static glm::mat4 lightProjection =
-    glm::perspective(90.0f, 1.0f, 1.0f, 100.0f);
-
 scene::scene(glm::vec3 ambient_light, glm::vec3 background_color)
     : ambient_light(ambient_light), background_color(background_color),
       sky(nullptr) {}
@@ -63,8 +60,7 @@ void scene::shadow_pass() const {
     light_pass_shader->use();
     for (const light *lght : lights) {
         lght->bind_depth_map(); // activate the framebuffer
-        glm::mat4 lightSpaceMatrix = lightProjection * lght->get_light_view();
-        light_pass_shader->apply_uniform_mat4(lightSpaceMatrix,
+        light_pass_shader->apply_uniform_mat4(lght->get_light_space(),
                                               "lightSpaceMatrix");
         // draw all the objects
         for (object *obj : objects) {

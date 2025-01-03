@@ -40,7 +40,7 @@ void game::init() {
     floor->set_rotation(1.57, 0.0, 0.0);
     floor->set_scale(10.0, 10.0, 1.0);
     this->add_object(floor);
-    lght = new light(glm::vec3(4.0, 1.0, 4.0), wall->get_position(),
+    lght = new light(glm::vec3(4.0, 1.0, 4.0), glm::vec3(0.0, 0.0, -1.0),
                      glm::vec3(1.0, 1.0, 1.0));
     skybox_shader = new shader(SHADER_PATH("skybox_vertex.glsl"),
                                SHADER_PATH("skybox_fragment.glsl"));
@@ -79,6 +79,9 @@ void game::main(camera *target_camera) {
             target_camera->move_up(-delta_time);
         }
         delta_time *= time_scale;
+        glm::vec3 lght_pos = lght->get_position();
+        lght_pos.x = sin(current_time) * 4.0;
+        lght->set_position(lght_pos);
     }
 }
 

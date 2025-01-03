@@ -203,9 +203,7 @@ void object::render(const glm::mat4 *viewProjection, glm::vec3 viewPos,
         tex_i++;
     }
 
-    glm::mat4 model = this->get_model_matrix();
-
-    object_shader->apply_uniform_mat4(model, "model");
+    object_shader->apply_uniform_mat4(this->get_model_matrix(), "model");
     object_shader->apply_uniform_mat4(*viewProjection, "viewProjection");
     object_shader->apply_uniform_vec3(ambient, "ambientLight");
     object_shader->apply_uniform_vec3(viewPos, "viewPos");
@@ -216,7 +214,12 @@ void object::render(const glm::mat4 *viewProjection, glm::vec3 viewPos,
     // Pass light properties to the shader
     for (size_t i = 0; i < lights.size(); ++i) {
         std::string name = "lights[" + std::to_string(i) + "]";
-        object_shader->apply_light(lights[i], name);
+        object_shader->apply_uniform_vec3(lights[i]->get_direction(),
+                                          name + ".direction");
+        object_shader->apply_uniform_vec3(lights[i]->get_color(),
+                                          name + ".color");
+        object_shader->apply_uniform_mat4(lights[i]->get_light_space(),
+                                          name + ".lightSpaceMatrix");
         lights[i]->use_depth_map(tex_i);
         object_shader->apply_uniform(tex_i, name + ".depthMap");
         tex_i++;

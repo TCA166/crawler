@@ -99,9 +99,3 @@ void shader::apply_uniform_vec3(glm::vec3 vector,
     glUniform3fv(glGetUniformLocation(program, name.c_str()), 1,
                  (float *)&vector);
 }
-
-void shader::apply_light(const light *light, const std::string &name) const {
-    this->apply_uniform_vec3(light->get_direction(), name + ".direction");
-    this->apply_uniform_vec3(light->get_color(), name + ".color");
-    this->apply_uniform_mat4(light->get_light_view(), name + ".lightView");
-}
