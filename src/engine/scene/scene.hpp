@@ -18,6 +18,7 @@ class scene {
     bool initialized = false;
     bool should_close = false;
     skybox *sky;
+    const shader *light_pass_shader;
 
   public:
     /*!
@@ -51,6 +52,11 @@ class scene {
      @param aspect_ratio The aspect ratio of the window
     */
     void render(const camera *target_camera, float aspect_ratio);
+    /*!
+     @brief Perform the shadow pass
+     @warning May modify the viewport
+    */
+    void shadow_pass() const;
     /*!
      @brief Main function of the scene
      @param target_camera The camera that the scene is being rendered with

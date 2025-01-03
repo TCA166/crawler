@@ -80,13 +80,19 @@ class object : public moveable {
                 const std::vector<const light *> &lights,
                 glm::vec3 ambient) const;
     /*!
-     @brief Render the object
+     @brief Render the object, including drawing the object onto the viewport
      @param viewProjection The view projection matrix to render the object with
+     @param viewPos The position of the camera
      @param lights The lights to render the object with
+     @param ambient The ambient light to render the object with
     */
     virtual void render(const glm::mat4 *viewProjection, glm::vec3 viewPos,
                         const std::vector<const light *> &lights,
                         glm::vec3 ambient) const;
+    /*!
+     @brief Draws the object onto the viewport
+    */
+    virtual void draw() const;
     /*!
      @brief Add a texture to the object
      @param tex The texture to add
@@ -140,4 +146,5 @@ class object : public moveable {
      @param child The child to add
     */
     void add_child(moveable *child);
+    glm::mat4 get_model_matrix() const;
 };

@@ -181,6 +181,17 @@ void object::init() {
     glEnableVertexAttribArray(0);
 }
 
+glm::mat4 object::get_model_matrix() const {
+    return glm::translate(glm::mat4(1.0f), glm::vec3(xpos, ypos, zpos)) *
+           glm::rotate(glm::mat4(1.0f), (float)xrot,
+                       glm::vec3(1.0f, 0.0f, 0.0f)) *
+           glm::rotate(glm::mat4(1.0f), (float)yrot,
+                       glm::vec3(0.0f, 1.0f, 0.0f)) *
+           glm::rotate(glm::mat4(1.0f), (float)zrot,
+                       glm::vec3(0.0f, 0.0f, 1.0f)) *
+           glm::scale(glm::mat4(1.0f), glm::vec3(scalex, scaley, scalez));
+}
+
 void object::render(const glm::mat4 *viewProjection, glm::vec3 viewPos,
                     const std::vector<const light *> &lights,
                     glm::vec3 ambient) const {
@@ -192,12 +203,7 @@ void object::render(const glm::mat4 *viewProjection, glm::vec3 viewPos,
         i++;
     }
 
-    glm::mat4 model =
-        glm::translate(glm::mat4(1.0f), glm::vec3(xpos, ypos, zpos)) *
-        glm::rotate(glm::mat4(1.0f), (float)xrot, glm::vec3(1.0f, 0.0f, 0.0f)) *
-        glm::rotate(glm::mat4(1.0f), (float)yrot, glm::vec3(0.0f, 1.0f, 0.0f)) *
-        glm::rotate(glm::mat4(1.0f), (float)zrot, glm::vec3(0.0f, 0.0f, 1.0f)) *
-        glm::scale(glm::mat4(1.0f), glm::vec3(scalex, scaley, scalez));
+    glm::mat4 model = this->get_model_matrix();
 
     object_shader->apply_uniform_mat4(model, "model");
     object_shader->apply_uniform_mat4(*viewProjection, "viewProjection");
@@ -212,14 +218,17 @@ void object::render(const glm::mat4 *viewProjection, glm::vec3 viewPos,
         object_shader->apply_light(lights[i], name);
     }
     object_shader->apply_uniform(lights.size(), "numLights");
+    this->draw();
+    glBindTexture(GL_TEXTURE_2D, 0); // unbind texture
+    glUseProgram(0);
+}
 
+void object::draw() const {
     glBindVertexArray(VAO);
     glDrawElements(GL_TRIANGLES, index_count, GL_UNSIGNED_INT, 0);
     glBindVertexArray(0);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-    glBindTexture(GL_TEXTURE_2D, 0); // unbind texture
-    glUseProgram(0);
 }
 
 void object::render(const camera *target_camera, float aspect_ratio,

@@ -1,6 +1,11 @@
 #include "scene.hpp"
 
+#include "../settings.hpp"
+
 #include <iostream>
+
+const static glm::mat4 lightProjection =
+    glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, 1.0f, 10.0f);
 
 scene::scene(glm::vec3 ambient_light, glm::vec3 background_color)
     : ambient_light(ambient_light), background_color(background_color),
@@ -27,6 +32,8 @@ void scene::init() {
     if (sky != nullptr) {
         sky->init();
     }
+    light_pass_shader = new shader(SHADER_PATH("light_pass_vertex.glsl"),
+                                   SHADER_PATH("light_pass_fragment.glsl"));
 }
 
 void scene::render(const camera *target_camera, float aspect_ratio) {
@@ -46,6 +53,28 @@ void scene::render(const camera *target_camera, float aspect_ratio) {
         obj->render(&viewProjection, target_camera->get_position(),
                     (const std::vector<const light *> &)lights, ambient_light);
     }
+}
+
+void scene::shadow_pass() const {
+    // resize the viewport to the shadow resolution
+    glViewport(0, 0, SHADOW_RES, SHADOW_RES);
+    // activate the super simple shader for the shadow pass
+    light_pass_shader->use();
+    for (const light *lght : lights) {
+        lght->bind_depth_map(); // activate the framebuffer
+        glm::mat4 lightSpaceMatrix = lightProjection * lght->get_light_view();
+        light_pass_shader->apply_uniform_mat4(lightSpaceMatrix,
+                                              "lightSpaceMatrix");
+        // draw all the objects
+        for (const object *obj : objects) {
+            light_pass_shader->apply_uniform_mat4(obj->get_model_matrix(),
+                                                  "model");
+            obj->draw();
+        }
+        // cleanup
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    }
+    glUseProgram(0);
 }
 
 void scene::main(camera *) {

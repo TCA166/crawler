@@ -9,17 +9,21 @@
 */
 class light {
   private:
+    glm::vec3 position;
     glm::vec3 direction;
     glm::vec3 color;
+    unsigned int depthMapFBO;
+    unsigned int depthMap;
 
   public:
     /*!
      @brief Constructs a light with a given position, color and attenuation
      parameters
+     @param position the position of the light
      @param direction the direction of the light
      @param color the color of the light (rgb)
     */
-    light(glm::vec3 direction, glm::vec3 color);
+    light(glm::vec3 position, glm::vec3 direction, glm::vec3 color);
     virtual ~light();
     /*!
      @brief Gets the direction of the light
@@ -31,6 +35,7 @@ class light {
      @return the color of the light
     */
     const glm::vec3 &get_color() const;
+    const glm::mat4 get_light_view() const;
     /*!
      @brief Sets the direction of the light
      @param direction the new direction of the light
@@ -41,4 +46,8 @@ class light {
      @param color the new color of the light
     */
     void set_color(glm::vec3 color);
+    /*!
+     @brief Binds the depth map of the light
+    */
+    void bind_depth_map() const;
 };

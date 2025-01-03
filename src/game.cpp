@@ -39,7 +39,8 @@ void game::init() {
     floor->set_rotation(1.57, 0.0, 0.0);
     floor->set_scale(10.0, 10.0, 1.0);
     this->add_object(floor);
-    lght = new light(wall->get_position(), glm::vec3(1.0, 1.0, 1.0));
+    lght = new light(glm::vec3(20.0, 20.0, 20.0), wall->get_position(),
+                     glm::vec3(1.0, 1.0, 1.0));
     skybox_shader = new shader(SHADER_PATH("skybox_vertex.glsl"),
                                SHADER_PATH("skybox_fragment.glsl"));
     std::vector<std::string> paths = {

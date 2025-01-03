@@ -190,11 +190,15 @@ void renderer::run() {
     }
     while (!glfwWindowShouldClose(window) &&
            !target_scene->get_should_close()) {
-        sem_wait(semaphore);
-        glfwMakeContextCurrent(window);
-        glViewport(0, 0, width, height);
+        sem_wait(semaphore);            // we wait for our turn to render
+        glfwMakeContextCurrent(window); // tell openGL we are outputting to this
+        target_scene->shadow_pass();    // create shadow maps
+        glViewport(0, 0, width, height); // swap back to our resolution
+        // render the scene
         target_scene->render(target_camera, width / float(height));
+        // let go of the lock
         sem_post(semaphore);
+        // show the rendered scene
         glfwSwapBuffers(window);
     }
 }
