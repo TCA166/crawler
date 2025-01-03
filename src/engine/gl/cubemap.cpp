@@ -22,7 +22,7 @@ static GLuint load_cubemap(const std::vector<std::string> &paths) {
         if (image == nullptr) {
             throw std::runtime_error(SOIL_last_result());
         }
-        flip_y(image, width, height, nr_channels);
+        // flip_y(image, width, height, nr_channels);
         int format = GL_RGB;
         if (nr_channels == 4) {
             format = GL_RGBA;
@@ -42,3 +42,10 @@ cubemap::cubemap(const std::vector<std::string> &paths)
     : texture(load_cubemap(paths)) {}
 
 cubemap::~cubemap() {}
+
+void cubemap::set_active_texture(const shader *target_shader, int texture_unit,
+                                 std::string name) const {
+    glActiveTexture(GL_TEXTURE0 + texture_unit);
+    glBindTexture(GL_TEXTURE_CUBE_MAP, texture_id);
+    target_shader->apply_uniform(texture_unit, name);
+}

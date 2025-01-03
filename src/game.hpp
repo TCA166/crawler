@@ -3,7 +3,6 @@
 
 #include "engine/engine.hpp"
 #include "objects/debug_cube.hpp"
-#include "objects/skybox.hpp"
 
 class game : public scene {
   private:
@@ -14,7 +13,7 @@ class game : public scene {
     debug_cube *cube1, *cube2;
     skybox *sky;
     light *lght;
-    shader *textured_shader;
+    shader *textured_shader, *skybox_shader;
 
   public:
     game();

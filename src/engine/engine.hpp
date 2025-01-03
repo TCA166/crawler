@@ -14,5 +14,6 @@
 // renderable folder
 #include "renderable/cube.hpp"
 #include "renderable/object.hpp"
+#include "renderable/skybox.hpp"
 
 #define TEXTURE_PATH(name) "textures/" name

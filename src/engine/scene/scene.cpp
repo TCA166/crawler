@@ -3,9 +3,12 @@
 #include <iostream>
 
 scene::scene(glm::vec3 ambient_light, glm::vec3 background_color)
-    : ambient_light(ambient_light), background_color(background_color) {}
+    : ambient_light(ambient_light), background_color(background_color),
+      sky(nullptr) {}
 
 scene::~scene() {}
+
+void scene::set_skybox(skybox *sky) { this->sky = sky; }
 
 void scene::add_object(object *obj) {
     if (initialized) {
@@ -21,15 +24,24 @@ void scene::init() {
     for (object *obj : objects) {
         obj->init();
     }
+    if (sky != nullptr) {
+        sky->init();
+    }
 }
 
 void scene::render(const camera *target_camera, float aspect_ratio) {
     glClearColor(background_color.r, background_color.g, background_color.b,
                  1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    glm::mat4 viewProjection =
-        target_camera->get_projection_matrix(aspect_ratio) *
-        target_camera->get_view_matrix();
+    glm::mat4 projection = target_camera->get_projection_matrix(aspect_ratio);
+    glm::mat4 view = target_camera->get_view_matrix();
+    if (sky != nullptr) {
+        // special projection matrix that removes the translation
+        glm::mat4 viewProjection = projection * glm::mat4(glm::mat3(view));
+        sky->render(&viewProjection, target_camera->get_position(),
+                    (const std::vector<const light *> &)lights, ambient_light);
+    }
+    glm::mat4 viewProjection = projection * view;
     for (const object *obj : objects) {
         obj->render(&viewProjection, target_camera->get_position(),
                     (const std::vector<const light *> &)lights, ambient_light);

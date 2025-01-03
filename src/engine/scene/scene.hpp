@@ -2,6 +2,7 @@
 #pragma once
 
 #include "../renderable/object.hpp"
+#include "../renderable/skybox.hpp"
 
 #include <vector>
 
@@ -16,6 +17,7 @@ class scene {
     glm::vec3 background_color;
     bool initialized = false;
     bool should_close = false;
+    skybox *sky;
 
   public:
     /*!
@@ -25,9 +27,10 @@ class scene {
     scene(glm::vec3 ambient_light, glm::vec3 background_color);
     ~scene();
     /*!
-     @brief Add an object to the scene
-     @param obj The object to add
+     @brief Set the skybox of the scene
+     @param sky The skybox to set
     */
+    void set_skybox(skybox *sky);
     /*!
      @brief Add an object to the scene
      @param obj The object to add

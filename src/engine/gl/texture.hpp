@@ -10,7 +10,7 @@
  @details This class is used to load and bind textures.
  */
 class texture {
-  private:
+  protected:
     GLuint texture_id;
 
   public:
@@ -38,8 +38,8 @@ class texture {
      @param target_shader The shader to set the texture in
      @param texture_unit The texture unit to set the texture to
     */
-    void set_active_texture(const shader *target_shader, int texture_unit,
-                            std::string name) const;
+    virtual void set_active_texture(const shader *target_shader,
+                                    int texture_unit, std::string name) const;
 };
 
 /*!

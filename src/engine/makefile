@@ -23,6 +23,9 @@ cube.o: renderable/cube.cpp renderable/cube.hpp
 object.o: renderable/object.cpp renderable/object.hpp
 	$(CC) $(IFLAGS) $(CFLAGS) -c renderable/object.cpp
 
+skybox.o: renderable/skybox.cpp renderable/skybox.hpp
+	$(CC) $(IFLAGS) $(CFLAGS) -c renderable/skybox.cpp
+
 # scene subfolder
 
 scene.o: scene/scene.cpp scene/scene.hpp
@@ -34,8 +37,8 @@ light.o: scene/light.cpp scene/light.hpp
 camera.o: scene/camera.cpp scene/camera.hpp
 	$(CC) $(IFLAGS) $(CFLAGS) -c scene/camera.cpp
 
-engine.o: texture.o scene.o renderer.o object.o shader.o camera.o light.o cube.o cubemap.o
-	$(CC) $(CFLAGS) -r texture.o scene.o renderer.o object.o shader.o camera.o light.o cube.o cubemap.o -o engine.o
+engine.o: texture.o scene.o renderer.o object.o shader.o camera.o light.o cube.o cubemap.o skybox.o
+	$(CC) $(CFLAGS) -r texture.o scene.o renderer.o object.o shader.o camera.o light.o cube.o cubemap.o skybox.o -o engine.o
 
 clean:
 	rm -f *.o

@@ -15,4 +15,11 @@ class cubemap : public texture {
     */
     cubemap(const std::vector<std::string> &paths);
     ~cubemap();
+    /*!
+     @brief Set the active texture
+     @param target_shader The shader to set the texture in
+     @param texture_unit The texture unit to set the texture to
+    */
+    virtual void set_active_texture(const shader *target_shader,
+                                    int texture_unit, std::string name) const;
 };
