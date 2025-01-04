@@ -29,8 +29,8 @@ void scene::init() {
     if (sky != nullptr) {
         sky->init();
     }
-    light_pass_shader = new shader(SHADER_PATH("light_pass_vertex.glsl"),
-                                   SHADER_PATH("light_pass_fragment.glsl"));
+    light_pass_shader = new shader(SHADER_PATH("light_pass.vert"),
+                                   SHADER_PATH("light_pass.frag"));
 }
 
 void scene::render(const camera *target_camera, float aspect_ratio) {

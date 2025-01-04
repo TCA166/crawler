@@ -32,10 +32,10 @@ game::~game() {
 }
 
 void game::init() {
-    textured_shader = new shader(SHADER_PATH("textured_vertex.glsl"),
-                                 SHADER_PATH("textured_fragment.glsl"));
-    simple_shader = new shader(SHADER_PATH("textured_vertex.glsl"),
-                               SHADER_PATH("simple_textured_fragment.glsl"));
+    textured_shader =
+        new shader(SHADER_PATH("textured.vert"), SHADER_PATH("textured.frag"));
+    simple_shader = new shader(SHADER_PATH("textured.vert"),
+                               SHADER_PATH("simple_textured.frag"));
     lght = new light(glm::vec3(4.0, 2.0, 4.0), glm::vec3(0.0, 0.0, -1.0),
                      glm::vec3(1.0, 1.0, 1.0));
     this->add_light(lght);
@@ -55,8 +55,8 @@ void game::init() {
     depth = lght->get_depth_map();
     view = new debug_wall(simple_shader, depth, norm, 0.0, 3.0, 0.0);
     this->add_object(view);
-    skybox_shader = new shader(SHADER_PATH("skybox_vertex.glsl"),
-                               SHADER_PATH("skybox_fragment.glsl"));
+    skybox_shader =
+        new shader(SHADER_PATH("skybox.vert"), SHADER_PATH("skybox.frag"));
     std::vector<std::string> paths = {
         TEXTURE_PATH("skybox/right.png"), TEXTURE_PATH("skybox/left.png"),
         TEXTURE_PATH("skybox/top.png"),   TEXTURE_PATH("skybox/bottom.png"),

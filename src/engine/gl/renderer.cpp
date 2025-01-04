@@ -7,6 +7,16 @@
 
 static const glm::vec3 loading_color = glm::vec3(038.0f, 206.0f, 0.0f);
 
+static void GLAPIENTRY message_callback(GLenum source, GLenum type, GLuint id,
+                                        GLenum severity, GLsizei length,
+                                        const GLchar *message,
+                                        const void *userParam) {
+    fprintf(stderr,
+            "GL CALLBACK: %s type = 0x%x, severity = 0x%x, message = %s\n",
+            (type == GL_DEBUG_TYPE_ERROR ? "** GL ERROR **" : ""), type,
+            severity, message);
+}
+
 /*!
  @brief Global framebuffer size callback
  @details This function is called when the window is resized, it expects a
@@ -132,6 +142,9 @@ renderer::renderer(int width, int height, const char *name, sem_t *semaphore,
     glfwSetScrollCallback(window, global_scroll_callback);
     glfwSetCursorPosCallback(window, global_mouse_callback);
     glfwSetWindowCloseCallback(window, global_window_close_callback);
+
+    glEnable(GL_DEBUG_OUTPUT);
+    glDebugMessageCallback(message_callback, 0);
 
     this->focused = false;
     this->semaphore = semaphore;
