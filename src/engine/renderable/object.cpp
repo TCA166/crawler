@@ -248,7 +248,7 @@ void object::render(const camera *target_camera, float aspect_ratio,
                  ambient);
 }
 
-void object::add_texture(texture *tex, std::string name) {
+void object::add_texture(const texture *tex, std::string name) {
     textures[name] = tex;
 }
 

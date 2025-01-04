@@ -2,7 +2,7 @@
 
 #include <string>
 
-#include "../scene/light.hpp"
+#include "../include.hpp"
 
 /*!
  @brief Shader class to handle shader programs.

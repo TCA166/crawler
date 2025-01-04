@@ -1,7 +1,7 @@
 
 #pragma once
 
-#include "../include.hpp"
+#include "../gl/texture.hpp"
 
 #include <string>
 
@@ -68,4 +68,5 @@ class light {
      @param texture_unit the texture unit to use
     */
     void use_depth_map(int texture_unit) const;
+    texture *get_depth_map() const;
 };

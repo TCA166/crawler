@@ -16,6 +16,7 @@ class game : public scene {
     skybox *sky;
     light *lght;
     shader *textured_shader, *skybox_shader;
+    texture *tex, *norm;
 
   public:
     game();

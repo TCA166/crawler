@@ -24,19 +24,23 @@ game::~game() {
     delete this->floor;
     delete this->lght;
     delete this->sky;
+    delete this->tex;
+    delete this->norm;
 }
 
 void game::init() {
     textured_shader = new shader(SHADER_PATH("textured_vertex.glsl"),
                                  SHADER_PATH("textured_fragment.glsl"));
-    cube1 = new debug_cube(textured_shader, 0.0, 0.1, 0.0);
+    tex = new texture(TEXTURE_PATH("spaceship.jpg"));
+    norm = new texture(TEXTURE_PATH("spaceship_normal.jpg"));
+    cube1 = new debug_cube(textured_shader, tex, norm, 0.0, 0.1, 0.0);
     this->add_object(cube1);
-    cube2 = new debug_cube(textured_shader, 1.0, 0.1, 1.0);
+    cube2 = new debug_cube(textured_shader, tex, norm, 1.0, 0.1, 1.0);
     this->add_object(cube2);
-    wall = new debug_wall(textured_shader, 0.0, 1.0, -5.0);
+    wall = new debug_wall(textured_shader, tex, norm, 0.0, 1.0, -5.0);
     wall->set_scale(10.0, 3.0, 1.0);
     this->add_object(wall);
-    floor = new debug_wall(textured_shader, 0.0, -0.5, 0.0);
+    floor = new debug_wall(textured_shader, tex, norm, 0.0, -0.5, 0.0);
     floor->set_rotation(1.57, 0.0, 0.0);
     floor->set_scale(10.0, 10.0, 1.0);
     this->add_object(floor);

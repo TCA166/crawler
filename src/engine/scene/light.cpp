@@ -65,3 +65,5 @@ void light::use_depth_map(int texture_unit) const {
     glActiveTexture(GL_TEXTURE0 + texture_unit);
     glBindTexture(GL_TEXTURE_2D, depthMap);
 }
+
+texture *light::get_depth_map() const { return new texture(depthMap); }

@@ -35,7 +35,7 @@ class object : public moveable {
 
   protected:
     // map name->texture
-    std::map<std::string, texture *> textures;
+    std::map<std::string, const texture *> textures;
     unsigned int texture_count;
     std::vector<moveable *> children;
 
@@ -97,7 +97,7 @@ class object : public moveable {
      @brief Add a texture to the object
      @param tex The texture to add
     */
-    void add_texture(texture *tex, std::string name);
+    void add_texture(const texture *tex, std::string name);
     /*!
      @brief Set the position of the object
      @param xpos The x position of the object
