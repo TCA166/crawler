@@ -12,11 +12,11 @@ class game : public scene {
     bool mv_forward, mv_backward, mv_left, mv_right, mv_up, mv_down;
     double xpos, ypos;
     debug_cube *cube1, *cube2;
-    debug_wall *floor, *wall;
+    debug_wall *floor, *wall, *view;
     skybox *sky;
     light *lght;
-    shader *textured_shader, *skybox_shader;
-    texture *tex, *norm;
+    shader *textured_shader, *skybox_shader, *simple_shader;
+    texture *tex, *norm, *depth;
 
   public:
     game();

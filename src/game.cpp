@@ -26,11 +26,19 @@ game::~game() {
     delete this->sky;
     delete this->tex;
     delete this->norm;
+    delete this->depth;
+    delete this->view;
+    delete this->simple_shader;
 }
 
 void game::init() {
     textured_shader = new shader(SHADER_PATH("textured_vertex.glsl"),
                                  SHADER_PATH("textured_fragment.glsl"));
+    simple_shader = new shader(SHADER_PATH("textured_vertex.glsl"),
+                               SHADER_PATH("simple_textured_fragment.glsl"));
+    lght = new light(glm::vec3(4.0, 2.0, 4.0), glm::vec3(0.0, 0.0, -1.0),
+                     glm::vec3(1.0, 1.0, 1.0));
+    this->add_light(lght);
     tex = new texture(TEXTURE_PATH("spaceship.jpg"));
     norm = new texture(TEXTURE_PATH("spaceship_normal.jpg"));
     cube1 = new debug_cube(textured_shader, tex, norm, 0.0, 0.1, 0.0);
@@ -44,8 +52,9 @@ void game::init() {
     floor->set_rotation(1.57, 0.0, 0.0);
     floor->set_scale(10.0, 10.0, 1.0);
     this->add_object(floor);
-    lght = new light(glm::vec3(4.0, 1.0, 4.0), glm::vec3(0.0, 0.0, -1.0),
-                     glm::vec3(1.0, 1.0, 1.0));
+    depth = lght->get_depth_map();
+    view = new debug_wall(simple_shader, depth, norm, 0.0, 3.0, 0.0);
+    this->add_object(view);
     skybox_shader = new shader(SHADER_PATH("skybox_vertex.glsl"),
                                SHADER_PATH("skybox_fragment.glsl"));
     std::vector<std::string> paths = {
@@ -54,7 +63,6 @@ void game::init() {
         TEXTURE_PATH("skybox/front.png"), TEXTURE_PATH("skybox/back.png")};
     sky = new skybox(skybox_shader, paths);
     this->set_skybox(sky);
-    this->add_light(lght);
     scene::init();
 }
 
