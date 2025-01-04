@@ -15,7 +15,7 @@ struct Light {
     vec3 direction;
     vec3 color;
     mat4 lightSpaceMatrix;
-    sampler2D shadowMap;
+    sampler2D depthMap;
 };
 
 uniform Light lights[MAX_LIGHTS];
@@ -46,7 +46,7 @@ vec3 CalcDirectionalLight(Light light, vec3 norm)
     vec3 projCoords = fragPosLightSpace.xyz / fragPosLightSpace.w;
     projCoords = projCoords * 0.5 + 0.5;
 
-    float closestDepth = texture(light.shadowMap, projCoords.xy).r;
+    float closestDepth = texture(light.depthMap, projCoords.xy).r;
     float currentDepth = projCoords.z;
     float shadow = currentDepth - bias > closestDepth ? 1.0 : 0.0;
 
