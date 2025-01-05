@@ -53,9 +53,9 @@ void scene::render(const camera *target_camera, float aspect_ratio) {
 }
 
 void scene::shadow_pass() const {
-    glCullFace(GL_FRONT);
     // resize the viewport to the shadow resolution
     glViewport(0, 0, SHADOW_RES, SHADOW_RES);
+    glCullFace(GL_FRONT);
     // activate the super simple shader for the shadow pass
     light_pass_shader->use();
     for (const light *lght : lights) {

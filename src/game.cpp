@@ -37,7 +37,7 @@ void game::init() {
     simple_shader = new shader(SHADER_PATH("textured.vert"),
                                SHADER_PATH("simple_textured.frag"));
     lght = new light(glm::vec3(4.0, 2.0, 4.0), glm::vec3(0.0, 0.0, -1.0),
-                     glm::vec3(1.0, 1.0, 1.0));
+                     glm::vec3(1.0, 1.0, 1.0), 90.0f, 100.0f);
     this->add_light(lght);
     tex = new texture(TEXTURE_PATH("spaceship.jpg"));
     norm = new texture(TEXTURE_PATH("spaceship_normal.jpg"));

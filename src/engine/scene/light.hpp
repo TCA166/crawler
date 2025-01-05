@@ -14,6 +14,8 @@ class light {
     glm::vec3 position;
     glm::vec3 direction;
     glm::vec3 color;
+    float fov;
+    float range;
     unsigned int depthMapFBO;
     unsigned int depthMap;
 
@@ -24,8 +26,11 @@ class light {
      @param position the position of the light
      @param direction the direction of the light
      @param color the color of the light (rgb)
+     @param fov the field of view of the light
+     @param range the range of the light
     */
-    light(glm::vec3 position, glm::vec3 direction, glm::vec3 color);
+    light(glm::vec3 position, glm::vec3 direction, glm::vec3 color, float fov,
+          float range);
     virtual ~light();
     /*!
      @brief Gets the direction of the light

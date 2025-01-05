@@ -214,8 +214,8 @@ void object::render(const glm::mat4 *viewProjection, glm::vec3 viewPos,
     // Pass light properties to the shader
     for (size_t i = 0; i < lights.size(); ++i) {
         std::string name = "lights[" + std::to_string(i) + "]";
-        object_shader->apply_uniform_vec3(lights[i]->get_direction(),
-                                          name + ".direction");
+        object_shader->apply_uniform_vec3(lights[i]->get_position(),
+                                          name + ".position");
         object_shader->apply_uniform_vec3(lights[i]->get_color(),
                                           name + ".color");
         object_shader->apply_uniform_mat4(lights[i]->get_light_space(),

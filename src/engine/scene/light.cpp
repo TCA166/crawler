@@ -3,11 +3,10 @@
 #include "../settings.hpp"
 #include <stdexcept>
 
-const static glm::mat4 lightProjection =
-    glm::perspective(90.0f, 1.0f, 1.0f, 10.0f);
-
-light::light(glm::vec3 position, glm::vec3 direction, glm::vec3 color)
-    : position(position), direction(direction), color(color) {
+light::light(glm::vec3 position, glm::vec3 direction, glm::vec3 color,
+             float fov, float range)
+    : position(position), direction(direction), color(color), fov(fov),
+      range(range) {
     // create the framebuffer
     glGenFramebuffers(1, &depthMapFBO);
     // create the texture to store the depth values
@@ -45,9 +44,9 @@ const glm::vec3 &light::get_color() const { return color; }
 const glm::vec3 &light::get_position() const { return position; }
 
 const glm::mat4 light::get_light_space() const {
-    return lightProjection * glm::lookAt(this->get_position(),
-                                         this->get_direction(),
-                                         glm::vec3(0.0f, 1.0f, 0.0f));
+    return glm::perspective(fov, 1.0f, 1.0f, range) *
+           glm::lookAt(this->get_position(), this->get_direction(),
+                       glm::vec3(0.0f, 1.0f, 0.0f));
 }
 
 void light::set_direction(glm::vec3 direction) { this->direction = direction; }

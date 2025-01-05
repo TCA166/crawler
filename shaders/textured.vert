@@ -27,7 +27,7 @@ void main()
     fragPos = vec3(model * vec4(vertexPosition, 1.0));
 
     // Transform the normal by the model matrix only
-    normal = mat3(model) * vertexNormal;
+    normal = normalize(transpose(inverse(mat3(model))) * vertexNormal);
 
     // Calculate the TBN matrix using the model matrix only
     vec3 T = normalize(mat3(model) * vertexTangent);
