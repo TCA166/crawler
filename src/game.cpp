@@ -13,6 +13,8 @@ game::game()
     this->mv_right = false;
     this->mv_up = false;
     this->mv_down = false;
+    this->rot_left = false;
+    this->rot_right = false;
 }
 
 game::~game() {
@@ -90,6 +92,11 @@ void game::main(camera *target_camera) {
         } else if (mv_down) {
             target_camera->move_up(-delta_time);
         }
+        if (rot_left) {
+            target_camera->rotate(0.0, 0.0, -delta_time);
+        } else if (rot_right) {
+            target_camera->rotate(0.0, 0.0, delta_time);
+        }
         delta_time *= time_scale;
         glm::vec3 lght_pos = lght->get_position();
         lght_pos.x = sin(current_time) * 4.0;
@@ -125,12 +132,18 @@ void game::key_callback(int key, int, int action, int, camera *) {
     case GLFW_KEY_LEFT_SHIFT:
         mv_down = pressed;
         break;
+    case GLFW_KEY_Q:
+        rot_left = pressed;
+        break;
+    case GLFW_KEY_E:
+        rot_right = pressed;
+        break;
     }
 }
 
 void game::mouse_callback(double xpos, double ypos, camera *target_camera) {
     if (xpos != this->xpos || ypos != this->ypos) {
-        target_camera->rotate_front(xpos - this->xpos, ypos - this->ypos);
+        target_camera->rotate(xpos - this->xpos, ypos - this->ypos, 0.0);
         this->xpos = xpos;
         this->ypos = ypos;
     }

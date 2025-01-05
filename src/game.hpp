@@ -13,7 +13,8 @@ class game : public scene {
   private:
     double time_scale;
     double current_time, delta_time;
-    bool mv_forward, mv_backward, mv_left, mv_right, mv_up, mv_down;
+    bool mv_forward, mv_backward, mv_left, mv_right, mv_up, mv_down, rot_left,
+        rot_right;
     double xpos, ypos;
     debug_cube *cube1, *cube2;
     debug_wall *floor, *wall, *view;

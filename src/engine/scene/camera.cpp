@@ -10,7 +10,7 @@
 camera::camera(glm::vec3 position, float speed, float fov, float look_speed,
                float pitch, float yaw)
     : position(position), speed(speed), look_speed(look_speed), fov(fov),
-      pitch(pitch), yaw(yaw) {
+      pitch(pitch), yaw(yaw), roll(0.0) {
     this->update_front();
 }
 
@@ -46,22 +46,10 @@ void camera::update_front() {
     front = glm::normalize(front);
 }
 
-void camera::rotate_front(double xoffset, double yoffset) {
-    pitch += yoffset * look_speed;
-    yaw += xoffset * look_speed;
-
-    if (pitch > MAX_TURN) {
-        pitch = MAX_TURN;
-    }
-    if (pitch < -MAX_TURN) {
-        pitch = -MAX_TURN;
-    }
-
-    update_front();
-}
-
 glm::mat4 camera::get_view_matrix() const {
-    return glm::lookAt(position, position + front, UP);
+    glm::vec3 up = glm::rotate(glm::mat4(1), glm::radians(roll), front) *
+                   glm::vec4(UP, 1.0f);
+    return glm::lookAt(position, position + front, up);
 }
 
 glm::mat4 camera::get_projection_matrix(float aspect_ratio) const {
@@ -79,12 +67,24 @@ void camera::translate(glm::vec3 translation) { position += translation; }
 
 void camera::set_speed(float speed) { this->speed = speed; }
 
-void camera::rotate(double xrot, double yrot, double) {
-    this->rotate_front(xrot, yrot);
+void camera::rotate(double xrot, double yrot, double zrot) {
+    pitch += yrot * look_speed;
+    yaw += xrot * look_speed;
+
+    if (pitch > MAX_TURN) {
+        pitch = MAX_TURN;
+    }
+    if (pitch < -MAX_TURN) {
+        pitch = -MAX_TURN;
+    }
+
+    update_front();
+    roll += zrot;
 }
 
-void camera::set_rotation(double xrot, double yrot, double) {
-    this->pitch = xrot;
-    this->yaw = yrot;
+void camera::set_rotation(double xrot, double yrot, double zrot) {
+    this->yaw = xrot;
+    this->pitch = yrot;
     this->update_front();
+    roll = zrot;
 }

@@ -34,16 +34,7 @@ class camera : public moveable {
      @note this can be used to zoom in and out
     */
     float fov;
-    /*!
-     @brief The pitch of the camera
-     @details The pitch is the angle of the camera up and down
-    */
-    float pitch;
-    /*!
-     @brief The yaw of the camera
-     @details The yaw is the angle of the camera left and right
-    */
-    float yaw;
+    float yaw, pitch, roll;
     /*!
      @brief Updates the front vector of the camera.
      @details Automatically called when the pitch or yaw is updated.
@@ -89,14 +80,6 @@ class camera : public moveable {
      @param value The value to zoom in by
     */
     void zoom(float value);
-    /*!
-     @brief Turns the camera by adjusting the pitch and yaw values
-     @details The provided x and y offsets are used to adjust the pitch and yaw
-     values by turning them into radians.
-     @param xoffset The x offset to turn the camera
-     @param yoffset The y offset to turn the camera
-    */
-    void rotate_front(double xoffset, double yoffset);
     /*!
      @brief Get the view matrix of the camera
      @return The view matrix of the camera
