@@ -4,6 +4,9 @@
 #include "engine/engine.hpp"
 #include "physics/entity.hpp"
 
+/*!
+ @brief An object with physical properties
+*/
 class game_object : public object, public entity {
   public:
     /*!

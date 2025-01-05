@@ -24,6 +24,7 @@ class scene {
     /*!
      @brief Constructs a scene
      @param ambient_light The ambient light of the scene
+     @param background_color The background color of the scene
     */
     scene(glm::vec3 ambient_light, glm::vec3 background_color);
     ~scene();

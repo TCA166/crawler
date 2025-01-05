@@ -34,9 +34,17 @@ class object : public moveable {
     unsigned int index_count;
 
   protected:
-    // map name->texture
+    /*!
+     @brief Map of name->texture
+    */
     std::map<std::string, const texture *> textures;
+    /*!
+     @brief The number of textures
+    */
     unsigned int texture_count;
+    /*!
+     @brief The children of the object, objects that are moved with the object
+    */
     std::vector<moveable *> children;
 
   public:
@@ -75,6 +83,7 @@ class object : public moveable {
      @param target_camera The camera to render the object with
      @param aspect_ratio The aspect ratio of the window
      @param lights The lights to render the object with
+     @param ambient The ambient light to render the object with
     */
     void render(const camera *target_camera, float aspect_ratio,
                 const std::vector<const light *> &lights,
@@ -96,6 +105,7 @@ class object : public moveable {
     /*!
      @brief Add a texture to the object
      @param tex The texture to add
+     @param name the name under which the texture should be added and accessed
     */
     void add_texture(const texture *tex, std::string name);
     /*!
@@ -146,5 +156,9 @@ class object : public moveable {
      @param child The child to add
     */
     void add_child(moveable *child);
+    /*!
+     @brief Get the model matrix of the object
+     @return The model matrix of the object
+    */
     glm::mat4 get_model_matrix() const;
 };

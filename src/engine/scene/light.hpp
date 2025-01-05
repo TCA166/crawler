@@ -63,6 +63,10 @@ class light {
      @param color the new color of the light
     */
     void set_color(glm::vec3 color);
+    /*!
+     @brief Sets the position of the light
+     @param position the new position of the light
+    */
     void set_position(glm::vec3 position);
     /*!
      @brief Binds the depth map of the light
@@ -73,5 +77,10 @@ class light {
      @param texture_unit the texture unit to use
     */
     void use_depth_map(int texture_unit) const;
+    /*!
+     @brief Gets the depth map of the light
+     @return a new texture object based on the depth map of this light
+     @warning the caller is responsible for deleting the texture object
+    */
     texture *get_depth_map() const;
 };

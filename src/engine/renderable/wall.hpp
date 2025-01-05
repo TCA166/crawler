@@ -2,6 +2,9 @@
 
 #include "object.hpp"
 
+/*!
+ @brief A simple square wall object
+*/
 class wall : public object {
   public:
     /*!

@@ -28,5 +28,13 @@ clean:
 	rm -f *.o main
 	$(MAKE) -C src/engine clean
 
+doc: doc/Doxyfile
+	mkdir -p doc/build
+	doxygen doc/Doxyfile
+
+doc-pdf: doc
+	$(MAKE) -C doc/build/latex all
+	cp doc/build/latex/refman.pdf refman.pdf
+
 dependencies:
 	sudo dnf install -y glfw-devel assimp-devel glew-devel glm-devel SOIL-devel glibc-devel.i686

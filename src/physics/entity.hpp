@@ -3,6 +3,11 @@
 
 #include <glm/glm.hpp>
 
+/*!
+ @brief An entity in the physics engine
+ @details Doesn't necessarily need to be rendered, but has physical properties
+ like mass, velocity, and force
+*/
 class entity {
   private:
     float mass;
