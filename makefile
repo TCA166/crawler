@@ -22,7 +22,7 @@ game.o: src/game.cpp src/game.hpp src/objects/* src/physics/constants.hpp
 	$(CC) $(IFLAGS) $(CFLAGS) -c src/game.cpp
 
 main: src/main.cpp engine.o game.o physics.o game_object.o
-	$(CC) $(IFLAGS) $(CFLAGS) -o main src/main.cpp engine.o game.o physics.o game_object.o
+	$(CC) $(CFLAGS) -o main src/main.cpp engine.o game.o physics.o game_object.o $(IFLAGS)
 
 clean:
 	rm -f *.o main
