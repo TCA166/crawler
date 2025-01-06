@@ -8,14 +8,14 @@
 #define UP glm::vec3(0.0f, 1.0f, 0.0f)
 
 camera::camera(glm::vec3 position, float speed, float fov, float look_speed,
-               float pitch, float yaw)
+               float pitch, float yaw, float roll)
     : position(position), speed(speed), look_speed(look_speed), fov(fov),
-      pitch(pitch), yaw(yaw), roll(0.0) {
+      yaw(yaw), pitch(pitch), roll(roll) {
     this->update_front();
 }
 
 camera::camera(glm::vec3 position)
-    : camera(position, 1.0f, 90.0f, 0.1f, 0.0f, 0.0f) {}
+    : camera(position, 1.0f, 90.0f, 0.1f, 0.0f, 0.0f, 0.0f) {}
 
 camera::~camera() {}
 
@@ -26,9 +26,7 @@ void camera::move_forward(float scale) {
 }
 
 void camera::move_right(float scale) {
-    this->translate(
-        glm::normalize(glm::cross(front, glm::vec3(0.0f, 1.0f, 0.0f))) * scale *
-        speed);
+    this->translate(glm::normalize(glm::cross(front, UP)) * scale * speed);
 }
 
 void camera::zoom(float value) {

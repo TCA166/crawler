@@ -8,13 +8,14 @@
 static const glm::vec3 loading_color = glm::vec3(038.0f, 206.0f, 0.0f);
 
 static void GLAPIENTRY message_callback(GLenum source, GLenum type, GLuint id,
-                                        GLenum severity, GLsizei length,
+                                        GLenum severity, GLsizei, // length
                                         const GLchar *message,
-                                        const void *userParam) {
-    fprintf(stderr,
-            "GL CALLBACK: %s type = 0x%x, severity = 0x%x, message = %s\n",
-            (type == GL_DEBUG_TYPE_ERROR ? "** GL ERROR **" : ""), type,
-            severity, message);
+                                        const void *) { // userParam
+    std::cerr << "GL CALLBACK: "
+              << (type == GL_DEBUG_TYPE_ERROR ? "** GL ERROR **" : "")
+              << " source = 0x" << std::hex << source << ", id = " << id
+              << " type = 0x" << std::hex << type << ", severity = 0x"
+              << std::hex << severity << ", message = " << message << std::endl;
 }
 
 /*!

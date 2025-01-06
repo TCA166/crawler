@@ -51,9 +51,10 @@ class camera : public moveable {
      @param look_speed The look speed of the camera
      @param pitch The pitch of the camera
      @param yaw The yaw of the camera
+     @param roll The roll of the camera
     */
     camera(glm::vec3 position, float speed, float fov, float look_speed,
-           float pitch, float yaw);
+           float pitch, float yaw, float roll);
     /*!
      @brief Constructs a camera with default values.
      @param position The position of the camera
