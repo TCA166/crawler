@@ -36,5 +36,8 @@ doc-pdf: doc
 	$(MAKE) -C doc/build/latex all
 	cp doc/build/latex/refman.pdf refman.pdf
 
-dependencies:
+dependencies-dnf:
 	sudo dnf install -y glfw-devel assimp-devel glew-devel glm-devel SOIL-devel glibc-devel.i686
+
+dependencies-apt:
+	sudo apt install -y libglm-dev libglew-dev libglfw3 libglfw3-dev libsoil-dev libassimp-dev
