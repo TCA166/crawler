@@ -118,7 +118,9 @@ renderer::renderer(int width, int height, const char *name, sem_t *semaphore,
     this->height = height;
     this->window = glfwCreateWindow(width, height, name, NULL, parent_window);
     if (window == NULL) {
-        throw std::runtime_error("Failed to create GLFW window");
+        const char *desc;
+        glfwGetError(&desc);
+        throw std::runtime_error(desc);
     }
     glfwSetWindowUserPointer(window, this);
     sem_wait(semaphore);
