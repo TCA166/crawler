@@ -4,7 +4,7 @@
 #define SCALE 1e-4
 
 #define INITIAL_VELOCITY(mass, distance)                                       \
-    sqrt(gravitational_constant *mass / distance)
+  sqrt(gravitational_constant *mass / distance)
 
 const double gravitational_constant = 6.67430e-11;
 
@@ -22,5 +22,5 @@ const double earth_moon_distance = 384400.0 * SCALE;
 const double earth_sun_distance = 149.6e6 * SCALE;
 
 inline double calculate_gravity(double mass1, double mass2, double distance) {
-    return (gravitational_constant * mass1 * mass2) / (distance * distance);
+  return (gravitational_constant * mass1 * mass2) / (distance * distance);
 }
