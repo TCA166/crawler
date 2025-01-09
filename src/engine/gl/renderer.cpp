@@ -7,12 +7,12 @@
 
 static const glm::vec3 loading_color = glm::vec3(038.0f, 206.0f, 0.0f);
 
-static void GLAPIENTRY message_callback(GLenum source, GLenum type, GLuint id,
-                                        GLenum severity, GLsizei, // length
-                                        const GLchar *message,
-                                        const void *) { // userParam
-    std::cerr << "GL CALLBACK: "
-              << (type == GL_DEBUG_TYPE_ERROR ? "** GL ERROR **" : "")
+static void message_callback(GLenum source, GLenum type, GLuint id,
+                             GLenum severity, GLsizei, // length
+                             const GLchar *message,
+                             const void *) { // userParam
+    std::cerr << (type == GL_DEBUG_TYPE_ERROR ? "** GL ERROR **"
+                                              : "GL MESSAGE ")
               << " source = 0x" << std::hex << source << ", id = " << id
               << " type = 0x" << std::hex << type << ", severity = 0x"
               << std::hex << severity << ", message = " << message << std::endl;
@@ -108,11 +108,11 @@ static void global_window_close_callback(GLFWwindow *window) {
     instance->close_callback();
 }
 
-renderer::renderer(int width, int height, const char *name, sem_t *semaphore,
+renderer::renderer(int width, int height, const char *name, std::mutex *mutex,
                    camera *render_camera)
-    : renderer(width, height, name, semaphore, render_camera, NULL) {}
+    : renderer(width, height, name, mutex, render_camera, NULL) {}
 
-renderer::renderer(int width, int height, const char *name, sem_t *semaphore,
+renderer::renderer(int width, int height, const char *name, std::mutex *mutex,
                    camera *render_camera, GLFWwindow *parent_window) {
     this->width = width;
     this->height = height;
@@ -123,7 +123,7 @@ renderer::renderer(int width, int height, const char *name, sem_t *semaphore,
         throw std::runtime_error(desc);
     }
     glfwSetWindowUserPointer(window, this);
-    sem_wait(semaphore);
+    mutex->lock();
     glfwMakeContextCurrent(window);
     if (glewInit() != GLEW_OK) {
         throw std::runtime_error("Failed to initialize GLEW");
@@ -137,7 +137,7 @@ renderer::renderer(int width, int height, const char *name, sem_t *semaphore,
 
     glfwSwapBuffers(window);
 
-    sem_post(semaphore);
+    mutex->unlock();
 
     glfwSetFramebufferSizeCallback(window, global_framebuffer_size_callback);
     glfwSetKeyCallback(window, global_key_callback);
@@ -150,7 +150,7 @@ renderer::renderer(int width, int height, const char *name, sem_t *semaphore,
     glDebugMessageCallback(message_callback, 0);
 
     this->focused = false;
-    this->semaphore = semaphore;
+    this->render_mutex = mutex;
     this->target_camera = render_camera;
 }
 
@@ -160,7 +160,7 @@ renderer renderer::clone(const char *name) {
     int width, height;
     glfwGetWindowSize(window, &width, &height);
     renderer new_renderer =
-        renderer(width, height, name, semaphore, target_camera, window);
+        renderer(width, height, name, render_mutex, target_camera, window);
     new_renderer.change_scene(target_scene);
     return new_renderer;
 }
@@ -206,14 +206,14 @@ void renderer::run() {
     }
     while (!glfwWindowShouldClose(window) &&
            !target_scene->get_should_close()) {
-        sem_wait(semaphore);            // we wait for our turn to render
+        render_mutex->lock();           // we wait for our turn to render
         glfwMakeContextCurrent(window); // tell openGL we are outputting to this
         target_scene->shadow_pass();    // create shadow maps
         glViewport(0, 0, width, height); // swap back to our resolution
         // render the scene
         target_scene->render(target_camera, width / float(height));
         // let go of the lock
-        sem_post(semaphore);
+        render_mutex->unlock();
         // show the rendered scene
         glfwSwapBuffers(window);
     }
@@ -224,6 +224,9 @@ void renderer::resize(int width, int height) {
     this->height = height;
 }
 
+/*!
+ @brief A thread that keeps the program alive by polling events
+*/
 static void keep_alive_thread(const bool *poll) {
     while (*poll) {
         std::this_thread::sleep_for(std::chrono::milliseconds(500));
@@ -232,7 +235,7 @@ static void keep_alive_thread(const bool *poll) {
 }
 
 void renderer::change_scene(scene *new_scene) {
-    sem_wait(semaphore);
+    render_mutex->lock();
     glfwMakeContextCurrent(window);
     show_loading();
     // we need to make sure something is polling events, else the OS will think
@@ -242,7 +245,7 @@ void renderer::change_scene(scene *new_scene) {
     new_scene->init();
     poll = false;
     keep_alive.join();
-    sem_post(semaphore);
+    render_mutex->unlock();
     target_scene = new_scene;
 }
 

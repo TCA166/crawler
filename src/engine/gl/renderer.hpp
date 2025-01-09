@@ -6,7 +6,7 @@
 #include "../scene/camera.hpp"
 #include "../scene/scene.hpp"
 
-#include <semaphore.h>
+#include <mutex>
 
 /*!
  @brief Renderer class to handle rendering of scenes.
@@ -19,7 +19,7 @@ class renderer {
     camera *target_camera;
     int width, height;
     bool focused;
-    sem_t *semaphore;
+    std::mutex *render_mutex;
     void show_loading();
 
   public:
@@ -28,11 +28,11 @@ class renderer {
      @param width The width of the window
      @param height The height of the window
      @param name The name of the window
-     @param semaphore The semaphore to use for synchronization
+     @param mutex The mutex to use for synchronization
      @param target_camera The camera to use for rendering
      @note This will create a window and initialize GLEW
     */
-    renderer(int width, int height, const char *name, sem_t *semaphore,
+    renderer(int width, int height, const char *name, std::mutex *mutex,
              camera *target_camera);
     /*!
      @brief Constructs a renderer with a given scene, width, height, name and
@@ -40,17 +40,17 @@ class renderer {
      @param width The width of the window
      @param height The height of the window
      @param name The name of the window
-     @param semaphore The semaphore to use for synchronization
+     @param mutex The mutex to use for synchronization
      @param target_camera The camera to use for rendering
      @param parent_window The parent window of the renderer
      @note This will create a window and initialize GLEW
     */
-    renderer(int width, int height, const char *name, sem_t *semaphore,
+    renderer(int width, int height, const char *name, std::mutex *mutex,
              camera *target_camera, GLFWwindow *parent_window);
     ~renderer();
     /*!
      @brief Creates a new renderer based on this one, sharing the scene,
-     semaphore and gl context
+     mutex and gl context
      @param name The name of the new window
      @return The new renderer
     */

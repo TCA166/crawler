@@ -23,12 +23,11 @@ int main() {
 
     camera main_camera = camera(glm::vec3(0.0f, 0.0f, 0.0f));
 
-    sem_t semaphore;
-    sem_init(&semaphore, 0, 1);
+    std::mutex mutex;
 
     // renderer handles all the initialization
     renderer current_renderer = renderer(WINDOW_WIDTH, WINDOW_HEIGHT,
-                                         WINDOW_NAME, &semaphore, &main_camera);
+                                         WINDOW_NAME, &mutex, &main_camera);
 
     current_renderer.change_scene(static_cast<scene *>(&game_scene));
 

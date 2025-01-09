@@ -1,6 +1,6 @@
 
 IFLAGS += -lGL -lGLU -lGLEW -lglfw -lassimp -lSOIL
-CFLAGS += -Wall -Wextra -Wpedantic -std=c++11 -g
+CFLAGS += -Wall -Wextra -std=c++11 -g -pedantic -Wwrite-strings -Werror
 CC = g++
 
 all: main
