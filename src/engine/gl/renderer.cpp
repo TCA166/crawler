@@ -240,6 +240,7 @@ void renderer::run() {
     render_mutex->unlock();
     // show the rendered scene
     glfwSwapBuffers(window);
+    glfwPollEvents();
   }
 }
 

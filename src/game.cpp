@@ -69,7 +69,7 @@ void game::main(camera *target_camera) {
       delta_time = new_time - current_time;
       current_time = new_time;
     }
-    glfwPollEvents();
+    // glfwPollEvents();
     if (mv_forward) {
       target_camera->move_forward(delta_time);
     } else if (mv_backward) {
