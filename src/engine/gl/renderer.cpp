@@ -7,10 +7,10 @@
 
 static const glm::vec3 loading_color = glm::vec3(038.0f, 206.0f, 0.0f);
 
-static void message_callback(GLenum source, GLenum type, GLuint id,
-                             GLenum severity, GLsizei, // length
-                             const GLchar *message,
-                             const void *) { // userParam
+static void APIENTRY gl_message_callback(GLenum source, GLenum type, GLuint id,
+                                         GLenum severity, GLsizei, // length
+                                         const GLchar *message,
+                                         const void *) { // userParam
   std::cerr << (type == GL_DEBUG_TYPE_ERROR ? "** GL ERROR **" : "GL MESSAGE ")
             << " source = 0x" << std::hex << source << ", id = " << id
             << " type = 0x" << std::hex << type << ", severity = 0x" << std::hex
@@ -146,7 +146,7 @@ renderer::renderer(int width, int height, const char *name, std::mutex *mutex,
   glfwSetWindowCloseCallback(window, global_window_close_callback);
 
   glEnable(GL_DEBUG_OUTPUT);
-  glDebugMessageCallback(message_callback, 0);
+  glDebugMessageCallback(gl_message_callback, 0);
 
   this->focused = false;
   this->render_mutex = mutex;

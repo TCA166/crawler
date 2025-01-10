@@ -10,12 +10,14 @@
  @brief Scene class to handle rendering of objects.
  */
 class scene {
+protected:
+  bool initialized = false;
+
 private:
   std::vector<object *> objects;
   std::vector<light *> lights;
   glm::vec3 ambient_light;
   glm::vec3 background_color;
-  bool initialized = false;
   bool should_close = false;
   skybox *sky;
   const shader *light_pass_shader;

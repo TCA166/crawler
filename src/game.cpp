@@ -2,20 +2,10 @@
 #include <iostream>
 
 game::game()
-    : scene(glm::vec3(0.1, 0.1, 0.1), glm::vec3(0.0)), time_scale(2e-5) {
-  this->current_time = glfwGetTime();
-  this->delta_time = 0.0;
-  this->xpos = 0.0;
-  this->ypos = 0.0;
-  this->mv_forward = false;
-  this->mv_backward = false;
-  this->mv_left = false;
-  this->mv_right = false;
-  this->mv_up = false;
-  this->mv_down = false;
-  this->rot_left = false;
-  this->rot_right = false;
-}
+    : scene(glm::vec3(0.1, 0.1, 0.1), glm::vec3(0.0)), time_scale(2e-5),
+      current_time(glfwGetTime()), delta_time(0.0), mv_forward(false),
+      mv_backward(false), mv_left(false), mv_right(false), mv_up(false),
+      mv_down(false), rot_left(false), rot_right(false), xpos(0.0), ypos(0.0) {}
 
 game::~game() {
   delete this->textured_shader;
@@ -71,6 +61,9 @@ void game::init() {
 void game::main(camera *target_camera) {
   target_camera->set_speed(10.0f);
   while (!this->get_should_close()) {
+    if (!this->initialized) {
+      continue;
+    }
     {
       double new_time = glfwGetTime();
       delta_time = new_time - current_time;

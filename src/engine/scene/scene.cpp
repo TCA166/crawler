@@ -22,7 +22,6 @@ void scene::add_object(object *obj) {
 void scene::add_light(light *light) { lights.push_back(light); }
 
 void scene::init() {
-  initialized = true;
   for (object *obj : objects) {
     obj->init();
   }
@@ -31,6 +30,7 @@ void scene::init() {
   }
   light_pass_shader = new shader(SHADER_PATH("light_pass.vert"),
                                  SHADER_PATH("light_pass.frag"));
+  initialized = true;
 }
 
 void scene::render(const camera *target_camera, float aspect_ratio) {
