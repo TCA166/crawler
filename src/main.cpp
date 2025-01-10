@@ -9,8 +9,7 @@
 #define WINDOW_HEIGHT 500
 
 static void glfw_error_callback(int error, const char *description) {
-  std::cerr << "GLFW error: 0x" << std::hex << error << ", " << description
-            << std::endl;
+  fprintf(stderr, "GLFW error: 0x%x, %s\n", error, description);
 }
 
 static void renderer_thread(scene *target_scene, camera *target_camera,

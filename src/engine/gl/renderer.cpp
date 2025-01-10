@@ -7,14 +7,41 @@
 
 static const glm::vec3 loading_color = glm::vec3(038.0f, 206.0f, 0.0f);
 
+static std::map<GLenum, const GLchar *> gl_source_name_map = {
+    {GL_DEBUG_SOURCE_API, "API"},
+    {GL_DEBUG_SOURCE_WINDOW_SYSTEM, "WINDOW_SYSTEM"},
+    {GL_DEBUG_SOURCE_SHADER_COMPILER, "SHADER_COMPILER"},
+    {GL_DEBUG_SOURCE_THIRD_PARTY, "THIRD_PARTY"},
+    {GL_DEBUG_SOURCE_APPLICATION, "APPLICATION"},
+    {GL_DEBUG_SOURCE_OTHER, "OTHER"}};
+
+static std::map<GLenum, const GLchar *> gl_severity_name_map = {
+    {GL_DEBUG_SEVERITY_HIGH, "HIGH"},
+    {GL_DEBUG_SEVERITY_MEDIUM, "MEDIUM"},
+    {GL_DEBUG_SEVERITY_LOW, "LOW"},
+    {GL_DEBUG_SEVERITY_NOTIFICATION, "NOTIFICATION"}};
+
+static std::map<GLenum, const GLchar *> gl_type_name_map = {
+    {GL_DEBUG_TYPE_ERROR, "ERROR"},
+    {GL_DEBUG_TYPE_DEPRECATED_BEHAVIOR, "DEPRECATED_BEHAVIOR"},
+    {GL_DEBUG_TYPE_UNDEFINED_BEHAVIOR, "UNDEFINED_BEHAVIOR"},
+    {GL_DEBUG_TYPE_PORTABILITY, "PORTABILITY"},
+    {GL_DEBUG_TYPE_PERFORMANCE, "PERFORMANCE"},
+    {GL_DEBUG_TYPE_MARKER, "MARKER"},
+    {GL_DEBUG_TYPE_PUSH_GROUP, "PUSH_GROUP"},
+    {GL_DEBUG_TYPE_POP_GROUP, "POP_GROUP"},
+    {GL_DEBUG_TYPE_OTHER, "OTHER"}};
+
 static void APIENTRY gl_message_callback(GLenum source, GLenum type, GLuint id,
                                          GLenum severity, GLsizei, // length
                                          const GLchar *message,
                                          const void *) { // userParam
-  std::cerr << (type == GL_DEBUG_TYPE_ERROR ? "** GL ERROR **" : "GL MESSAGE ")
-            << " source = 0x" << std::hex << source << ", id = " << id
-            << " type = 0x" << std::hex << type << ", severity = 0x" << std::hex
-            << severity << ", message = " << message << std::endl;
+  if (severity == GL_DEBUG_SEVERITY_NOTIFICATION) {
+    return; // ignore notifications
+  }
+  fprintf(stderr, "GL: %s %s, %s: ID: %d, %s\n", gl_type_name_map[type],
+          gl_severity_name_map[severity], gl_source_name_map[source], id,
+          message);
 }
 
 /*!
@@ -136,6 +163,9 @@ renderer::renderer(int width, int height, const char *name, std::mutex *mutex,
 
   glfwSwapBuffers(window);
 
+  glEnable(GL_DEBUG_OUTPUT);
+  glDebugMessageCallback(gl_message_callback, NULL);
+
   mutex->unlock();
 
   glfwSetFramebufferSizeCallback(window, global_framebuffer_size_callback);
@@ -144,9 +174,6 @@ renderer::renderer(int width, int height, const char *name, std::mutex *mutex,
   glfwSetScrollCallback(window, global_scroll_callback);
   glfwSetCursorPosCallback(window, global_mouse_callback);
   glfwSetWindowCloseCallback(window, global_window_close_callback);
-
-  glEnable(GL_DEBUG_OUTPUT);
-  glDebugMessageCallback(gl_message_callback, 0);
 
   this->focused = false;
   this->render_mutex = mutex;
