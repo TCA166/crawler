@@ -3,19 +3,47 @@
 #include "../engine/engine.hpp"
 #include "../physics/entity.hpp"
 
+/*!
+ @brief A boid object
+ @details A boid object that can be used in a flocking simulation
+*/
 class boid : public triangle, protected entity {
 public:
+  /*!
+   @brief Constructs a boid object
+   @param object_shader The shader to use for rendering
+   @param xpos The x position of the boid
+   @param ypos The y position of the boid
+   @param zpos The z position of the boid
+   @param tex The texture of the boid
+  */
   boid(const shader *object_shader, double xpos, double ypos, double zpos,
        const texture *tex);
   ~boid();
 
+  /*!
+   @brief Updates the boid, including physics and flocking
+   @param boids The boids to flock with
+   @param deltaTime The time since the last update
+  */
   void update(const std::vector<const boid *> &boids, double deltaTime);
+  /*!
+   @brief Checks if the boid is active
+   @return True if the boid is active
+  */
   bool is_active() const;
+  /*!
+   @brief Activates the boid
+  */
   void activate();
+  /*!
+   @brief Deactivates the boid
+  */
   void deactivate();
-  void evaluate(double deltaTime);
 
 private:
+  void evaluate(double deltaTime);
+
   bool active;
 
   glm::vec3 separation(const std::vector<const boid *> &boids);

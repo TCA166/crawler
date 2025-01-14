@@ -43,8 +43,18 @@ protected:
    @brief The children of the object, objects that are moved with the object
   */
   std::vector<moveable *> children;
+  ///@{
+  /*!
+   @brief The bounds of the object
+  */
   glm::vec3 bounds, negbounds;
+  ///@}
+  ///@{
+  /*!
+   @brief The position of the object
+  */
   double xpos, ypos, zpos;
+  ///@}
 
 public:
   /*!
@@ -62,12 +72,8 @@ public:
    @param object_shader The shader to use for rendering
    @param data The data of the object
    @param indices The indices of the object
-   @param xbound The x bound of the object
-   @param xnegbound The negative x bound of the object
-   @param ybound The y bound of the object
-   @param ynegbound The negative y bound of the object
-   @param zbound The z bound of the object
-   @param znegbound The negative z bound of the object
+   @param bounds The bounds of the object
+   @param negbounds The negative bounds of the object
    @param xpos The x position of the object
    @param ypos The y position of the object
    @param zpos The z position of the object

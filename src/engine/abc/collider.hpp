@@ -19,6 +19,6 @@ public:
    @param b The end of the line
    @return True if the line intersects the collider
   */
-  virtual bool check_line(glm::vec3 a, glm::vec3) const = 0;
+  virtual bool check_line(glm::vec3 a, glm::vec3 b) const = 0;
   virtual ~collider() {}
 };

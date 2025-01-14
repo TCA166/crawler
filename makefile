@@ -28,7 +28,7 @@ clean:
 	rm -f *.o main
 	$(MAKE) -C src/engine clean
 
-doc: doc/Doxyfile
+doc: doc/Doxyfile src/*/*.cpp src/*.hpp src/*/*.hpp src/*/*.cpp
 	mkdir -p doc/build
 	doxygen doc/Doxyfile
 

@@ -87,10 +87,4 @@ void camera::set_rotation(double xrot, double yrot, double zrot) {
   roll = zrot;
 }
 
-glm::vec3 camera::get_front() const { 
-    return front; 
-}
-
-glm::vec3 camera::get_rotation() const { 
-    return glm::vec3(pitch, yaw, roll); 
-}
+glm::vec3 camera::get_front() const { return front; }

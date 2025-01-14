@@ -13,7 +13,13 @@ private:
   glm::vec3 force_accumulator;
 
 protected:
+  /*!
+   @brief The mass of the entity
+  */
   float mass;
+  /*!
+   @brief The velocity of the entity
+  */
   glm::vec3 velocity;
 
 public:
