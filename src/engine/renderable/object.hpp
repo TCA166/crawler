@@ -15,7 +15,7 @@
 */
 class object : public moveable {
 private:
-  unsigned int normal_count;
+  const shader *object_shader;
   /*!
    @brief the data of the object (vertices, normals, texture coordinates,
    tangents and bitangents)
@@ -27,11 +27,8 @@ private:
   std::vector<unsigned int> indices;
   GLuint VAO, VBO, EBO;
   double xpos, ypos, zpos;
-  float scalex, scaley, scalez;
-  double xrot, yrot, zrot;
-  const shader *object_shader;
+  glm::vec3 scale, rot;
   unsigned int vertex_count;
-  unsigned int index_count;
 
 protected:
   /*!
@@ -46,6 +43,12 @@ protected:
    @brief The children of the object, objects that are moved with the object
   */
   std::vector<moveable *> children;
+  ///@{
+  /*!
+   @brief The bounds of the object
+  */
+  float xbound, xnegbound, ybound, ynegbound, zbound, znegbound;
+  ///@}
 
 public:
   /*!
@@ -63,13 +66,20 @@ public:
    @param object_shader The shader to use for rendering
    @param data The data of the object
    @param indices The indices of the object
+   @param xbound The x bound of the object
+   @param xnegbound The negative x bound of the object
+   @param ybound The y bound of the object
+   @param ynegbound The negative y bound of the object
+   @param zbound The z bound of the object
+   @param znegbound The negative z bound of the object
    @param xpos The x position of the object
    @param ypos The y position of the object
    @param zpos The z position of the object
   */
   object(const shader *object_shader, const std::vector<float> &data,
-         const std::vector<unsigned int> &indices, double xpos, double ypos,
-         double zpos);
+         const std::vector<unsigned int> &indices, float xbound,
+         float xnegbound, float ybound, float ynegbound, float zbound,
+         float znegbound, double xpos, double ypos, double zpos);
   virtual ~object();
   /*!
    @brief Initialize the object
@@ -161,4 +171,17 @@ public:
    @return The model matrix of the object
   */
   glm::mat4 get_model_matrix() const;
+  /*!
+   @brief Check if a point is within the bounds of the object
+   @param point The point to check
+   @return Whether the point is within the bounds of the object
+  */
+  bool check_bounds(glm::vec3 point) const;
+  /*!
+   @brief Check if a line collides with the object
+   @param a The start of the line
+   @param b The end of the line
+   @return Whether the line collides with the object
+  */
+  bool check_bounds(glm::vec3 a, glm::vec3 b) const;
 };

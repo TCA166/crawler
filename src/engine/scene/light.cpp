@@ -53,9 +53,11 @@ void light::set_direction(glm::vec3 direction) { this->direction = direction; }
 
 void light::set_color(glm::vec3 color) { this->color = color; }
 
-void light::set_position(glm::vec3 position) { this->position = position; }
+void light::set_position(double xpos, double ypos, double zpos) {
+  this->position = glm::vec3(xpos, ypos, zpos);
+}
 
-void light::bind_depth_map() const {
+void light::bind_view_map() const {
   glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
   glClear(GL_DEPTH_BUFFER_BIT);
 }
@@ -65,4 +67,19 @@ void light::use_depth_map(int texture_unit) const {
   glBindTexture(GL_TEXTURE_2D, depthMap);
 }
 
-texture *light::get_depth_map() const { return new texture(depthMap); }
+texture *light::get_view_map() const { return new texture(depthMap); }
+
+void light::translate(glm::vec3 translation) { position += translation; }
+
+void light::rotate(double xrot, double yrot, double zrot) {
+  direction =
+      glm::rotate(glm::mat4(1.0f), (float)xrot, glm::vec3(1.0f, 0.0f, 0.0f)) *
+      glm::rotate(glm::mat4(1.0f), (float)yrot, glm::vec3(0.0f, 1.0f, 0.0f)) *
+      glm::rotate(glm::mat4(1.0f), (float)zrot, glm::vec3(0.0f, 0.0f, 1.0f)) *
+      glm::vec4(direction, 1.0f);
+}
+
+void light::set_rotation(double xrot, double yrot, double zrot) {
+  direction = glm::vec3(0.0f, 0.0f, 1.0f);
+  this->rotate(xrot, yrot, zrot);
+}

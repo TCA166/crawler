@@ -11,6 +11,9 @@
  */
 class scene {
 protected:
+  /*!
+   @brief Whether the scene has had its init function called
+  */
   bool initialized = false;
 
 private:
