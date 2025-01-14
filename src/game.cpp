@@ -44,7 +44,7 @@ void game::init() {
   floor->set_rotation(1.57, 0.0, 0.0);
   floor->set_scale(10.0, 10.0, 1.0);
   this->add_object(floor);
-  depth = lght->get_depth_map();
+  depth = lght->get_view_map();
   view = new debug_wall(simple_shader, depth, norm, 0.0, 3.0, 0.0);
   this->add_object(view);
   skybox_shader =
@@ -93,7 +93,7 @@ void game::main(camera *target_camera) {
     delta_time *= time_scale;
     glm::vec3 lght_pos = lght->get_position();
     lght_pos.x = sin(current_time) * 4.0;
-    lght->set_position(lght_pos);
+    lght->set_position(lght_pos.x, lght_pos.y, lght_pos.z);
   }
 }
 

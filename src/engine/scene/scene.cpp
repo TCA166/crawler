@@ -59,7 +59,7 @@ void scene::shadow_pass() const {
   // activate the super simple shader for the shadow pass
   light_pass_shader->use();
   for (const light *lght : lights) {
-    lght->bind_depth_map(); // activate the framebuffer
+    lght->bind_view_map(); // activate the framebuffer
     light_pass_shader->apply_uniform_mat4(lght->get_light_space(),
                                           "lightSpaceMatrix");
     // draw all the objects

@@ -1,15 +1,16 @@
 
 #pragma once
 
+#include "../abc/moveable.hpp"
+#include "../abc/view.hpp"
 #include "../gl/texture.hpp"
 
 #include <string>
 
 /*!
- @brief a simple invisible directional light (like the sun)
- @note Infinite strength, infinite distance away
+ @brief a simple invisible light source
 */
-class light {
+class light : public moveable, public view {
 private:
   glm::vec3 position;
   glm::vec3 direction;
@@ -21,8 +22,8 @@ private:
 
 public:
   /*!
-   @brief Constructs a light with a given position, color and attenuation
-   parameters
+   @brief Constructs a light with a given position, direction, color, fov and
+    range
    @param position the position of the light
    @param direction the direction of the light
    @param color the color of the light (rgb)
@@ -64,14 +65,23 @@ public:
   */
   void set_color(glm::vec3 color);
   /*!
-   @brief Sets the position of the light
-   @param position the new position of the light
+   @brief Set the position of the object
+   @param xpos The x position of the object
+   @param ypos The y position of the object
+   @param zpos The z position of the object
   */
-  void set_position(glm::vec3 position);
+  void set_position(double xpos, double ypos, double zpos);
+  /*!
+   @brief Translates the light
+   @param translation the translation to apply
+  */
+  void translate(glm::vec3 translation);
+  void rotate(double xrot, double yrot, double zrot);
+  void set_rotation(double xrot, double yrot, double zrot);
   /*!
    @brief Binds the depth map of the light
   */
-  void bind_depth_map() const;
+  void bind_view_map() const;
   /*!
    @brief Uses the depth map of the light
    @param texture_unit the texture unit to use
@@ -82,5 +92,5 @@ public:
    @return a new texture object based on the depth map of this light
    @warning the caller is responsible for deleting the texture object
   */
-  texture *get_depth_map() const;
+  texture *get_view_map() const;
 };
