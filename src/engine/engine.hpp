@@ -15,6 +15,7 @@
 #include "renderable/cube.hpp"
 #include "renderable/object.hpp"
 #include "renderable/skybox.hpp"
+#include "renderable/triangle.hpp"
 #include "renderable/wall.hpp"
 
 #include "settings.hpp"

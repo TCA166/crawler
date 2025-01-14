@@ -32,8 +32,11 @@ skybox.o: renderable/skybox.cpp renderable/skybox.hpp
 wall.o: renderable/wall.cpp renderable/wall.hpp
 	$(CC) $(IFLAGS) $(CFLAGS) -c renderable/wall.cpp
 
-renderable.o: cube.o object.o skybox.o wall.o
-	$(CC) $(CFLAGS) -r cube.o object.o skybox.o wall.o -o renderable.o
+triangle.o: renderable/triangle.cpp renderable/triangle.hpp
+	$(CC) $(IFLAGS) $(CFLAGS) -c renderable/triangle.cpp
+
+renderable.o: cube.o object.o skybox.o wall.o triangle.o
+	$(CC) $(CFLAGS) -r cube.o object.o skybox.o wall.o triangle.o -o renderable.o
 
 # scene subfolder
 

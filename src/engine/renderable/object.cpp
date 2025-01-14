@@ -117,11 +117,11 @@ object::object(const shader *object_shader, const std::vector<float> &data,
                const std::vector<unsigned int> &indices, float xbound,
                float xnegbound, float ybound, float ynegbound, float zbound,
                float znegbound, double xpos, double ypos, double zpos)
-    : object_shader(object_shader), data(data), indices(indices), xpos(xpos),
-      ypos(ypos), zpos(zpos), scale(glm::vec3(1.0)), rot(glm::vec3(0.0)),
+    : object_shader(object_shader), data(data), indices(indices),
+      scale(glm::vec3(1.0)), rot(glm::vec3(0.0)),
       vertex_count(data.size() / 14), xbound(xbound), xnegbound(xnegbound),
       ybound(ybound), ynegbound(ynegbound), zbound(zbound),
-      znegbound(znegbound) {}
+      znegbound(znegbound), xpos(xpos), ypos(ypos), zpos(zpos) {}
 
 object::~object() {
   glDeleteVertexArrays(1, &VAO);
@@ -309,21 +309,23 @@ bool object::check_bounds(glm::vec3 point) const {
 }
 
 bool object::check_bounds(glm::vec3 a, glm::vec3 b) const {
-  glm::vec3 direction = glm::normalize(b - a);
-  float tMin = 0.0f;
-  float tMax = glm::length(b - a);
+  glm::mat4 model = get_model_matrix();
+  glm::vec3 a_transformed = glm::vec3(model * glm::vec4(a, 1.0f));
+  glm::vec3 b_transformed = glm::vec3(model * glm::vec4(b, 1.0f));
+  glm::vec3 min_bound(xnegbound, ynegbound, znegbound);
+  glm::vec3 max_bound(xbound, ybound, zbound);
 
-  for (int i = 0; i < 3; ++i) {
-    float invD = 1.0f / direction[i];
-    float t0 = (xnegbound - a[i]) * invD;
-    float t1 = (xbound - a[i]) * invD;
-    if (invD < 0.0f)
-      std::swap(t0, t1);
-    tMin = t0 > tMin ? t0 : tMin;
-    tMax = t1 < tMax ? t1 : tMax;
-    if (tMax <= tMin)
-      return false;
-  }
+  glm::vec3 dir = b_transformed - a_transformed;
+  glm::vec3 inv_dir = 1.0f / dir;
 
-  return true;
+  glm::vec3 t0 = (min_bound - a_transformed) * inv_dir;
+  glm::vec3 t1 = (max_bound - a_transformed) * inv_dir;
+
+  glm::vec3 tmin = glm::min(t0, t1);
+  glm::vec3 tmax = glm::max(t0, t1);
+
+  float tmin_max = glm::max(glm::max(tmin.x, tmin.y), tmin.z);
+  float tmax_min = glm::min(glm::min(tmax.x, tmax.y), tmax.z);
+
+  return tmax_min >= tmin_max && tmax_min >= 0.0f;
 }

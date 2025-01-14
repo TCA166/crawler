@@ -3,7 +3,7 @@
 #include "constants.hpp"
 
 entity::entity(float mass, glm::vec3 velocity)
-    : mass(mass), velocity(velocity), force_accumulator(glm::vec3(0.0f)) {}
+    : force_accumulator(glm::vec3(0.0f)), mass(mass), velocity(velocity) {}
 
 float entity::get_gravity(float distance, float mass) const {
   return calculate_gravity(this->mass, mass, distance);

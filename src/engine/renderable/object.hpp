@@ -26,7 +26,6 @@ private:
   */
   std::vector<unsigned int> indices;
   GLuint VAO, VBO, EBO;
-  double xpos, ypos, zpos;
   glm::vec3 scale, rot;
   unsigned int vertex_count;
 
@@ -49,6 +48,7 @@ protected:
   */
   float xbound, xnegbound, ybound, ynegbound, zbound, znegbound;
   ///@}
+  double xpos, ypos, zpos;
 
 public:
   /*!

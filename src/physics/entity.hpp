@@ -10,9 +10,11 @@
 */
 class entity {
 private:
+  glm::vec3 force_accumulator;
+
+protected:
   float mass;
   glm::vec3 velocity;
-  glm::vec3 force_accumulator;
 
 public:
   /*!
