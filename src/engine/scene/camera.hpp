@@ -128,4 +128,6 @@ public:
    @param zrot The rotation around the z axis
   */
   void set_rotation(double xrot, double yrot, double zrot);
+  glm::vec3 get_front() const;
+  glm::vec3 get_rotation() const;
 };

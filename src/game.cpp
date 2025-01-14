@@ -1,4 +1,5 @@
 #include "game.hpp"
+#include "engine/renderable/triangle.hpp"
 #include <iostream>
 
 game::game()
@@ -21,9 +22,13 @@ game::~game() {
   delete this->depth;
   delete this->view;
   delete this->simple_shader;
+  delete this->tex2;
+  delete this->triangle_shader;
 }
 
 void game::init() {
+  triangle_shader =
+      new shader(SHADER_PATH("triangle.vert"), SHADER_PATH("triangle.frag"));
   textured_shader =
       new shader(SHADER_PATH("textured.vert"), SHADER_PATH("textured.frag"));
   simple_shader = new shader(SHADER_PATH("textured.vert"),
@@ -32,6 +37,7 @@ void game::init() {
                    glm::vec3(1.0, 1.0, 1.0), 90.0f, 100.0f);
   this->add_light(lght);
   tex = new texture(TEXTURE_PATH("spaceship.jpg"));
+  tex2 = new texture(TEXTURE_PATH("texture.png"));
   norm = new texture(TEXTURE_PATH("spaceship_normal.jpg"));
   cube1 = new debug_cube(textured_shader, tex, norm, 0.0, 0.1, 0.0);
   this->add_object(cube1);
@@ -47,6 +53,17 @@ void game::init() {
   depth = lght->get_depth_map();
   view = new debug_wall(simple_shader, depth, norm, 0.0, 3.0, 0.0);
   this->add_object(view);
+
+  for (int i = 0; i < 10; ++i) {
+    float x = static_cast<float>(rand()) / RAND_MAX * 2.0f - 1.0f;
+    float y = static_cast<float>(rand()) / RAND_MAX * 2.0f - 1.0f;
+    float z = static_cast<float>(rand()) / RAND_MAX * 2.0f - 1.0f;
+    tri = new triangle(triangle_shader, x, y, z);
+    tri->add_texture(tex2, "texture");
+    triangles.push_back(tri);
+    this->add_object(triangles.back());
+  }
+
   skybox_shader =
       new shader(SHADER_PATH("skybox.vert"), SHADER_PATH("skybox.frag"));
   std::vector<std::string> paths = {
@@ -90,10 +107,39 @@ void game::main(camera *target_camera) {
     } else if (rot_right) {
       target_camera->rotate(0.0, 0.0, delta_time);
     }
+    if (shooting) {
+
+      glm::vec3 shoot_direction = target_camera->get_front();
+
+      glm::vec3 shoot_position =
+          target_camera->get_position() + shoot_direction * 10.0f;
+      fprintf(stderr, "Shooting at (%f, %f, %f)\n", shoot_position.x,
+              shoot_position.y, shoot_position.z);
+
+      // Collision detection
+      for (auto &tri : triangles) {
+        if (tri->is_active() &&
+            glm::distance(shoot_position, tri->get_position()) < 1.0f) {
+          fprintf(stderr, "Hit triangle\n");
+          tri->set_active(false); // Deactivate triangle when hit
+          break;
+        }
+      }
+
+      shooting = false;
+    }
     delta_time *= time_scale;
     glm::vec3 lght_pos = lght->get_position();
     lght_pos.x = sin(current_time) * 4.0;
     lght->set_position(lght_pos);
+
+    for (auto &tri : triangles) {
+      if (tri->is_active()) {
+
+        glm::vec3 new_position = tri->update(triangles, delta_time);
+        tri->set_position(new_position.x, new_position.y, new_position.z);
+      }
+    }
   }
 }
 
@@ -130,6 +176,9 @@ void game::key_callback(int key, int, int action, int, camera *) {
     break;
   case GLFW_KEY_E:
     rot_right = pressed;
+    break;
+  case GLFW_KEY_F: // Key for shooting
+    shooting = pressed;
     break;
   }
 }
