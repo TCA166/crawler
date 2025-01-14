@@ -43,7 +43,12 @@ protected:
    @brief The children of the object, objects that are moved with the object
   */
   std::vector<moveable *> children;
+  ///@{
+  /*!
+   @brief The bounds of the object
+  */
   float xbound, xnegbound, ybound, ynegbound, zbound, znegbound;
+  ///@}
 
 public:
   /*!
