@@ -172,4 +172,11 @@ public:
    @return Whether the point is within the bounds of the object
   */
   bool check_bounds(glm::vec3 point) const;
+  /*!
+   @brief Check if a line collides with the object
+   @param a The start of the line
+   @param b The end of the line
+   @return Whether the line collides with the object
+  */
+  bool check_bounds(glm::vec3 a, glm::vec3 b) const;
 };

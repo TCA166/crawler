@@ -302,6 +302,28 @@ glm::vec3 object::get_position() const { return glm::vec3(xpos, ypos, zpos); }
 void object::add_child(moveable *child) { children.push_back(child); }
 
 bool object::check_bounds(glm::vec3 point) const {
-  return point.x <= xbound && point.x >= xnegbound && point.y <= ybound &&
-         point.y >= ynegbound && point.z <= zbound && point.z >= znegbound;
+  glm::vec4 transformed_point = get_model_matrix() * glm::vec4(point, 1.0f);
+  return transformed_point.x <= xbound && transformed_point.x >= xnegbound &&
+         transformed_point.y <= ybound && transformed_point.y >= ynegbound &&
+         transformed_point.z <= zbound && transformed_point.z >= znegbound;
+}
+
+bool object::check_bounds(glm::vec3 a, glm::vec3 b) const {
+  glm::vec3 direction = glm::normalize(b - a);
+  float tMin = 0.0f;
+  float tMax = glm::length(b - a);
+
+  for (int i = 0; i < 3; ++i) {
+    float invD = 1.0f / direction[i];
+    float t0 = (xnegbound - a[i]) * invD;
+    float t1 = (xbound - a[i]) * invD;
+    if (invD < 0.0f)
+      std::swap(t0, t1);
+    tMin = t0 > tMin ? t0 : tMin;
+    tMax = t1 < tMax ? t1 : tMax;
+    if (tMax <= tMin)
+      return false;
+  }
+
+  return true;
 }
