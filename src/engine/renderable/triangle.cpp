@@ -15,7 +15,8 @@ static const std::vector<unsigned int> triangle_indices = {0, 1, 2};
 
 triangle::triangle(const shader *object_shader, double xpos, double ypos,
                    double zpos)
-    : object(object_shader, triangle_data, triangle_indices, 0.5, -0.5, 0.5,
-             -0.5, 0.5, -0.5, xpos, ypos, zpos) {}
+    : object(object_shader, triangle_data, triangle_indices,
+             glm::vec3(-0.5, 0.5, 0.5), glm::vec3(-0.5, -0.5, -0.5), xpos, ypos,
+             zpos) {}
 
 triangle::~triangle() {}

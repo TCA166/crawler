@@ -29,7 +29,7 @@ static const std::vector<unsigned int> cube_indices = {
 // clang-format on
 
 cube::cube(const shader *object_shader, double xpos, double ypos, double zpos)
-    : object(object_shader, cube_data, cube_indices, 0.5, -0.5, 0.5, -0.5, 0.5,
-             -0.5, xpos, ypos, zpos) {}
+    : object(object_shader, cube_data, cube_indices, glm::vec3(0.5),
+             glm::vec3(-0.5), xpos, ypos, zpos) {}
 
 cube::~cube() {}

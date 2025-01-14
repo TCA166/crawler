@@ -17,7 +17,7 @@ static const std::vector<unsigned int> wall_indices = {
 // clang-format on
 
 wall::wall(const shader *object_shader, double xpos, double ypos, double zpos)
-    : object(object_shader, wall_data, wall_indices, 0.5, -0.5, 0.5, -0.5, 0.0,
-             0.0, xpos, ypos, zpos) {}
+    : object(object_shader, wall_data, wall_indices, glm::vec3(0.5, 0.5, 0.0),
+             glm::vec3(-0.5, -0.5, 0.0), xpos, ypos, zpos) {}
 
 wall::~wall() {}

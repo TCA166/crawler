@@ -52,8 +52,18 @@ camera.o: scene/camera.cpp scene/camera.hpp
 scene_m.o: scene.o light.o camera.o
 	$(CC) $(CFLAGS) -r scene.o light.o camera.o -o scene_m.o
 
-engine.o: gl.o renderable.o scene_m.o
-	$(CC) $(CFLAGS) -r gl.o renderable.o scene_m.o -o engine.o
+# utils subfolder
+
+collision.o: utils/collision.cpp utils/collision.hpp
+	$(CC) $(IFLAGS) $(CFLAGS) -c utils/collision.cpp
+
+utils.o: collision.o
+	$(CC) $(CFLAGS) -r collision.o -o utils.o
+
+# complete engine
+
+engine.o: gl.o renderable.o scene_m.o utils.o
+	$(CC) $(CFLAGS) -r gl.o renderable.o scene_m.o utils.o -o engine.o
 
 clean:
 	rm -f *.o

@@ -5,3 +5,5 @@
 #define MODEL_PATH(name) "models/" name
 
 #define SHADOW_RES 2048
+
+enum axes { X, Y, Z };

@@ -4,6 +4,7 @@
 #include <map>
 #include <vector>
 
+#include "../abc/collider.hpp"
 #include "../abc/moveable.hpp"
 #include "../gl/shader.hpp"
 #include "../gl/texture.hpp"
@@ -42,12 +43,7 @@ protected:
    @brief The children of the object, objects that are moved with the object
   */
   std::vector<moveable *> children;
-  ///@{
-  /*!
-   @brief The bounds of the object
-  */
-  float xbound, xnegbound, ybound, ynegbound, zbound, znegbound;
-  ///@}
+  glm::vec3 bounds, negbounds;
   double xpos, ypos, zpos;
 
 public:
@@ -77,9 +73,8 @@ public:
    @param zpos The z position of the object
   */
   object(const shader *object_shader, const std::vector<float> &data,
-         const std::vector<unsigned int> &indices, float xbound,
-         float xnegbound, float ybound, float ynegbound, float zbound,
-         float znegbound, double xpos, double ypos, double zpos);
+         const std::vector<unsigned int> &indices, glm::vec3 bounds,
+         glm::vec3 negbounds, double xpos, double ypos, double zpos);
   virtual ~object();
   /*!
    @brief Initialize the object
@@ -174,14 +169,14 @@ public:
   /*!
    @brief Check if a point is within the bounds of the object
    @param point The point to check
-   @return Whether the point is within the bounds of the object
+   @return True if the point is within the bounds of the object
   */
-  bool check_bounds(glm::vec3 point) const;
+  bool check_point(glm::vec3 point) const;
   /*!
    @brief Check if a line collides with the object
    @param a The start of the line
    @param b The end of the line
-   @return Whether the line collides with the object
+   @return True if the line collides with the object
   */
-  bool check_bounds(glm::vec3 a, glm::vec3 b) const;
+  bool check_line(glm::vec3 a, glm::vec3 b) const;
 };

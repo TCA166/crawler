@@ -16,6 +16,8 @@
 #define SHADER_VERTEX_TANGENT "vertexTangent"
 #define SHADER_VERTEX_BITANGENT "vertexBitangent"
 
+#include "../utils/collision.hpp"
+
 object::object(const shader *object_shader, const std::string &path,
                double xpos, double ypos, double zpos) {
   this->object_shader = object_shader;
@@ -39,12 +41,12 @@ object::object(const shader *object_shader, const std::string &path,
 
   const aiMesh *mesh = scene->mMeshes[0];
 
-  this->xbound = -std::numeric_limits<float>::infinity();
-  this->xnegbound = std::numeric_limits<float>::infinity();
-  this->ybound = -std::numeric_limits<float>::infinity();
-  this->ynegbound = std::numeric_limits<float>::infinity();
-  this->zbound = -std::numeric_limits<float>::infinity();
-  this->znegbound = std::numeric_limits<float>::infinity();
+  float xbound = -std::numeric_limits<float>::infinity();
+  float xnegbound = std::numeric_limits<float>::infinity();
+  float ybound = -std::numeric_limits<float>::infinity();
+  float ynegbound = std::numeric_limits<float>::infinity();
+  float zbound = -std::numeric_limits<float>::infinity();
+  float znegbound = std::numeric_limits<float>::infinity();
 
   for (unsigned int i = 0; i < mesh->mNumVertices; i++) {
     if (mesh->mVertices[i].x > xbound) {
@@ -103,6 +105,10 @@ object::object(const shader *object_shader, const std::string &path,
       data.push_back(0.0f);
     }
   }
+
+  this->bounds = glm::vec3(xbound, ybound, zbound);
+  this->negbounds = glm::vec3(xnegbound, ynegbound, znegbound);
+
   for (unsigned int i = 0; i < mesh->mNumFaces; i++) {
     aiFace face = mesh->mFaces[i];
     // retrieve all indices of the face and store them in the indices vector
@@ -114,14 +120,12 @@ object::object(const shader *object_shader, const std::string &path,
 }
 
 object::object(const shader *object_shader, const std::vector<float> &data,
-               const std::vector<unsigned int> &indices, float xbound,
-               float xnegbound, float ybound, float ynegbound, float zbound,
-               float znegbound, double xpos, double ypos, double zpos)
+               const std::vector<unsigned int> &indices, glm::vec3 bounds,
+               glm::vec3 negbounds, double xpos, double ypos, double zpos)
     : object_shader(object_shader), data(data), indices(indices),
       scale(glm::vec3(1.0)), rot(glm::vec3(0.0)),
-      vertex_count(data.size() / 14), xbound(xbound), xnegbound(xnegbound),
-      ybound(ybound), ynegbound(ynegbound), zbound(zbound),
-      znegbound(znegbound), xpos(xpos), ypos(ypos), zpos(zpos) {}
+      vertex_count(data.size() / 14), bounds(bounds), negbounds(negbounds),
+      xpos(xpos), ypos(ypos), zpos(zpos) {}
 
 object::~object() {
   glDeleteVertexArrays(1, &VAO);
@@ -301,31 +305,18 @@ glm::vec3 object::get_position() const { return glm::vec3(xpos, ypos, zpos); }
 
 void object::add_child(moveable *child) { children.push_back(child); }
 
-bool object::check_bounds(glm::vec3 point) const {
-  glm::vec4 transformed_point = get_model_matrix() * glm::vec4(point, 1.0f);
-  return transformed_point.x <= xbound && transformed_point.x >= xnegbound &&
-         transformed_point.y <= ybound && transformed_point.y >= ynegbound &&
-         transformed_point.z <= zbound && transformed_point.z >= znegbound;
+bool object::check_point(glm::vec3 point) const {
+  glm::mat4 model = get_model_matrix();
+  glm::vec4 bounds = model * glm::vec4(this->bounds, 1.0f);
+  glm::vec4 negbounds = model * glm::vec4(this->negbounds, 1.0f);
+  return point.x <= bounds.x && point.x >= negbounds.x && point.y <= bounds.y &&
+         point.y >= negbounds.y && point.z <= bounds.z &&
+         point.z >= negbounds.z;
 }
 
-bool object::check_bounds(glm::vec3 a, glm::vec3 b) const {
+bool object::check_line(glm::vec3 a, glm::vec3 b) const {
   glm::mat4 model = get_model_matrix();
-  glm::vec3 a_transformed = glm::vec3(model * glm::vec4(a, 1.0f));
-  glm::vec3 b_transformed = glm::vec3(model * glm::vec4(b, 1.0f));
-  glm::vec3 min_bound(xnegbound, ynegbound, znegbound);
-  glm::vec3 max_bound(xbound, ybound, zbound);
-
-  glm::vec3 dir = b_transformed - a_transformed;
-  glm::vec3 inv_dir = 1.0f / dir;
-
-  glm::vec3 t0 = (min_bound - a_transformed) * inv_dir;
-  glm::vec3 t1 = (max_bound - a_transformed) * inv_dir;
-
-  glm::vec3 tmin = glm::min(t0, t1);
-  glm::vec3 tmax = glm::max(t0, t1);
-
-  float tmin_max = glm::max(glm::max(tmin.x, tmin.y), tmin.z);
-  float tmax_min = glm::min(glm::min(tmax.x, tmax.y), tmax.z);
-
-  return tmax_min >= tmin_max && tmax_min >= 0.0f;
+  glm::vec4 bounds = model * glm::vec4(this->bounds, 1.0f);
+  glm::vec4 negbounds = model * glm::vec4(this->negbounds, 1.0f);
+  return check_line_box(glm::vec3(negbounds), glm::vec3(bounds), a, b, a);
 }

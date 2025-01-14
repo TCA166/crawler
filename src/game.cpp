@@ -112,16 +112,24 @@ void game::main(camera *target_camera) {
     }
 
     if (shooting) {
+      glm::vec3 camera_position = target_camera->get_position();
 
       glm::vec3 shoot_position =
-          target_camera->get_position() + target_camera->get_front() * 10.0f;
+          camera_position + target_camera->get_front() * 10.0f;
       fprintf(stderr, "Shooting at (%f, %f, %f)\n", shoot_position.x,
               shoot_position.y, shoot_position.z);
+
+      if (wall->check_line(camera_position, shoot_position)) {
+        fprintf(stderr, "Hit wall\n");
+      }
+      if (cube1->check_line(camera_position, shoot_position)) {
+        fprintf(stderr, "Hit cube1\n");
+      }
 
       // Collision detection
       for (auto &tri : boids) {
         if (tri->is_active() &&
-            tri->check_bounds(target_camera->get_position(), shoot_position)) {
+            tri->check_line(camera_position, shoot_position)) {
           fprintf(stderr, "Hit triangle\n");
           tri->deactivate();
           break;
