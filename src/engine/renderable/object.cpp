@@ -5,6 +5,7 @@
 #include <assimp/postprocess.h>
 #include <assimp/scene.h>
 
+#include <limits>
 #include <stdexcept>
 #include <vector>
 
@@ -21,12 +22,8 @@ object::object(const shader *object_shader, const std::string &path,
   this->xpos = xpos;
   this->ypos = ypos;
   this->zpos = zpos;
-  this->scalex = 1.0;
-  this->scaley = 1.0;
-  this->scalez = 1.0;
-  this->xrot = 0.0;
-  this->yrot = 0.0;
-  this->zrot = 0.0;
+  this->scale = glm::vec3(1.0);
+  this->rot = glm::vec3(0.0);
   Assimp::Importer import;
   const aiScene *scene =
       import.ReadFile(path, aiProcess_Triangulate | aiProcess_CalcTangentSpace);
@@ -42,9 +39,34 @@ object::object(const shader *object_shader, const std::string &path,
 
   const aiMesh *mesh = scene->mMeshes[0];
 
+  this->xbound = -std::numeric_limits<float>::infinity();
+  this->xnegbound = std::numeric_limits<float>::infinity();
+  this->ybound = -std::numeric_limits<float>::infinity();
+  this->ynegbound = std::numeric_limits<float>::infinity();
+  this->zbound = -std::numeric_limits<float>::infinity();
+  this->znegbound = std::numeric_limits<float>::infinity();
+
   for (unsigned int i = 0; i < mesh->mNumVertices; i++) {
+    if (mesh->mVertices[i].x > xbound) {
+      xbound = mesh->mVertices[i].x;
+    }
+    if (mesh->mVertices[i].x < xnegbound) {
+      xnegbound = mesh->mVertices[i].x;
+    }
     data.push_back(mesh->mVertices[i].x);
+    if (mesh->mVertices[i].y > ybound) {
+      ybound = mesh->mVertices[i].y;
+    }
+    if (mesh->mVertices[i].y < ynegbound) {
+      ynegbound = mesh->mVertices[i].y;
+    }
     data.push_back(mesh->mVertices[i].y);
+    if (mesh->mVertices[i].z > zbound) {
+      zbound = mesh->mVertices[i].z;
+    }
+    if (mesh->mVertices[i].z < znegbound) {
+      znegbound = mesh->mVertices[i].z;
+    }
     data.push_back(mesh->mVertices[i].z);
     if (mesh->mNormals != nullptr) {
       data.push_back(mesh->mNormals[i].x);
@@ -92,22 +114,14 @@ object::object(const shader *object_shader, const std::string &path,
 }
 
 object::object(const shader *object_shader, const std::vector<float> &data,
-               const std::vector<unsigned int> &indices, double xpos,
-               double ypos, double zpos) {
-  this->object_shader = object_shader;
-  this->data = data;
-  this->indices = indices;
-  this->xpos = xpos;
-  this->ypos = ypos;
-  this->zpos = zpos;
-  this->scalex = 1.0;
-  this->scaley = 1.0;
-  this->scalez = 1.0;
-  this->xrot = 0.0;
-  this->yrot = 0.0;
-  this->zrot = 0.0;
-  vertex_count = data.size() / 14;
-}
+               const std::vector<unsigned int> &indices, float xbound,
+               float xnegbound, float ybound, float ynegbound, float zbound,
+               float znegbound, double xpos, double ypos, double zpos)
+    : object_shader(object_shader), data(data), indices(indices), xpos(xpos),
+      ypos(ypos), zpos(zpos), scale(glm::vec3(1.0)), rot(glm::vec3(0.0)),
+      vertex_count(data.size() / 14), xbound(xbound), xnegbound(xnegbound),
+      ybound(ybound), ynegbound(ynegbound), zbound(zbound),
+      znegbound(znegbound) {}
 
 object::~object() {
   glDeleteVertexArrays(1, &VAO);
@@ -154,7 +168,6 @@ void object::init() {
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
   glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * indices.size(),
                indices.data(), GL_STATIC_DRAW);
-  index_count = indices.size();
 
   glVertexAttribPointer(posAttrib, 3, GL_FLOAT, GL_FALSE, 14 * sizeof(float),
                         (void *)0);
@@ -180,13 +193,10 @@ void object::init() {
 
 glm::mat4 object::get_model_matrix() const {
   return glm::translate(glm::mat4(1.0f), glm::vec3(xpos, ypos, zpos)) *
-         glm::rotate(glm::mat4(1.0f), (float)xrot,
-                     glm::vec3(1.0f, 0.0f, 0.0f)) *
-         glm::rotate(glm::mat4(1.0f), (float)yrot,
-                     glm::vec3(0.0f, 1.0f, 0.0f)) *
-         glm::rotate(glm::mat4(1.0f), (float)zrot,
-                     glm::vec3(0.0f, 0.0f, 1.0f)) *
-         glm::scale(glm::mat4(1.0f), glm::vec3(scalex, scaley, scalez));
+         glm::rotate(glm::mat4(1.0f), rot.x, glm::vec3(1.0f, 0.0f, 0.0f)) *
+         glm::rotate(glm::mat4(1.0f), rot.y, glm::vec3(0.0f, 1.0f, 0.0f)) *
+         glm::rotate(glm::mat4(1.0f), rot.z, glm::vec3(0.0f, 0.0f, 1.0f)) *
+         glm::scale(glm::mat4(1.0f), scale);
 }
 
 void object::render(const glm::mat4 *viewProjection, glm::vec3 viewPos,
@@ -228,7 +238,7 @@ void object::render(const glm::mat4 *viewProjection, glm::vec3 viewPos,
 
 void object::draw() const {
   glBindVertexArray(VAO);
-  glDrawElements(GL_TRIANGLES, index_count, GL_UNSIGNED_INT, NULL);
+  glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, NULL);
   glBindVertexArray(0);
   glBindBuffer(GL_ARRAY_BUFFER, 0);
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
@@ -257,30 +267,24 @@ void object::set_position(double xpos, double ypos, double zpos) {
 }
 
 void object::set_scale(float scalex, float scaley, float scalez) {
-  this->scalex = scalex;
-  this->scaley = scaley;
-  this->scalez = scalez;
+  this->scale = glm::vec3(scalex, scaley, scalez);
 }
 
-void object::set_scale(float scale) {
-  this->scalex = scale;
-  this->scaley = scale;
-  this->scalez = scale;
-}
+void object::set_scale(float scale) { this->scale = glm::vec3(scale); }
 
 void object::rotate(double xrot, double yrot, double zrot) {
-  this->xrot += xrot;
-  this->yrot += yrot;
-  this->zrot += zrot;
+  this->rot.x += xrot;
+  this->rot.y += yrot;
+  this->rot.z += zrot;
   for (moveable *child : children) {
     child->rotate(xrot, yrot, zrot);
   }
 }
 
 void object::set_rotation(double xrot, double yrot, double zrot) {
-  double xdiff = xrot - this->xrot;
-  double ydiff = yrot - this->yrot;
-  double zdiff = zrot - this->zrot;
+  double xdiff = xrot - this->rot.x;
+  double ydiff = yrot - this->rot.y;
+  double zdiff = zrot - this->rot.z;
   this->rotate(xdiff, ydiff, zdiff);
 }
 
@@ -296,3 +300,8 @@ void object::translate(glm::vec3 translation) {
 glm::vec3 object::get_position() const { return glm::vec3(xpos, ypos, zpos); }
 
 void object::add_child(moveable *child) { children.push_back(child); }
+
+bool object::check_bounds(glm::vec3 point) const {
+  return point.x <= xbound && point.x >= xnegbound && point.y <= ybound &&
+         point.y >= ynegbound && point.z <= zbound && point.z >= znegbound;
+}
