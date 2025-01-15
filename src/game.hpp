@@ -23,7 +23,7 @@ private:
   light *lght;
   shader *textured_shader, *skybox_shader, *simple_shader, *triangle_shader;
   texture *tex, *norm, *depth, *tex2;
-  std::vector<boid *> boids;
+  std::list<boid *> boids;
   bool is_shooting;
   glm::vec3 shoot_direction;
 

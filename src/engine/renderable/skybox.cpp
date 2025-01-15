@@ -10,7 +10,7 @@ skybox::skybox(const shader *skybox_shader, std::vector<std::string> &paths)
 skybox::~skybox() { delete skybox_texture; }
 
 void skybox::render(const glm::mat4 *view_projection, glm::vec3 camera_position,
-                    const std::vector<const light *> &lights,
+                    const std::list<const light *> &lights,
                     glm::vec3 ambient_light) const {
   glDepthFunc(GL_LEQUAL);
   object::render(view_projection, camera_position, lights, ambient_light);

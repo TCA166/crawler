@@ -1,15 +1,16 @@
 
 #pragma once
 
+#include "../abc/collider.hpp"
 #include "../renderable/object.hpp"
 #include "../renderable/skybox.hpp"
 
-#include <vector>
+#include <list>
 
 /*!
  @brief Scene class to handle rendering of objects.
  */
-class scene {
+class scene : public collider {
 protected:
   /*!
    @brief Whether the scene has had its init function called
@@ -17,8 +18,8 @@ protected:
   bool initialized = false;
 
 private:
-  std::vector<object *> objects;
-  std::vector<light *> lights;
+  std::list<object *> objects;
+  std::list<light *> lights;
   glm::vec3 ambient_light;
   glm::vec3 background_color;
   bool should_close = false;
@@ -44,10 +45,20 @@ public:
   */
   void add_object(object *obj);
   /*!
+   @brief Remove an object from the scene
+   @param obj The object to remove
+  */
+  void remove_object(const object *obj);
+  /*!
    @brief Add a light to the scene
    @param light The light to add
   */
   void add_light(light *light);
+  /*!
+   @brief Remove a light from the scene
+   @param light The light to remove
+  */
+  void remove_light(const light *light);
   /*!
    @brief Initialize the scene
   */
@@ -111,4 +122,17 @@ public:
    @return The should close value
   */
   bool get_should_close() const;
+  /*!
+   @brief Check if a point is inside the collider
+   @param point The point to check
+   @return True if the point is inside the collider
+  */
+  bool check_point(glm::vec3 point) const;
+  /*!
+   @brief Check if a line intersects the collider
+   @param a The start of the line
+   @param b The end of the line
+   @return True if the line intersects the collider
+  */
+  bool check_line(glm::vec3 a, glm::vec3 b) const;
 };

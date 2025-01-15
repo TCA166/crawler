@@ -7,27 +7,17 @@
 
 #define UP glm::vec3(0.0f, 1.0f, 0.0f)
 
-camera::camera(glm::vec3 position, float speed, float fov, float look_speed,
-               float pitch, float yaw, float roll)
-    : position(position), speed(speed), look_speed(look_speed), fov(fov),
-      yaw(yaw), pitch(pitch), roll(roll) {
+camera::camera(glm::vec3 position, float fov, float look_speed, float pitch,
+               float yaw, float roll)
+    : position(position), look_speed(look_speed), fov(fov), yaw(yaw),
+      pitch(pitch), roll(roll) {
   this->update_front();
 }
 
 camera::camera(glm::vec3 position)
-    : camera(position, 1.0f, 90.0f, 0.1f, 0.0f, 0.0f, 0.0f) {}
+    : camera(position, 90.0f, 0.1f, 0.0f, 0.0f, 0.0f) {}
 
 camera::~camera() {}
-
-void camera::move_up(float scale) { this->translate(UP * scale * speed); }
-
-void camera::move_forward(float scale) {
-  this->translate(front * scale * speed);
-}
-
-void camera::move_right(float scale) {
-  this->translate(glm::normalize(glm::cross(front, UP)) * scale * speed);
-}
 
 void camera::zoom(float value) {
   float new_fov = fov + value;
@@ -45,9 +35,7 @@ void camera::update_front() {
 }
 
 glm::mat4 camera::get_view_matrix() const {
-  glm::vec3 up = glm::rotate(glm::mat4(1), glm::radians(roll), front) *
-                 glm::vec4(UP, 1.0f);
-  return glm::lookAt(position, position + front, up);
+  return glm::lookAt(position, position + front, this->get_up());
 }
 
 glm::mat4 camera::get_projection_matrix(float aspect_ratio) const {
@@ -62,8 +50,6 @@ void camera::set_position(double x, double y, double z) {
 }
 
 void camera::translate(glm::vec3 translation) { position += translation; }
-
-void camera::set_speed(float speed) { this->speed = speed; }
 
 void camera::rotate(double xrot, double yrot, double zrot) {
   pitch += yrot * look_speed;
@@ -88,3 +74,12 @@ void camera::set_rotation(double xrot, double yrot, double zrot) {
 }
 
 glm::vec3 camera::get_front() const { return front; }
+
+glm::vec3 camera::get_up() const {
+  return glm::rotate(glm::mat4(1), glm::radians(roll), front) *
+         glm::vec4(UP, 1.0f);
+}
+
+glm::vec3 camera::get_right() const {
+  return glm::normalize(glm::cross(front, UP));
+}

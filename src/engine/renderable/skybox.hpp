@@ -27,7 +27,7 @@ public:
    @param ambient_light The ambient light in the scene
   */
   void render(const glm::mat4 *view_projection, glm::vec3 camera_position,
-              const std::vector<const light *> &lights,
+              const std::list<const light *> &lights,
               glm::vec3 ambient_light) const;
   /*!
    @brief Initialize the skybox

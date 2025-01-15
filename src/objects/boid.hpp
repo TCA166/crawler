@@ -26,29 +26,14 @@ public:
    @param boids The boids to flock with
    @param deltaTime The time since the last update
   */
-  void update(const std::vector<const boid *> &boids, double deltaTime);
-  /*!
-   @brief Checks if the boid is active
-   @return True if the boid is active
-  */
-  bool is_active() const;
-  /*!
-   @brief Activates the boid
-  */
-  void activate();
-  /*!
-   @brief Deactivates the boid
-  */
-  void deactivate();
+  void update(const std::list<const boid *> &boids, double deltaTime);
 
 private:
   void evaluate(double deltaTime);
 
-  bool active;
-
-  glm::vec3 separation(const std::vector<const boid *> &boids);
-  glm::vec3 alignment(const std::vector<const boid *> &boids);
-  glm::vec3 cohesion(const std::vector<const boid *> &boids);
+  glm::vec3 separation(const std::list<const boid *> &boids);
+  glm::vec3 alignment(const std::list<const boid *> &boids);
+  glm::vec3 cohesion(const std::list<const boid *> &boids);
 
   static constexpr float maxSpeed = 8.0f;
   static constexpr float maxForce = 1.0f;
@@ -62,19 +47,13 @@ private:
 inline boid::boid(const shader *object_shader, double xpos, double ypos,
                   double zpos, const texture *tex)
     : triangle(object_shader, xpos, ypos, zpos),
-      entity(1.0f, glm::sphericalRand(1.0f)), active(true), tex(tex) {
+      entity(1.0f, glm::sphericalRand(1.0f)), tex(tex) {
   this->add_texture(tex, "texture");
 }
 
 inline boid::~boid() {}
 
-inline bool boid::is_active() const { return active; }
-
-inline void boid::activate() { active = true; }
-
-inline void boid::deactivate() { active = false; }
-
-inline void boid::update(const std::vector<const boid *> &boids,
+inline void boid::update(const std::list<const boid *> &boids,
                          double deltaTime) {
   deltaTime *= 1.0;
 
@@ -108,7 +87,7 @@ inline void boid::evaluate(double deltaTime) {
   }
 }
 
-inline glm::vec3 boid::separation(const std::vector<const boid *> &boids) {
+inline glm::vec3 boid::separation(const std::list<const boid *> &boids) {
   glm::vec3 steer(0.0f);
   int count = 0;
   for (const boid *other : boids) {
@@ -132,7 +111,7 @@ inline glm::vec3 boid::separation(const std::vector<const boid *> &boids) {
   return steer;
 }
 
-inline glm::vec3 boid::alignment(const std::vector<const boid *> &boids) {
+inline glm::vec3 boid::alignment(const std::list<const boid *> &boids) {
   glm::vec3 sum(0.0f);
   int count = 0;
   for (const boid *other : boids) {
@@ -154,7 +133,7 @@ inline glm::vec3 boid::alignment(const std::vector<const boid *> &boids) {
   return glm::vec3(0.0f);
 }
 
-inline glm::vec3 boid::cohesion(const std::vector<const boid *> &boids) {
+inline glm::vec3 boid::cohesion(const std::list<const boid *> &boids) {
   glm::vec3 sum(0.0f);
   int count = 0;
   glm::vec3 position = this->get_position();

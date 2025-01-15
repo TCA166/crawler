@@ -131,6 +131,10 @@ object::~object() {
   glDeleteVertexArrays(1, &VAO);
   glDeleteBuffers(1, &VBO);
   glDeleteBuffers(1, &EBO);
+
+  for (object *parent : parents) {
+    parent->remove_child(this);
+  }
 }
 
 void object::init() {
@@ -204,7 +208,7 @@ glm::mat4 object::get_model_matrix() const {
 }
 
 void object::render(const glm::mat4 *viewProjection, glm::vec3 viewPos,
-                    const std::vector<const light *> &lights,
+                    const std::list<const light *> &lights,
                     glm::vec3 ambient) const {
   object_shader->use();
 
@@ -222,17 +226,19 @@ void object::render(const glm::mat4 *viewProjection, glm::vec3 viewPos,
   object_shader->apply_uniform_scalar(1e10, "shininess");
   object_shader->apply_uniform_scalar(glfwGetTime(), "time");
 
+  size_t i = 0;
   // Pass light properties to the shader
-  for (size_t i = 0; i < lights.size(); ++i) {
+  for (auto light : lights) {
     std::string name = "lights[" + std::to_string(i) + "]";
-    object_shader->apply_uniform_vec3(lights[i]->get_position(),
+    object_shader->apply_uniform_vec3(light->get_position(),
                                       name + ".position");
-    object_shader->apply_uniform_vec3(lights[i]->get_color(), name + ".color");
-    object_shader->apply_uniform_mat4(lights[i]->get_light_space(),
+    object_shader->apply_uniform_vec3(light->get_color(), name + ".color");
+    object_shader->apply_uniform_mat4(light->get_light_space(),
                                       name + ".lightSpaceMatrix");
-    lights[i]->use_depth_map(tex_i);
+    light->use_depth_map(tex_i);
     object_shader->apply_uniform(tex_i, name + ".depthMap");
     tex_i++;
+    i++;
   }
   object_shader->apply_uniform(lights.size(), "numLights");
   this->draw();
@@ -249,7 +255,7 @@ void object::draw() const {
 }
 
 void object::render(const camera *target_camera, float aspect_ratio,
-                    const std::vector<const light *> &lights,
+                    const std::list<const light *> &lights,
                     glm::vec3 ambient) const {
   glm::mat4 viewProjection =
       target_camera->get_projection_matrix(aspect_ratio) *
@@ -304,6 +310,15 @@ void object::translate(glm::vec3 translation) {
 glm::vec3 object::get_position() const { return glm::vec3(xpos, ypos, zpos); }
 
 void object::add_child(moveable *child) { children.push_back(child); }
+
+void object::remove_child(const moveable *child) {
+  children.remove(const_cast<moveable *>(child));
+}
+
+void object::add_parent(object *parent) {
+  this->parents.push_back(parent);
+  parent->add_child(this);
+}
 
 bool object::check_point(glm::vec3 point) const {
   glm::mat4 model = get_model_matrix();

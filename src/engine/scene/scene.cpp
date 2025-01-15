@@ -19,6 +19,14 @@ void scene::add_object(object *obj) {
   objects.push_back(obj);
 }
 
+void scene::remove_object(const object *obj) {
+  objects.remove(const_cast<object *>(obj));
+}
+
+void scene::remove_light(const light *lght) {
+  lights.remove(const_cast<light *>(lght));
+}
+
 void scene::add_light(light *light) { lights.push_back(light); }
 
 void scene::init() {
@@ -43,12 +51,12 @@ void scene::render(const camera *target_camera, float aspect_ratio) {
     // special projection matrix that removes the translation
     glm::mat4 viewProjection = projection * glm::mat4(glm::mat3(view));
     sky->render(&viewProjection, target_camera->get_position(),
-                (const std::vector<const light *> &)lights, ambient_light);
+                (const std::list<const light *> &)lights, ambient_light);
   }
   glm::mat4 viewProjection = projection * view;
   for (const object *obj : objects) {
     obj->render(&viewProjection, target_camera->get_position(),
-                (const std::vector<const light *> &)lights, ambient_light);
+                (const std::list<const light *> &)lights, ambient_light);
   }
 }
 
@@ -99,3 +107,21 @@ void scene::mouse_callback(double, double, camera *) {
 void scene::close_callback() { should_close = true; }
 
 bool scene::get_should_close() const { return should_close; }
+
+bool scene::check_point(glm::vec3 point) const {
+  for (const object *obj : objects) {
+    if (obj->check_point(point)) {
+      return true;
+    }
+  }
+  return false;
+}
+
+bool scene::check_line(glm::vec3 a, glm::vec3 b) const {
+  for (const object *obj : objects) {
+    if (obj->check_line(a, b)) {
+      return true;
+    }
+  }
+  return false;
+}

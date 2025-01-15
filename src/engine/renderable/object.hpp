@@ -1,6 +1,7 @@
 
 #pragma once
 
+#include <list>
 #include <map>
 #include <vector>
 
@@ -42,7 +43,11 @@ protected:
   /*!
    @brief The children of the object, objects that are moved with the object
   */
-  std::vector<moveable *> children;
+  std::list<moveable *> children;
+  /*!
+   @brief The parents of the object, objects that move the object
+  */
+  std::list<object *> parents;
   ///@{
   /*!
    @brief The bounds of the object
@@ -97,8 +102,7 @@ public:
    @param ambient The ambient light to render the object with
   */
   void render(const camera *target_camera, float aspect_ratio,
-              const std::vector<const light *> &lights,
-              glm::vec3 ambient) const;
+              const std::list<const light *> &lights, glm::vec3 ambient) const;
   /*!
    @brief Render the object, including drawing the object onto the viewport
    @param viewProjection The view projection matrix to render the object with
@@ -107,7 +111,7 @@ public:
    @param ambient The ambient light to render the object with
   */
   virtual void render(const glm::mat4 *viewProjection, glm::vec3 viewPos,
-                      const std::vector<const light *> &lights,
+                      const std::list<const light *> &lights,
                       glm::vec3 ambient) const;
   /*!
    @brief Draws the object onto the viewport
@@ -165,8 +169,20 @@ public:
   /*!
    @brief Adds a child to the object
    @param child The child to add
+   @warning The child will not add this object as a parent
   */
   void add_child(moveable *child);
+  /*!
+   @brief Remove a child from the object
+   @param child The child to remove
+  */
+  void remove_child(const moveable *child);
+  /*!
+   @brief Add a parent to the object
+   @param parent The parent to add
+   @note Adds this object as a child of the parent
+  */
+  void add_parent(object *parent);
   /*!
    @brief Get the model matrix of the object
    @return The model matrix of the object

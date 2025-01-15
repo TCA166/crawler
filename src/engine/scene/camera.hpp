@@ -22,10 +22,6 @@ private:
   */
   glm::vec3 front;
   /*!
-   @brief The speed of the camera movement
-  */
-  float speed;
-  /*!
    @brief The look speed of the camera
   */
   float look_speed;
@@ -46,36 +42,20 @@ public:
    @brief Constructs a camera with a given position, speed, fov, look speed,
    pitch and yaw.
    @param position The position of the camera
-   @param speed The speed of the camera
    @param fov The field of view of the camera
    @param look_speed The look speed of the camera
    @param pitch The pitch of the camera
    @param yaw The yaw of the camera
    @param roll The roll of the camera
   */
-  camera(glm::vec3 position, float speed, float fov, float look_speed,
-         float pitch, float yaw, float roll);
+  camera(glm::vec3 position, float fov, float look_speed, float pitch,
+         float yaw, float roll);
   /*!
    @brief Constructs a camera with default values.
    @param position The position of the camera
   */
   camera(glm::vec3 position);
   ~camera();
-  /*!
-   @brief Move the camera up.
-   @param scale The scale to move the camera up by
-  */
-  void move_up(float scale);
-  /*!
-   @brief Move the camera left.
-   @param scale The scale to move the camera left by
-  */
-  void move_forward(float scale);
-  /*!
-   @brief Move the camera right.
-   @param scale The scale to move the camera right by
-  */
-  void move_right(float scale);
   /*!
    @brief Zooms in the camera by adjusting the fov
    @param value The value to zoom in by
@@ -97,11 +77,6 @@ public:
    @return The position of the camera
   */
   glm::vec3 get_position() const;
-  /*!
-   @brief Set the speed of the camera
-   @param speed The new speed of the camera
-  */
-  void set_speed(float speed);
   /*!
    @brief Translate the object
    @param translation The translation to apply
@@ -133,4 +108,14 @@ public:
    @return The front vector of the camera
   */
   glm::vec3 get_front() const;
+  /*!
+   @brief Get the up vector of the camera
+   @return The up vector
+  */
+  glm::vec3 get_up() const;
+  /*!
+   @brief Get the right vector of the camera
+   @return The right vector
+  */
+  glm::vec3 get_right() const;
 };

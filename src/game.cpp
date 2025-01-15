@@ -2,8 +2,10 @@
 #include "engine/renderable/triangle.hpp"
 #include <iostream>
 
+const float camera_speed = 10.;
+
 game::game()
-    : scene(glm::vec3(0.1, 0.1, 0.1), glm::vec3(0.0)), time_scale(2e-5),
+    : scene(glm::vec3(0.1, 0.1, 0.1), glm::vec3(0.0)), time_scale(1),
       current_time(glfwGetTime()), delta_time(0.0), mv_forward(false),
       mv_backward(false), mv_left(false), mv_right(false), mv_up(false),
       mv_down(false), rot_left(false), rot_right(false), xpos(0.0), ypos(0.0) {}
@@ -75,7 +77,7 @@ void game::init() {
 }
 
 void game::main(camera *target_camera) {
-  target_camera->set_speed(10.0f);
+  target_camera->set_position(0.0, 1.0, 0.0);
   while (!this->get_should_close()) {
     if (!this->initialized) {
       continue;
@@ -85,22 +87,41 @@ void game::main(camera *target_camera) {
       delta_time = new_time - current_time;
       current_time = new_time;
     }
-    // glfwPollEvents();
+    delta_time *= time_scale;
+
+    glm::vec3 camera_position = target_camera->get_position();
+    glm::vec3 camera_front = target_camera->get_front();
+    glm::vec3 camera_right = target_camera->get_right();
+
+    float move_dist = camera_speed * delta_time;
+    glm::vec3 move = glm::vec3(0.0);
     if (mv_forward) {
-      target_camera->move_forward(delta_time);
+      if (!check_line(camera_position,
+                      camera_position + camera_front * move_dist)) {
+        move += camera_front;
+      }
     } else if (mv_backward) {
-      target_camera->move_forward(-delta_time);
+      if (!check_line(camera_position,
+                      camera_position - camera_front * move_dist)) {
+        move -= camera_front;
+      }
     }
     if (mv_left) {
-      target_camera->move_right(-delta_time);
+      if (!check_line(camera_position,
+                      camera_position - camera_right * move_dist)) {
+        move -= camera_right;
+      }
     } else if (mv_right) {
-      target_camera->move_right(delta_time);
+      if (!check_line(camera_position,
+                      camera_position + camera_right * move_dist)) {
+        move += camera_right;
+      }
     }
-    if (mv_up) {
-      target_camera->move_up(delta_time);
-    } else if (mv_down) {
-      target_camera->move_up(-delta_time);
-    }
+    move.y = 0;
+    move = glm::normalize(move) * move_dist;
+    // FIXME
+    // target_camera->translate(move);
+
     if (rot_left) {
       target_camera->rotate(0.0, 0.0, -delta_time);
     } else if (rot_right) {
@@ -108,39 +129,27 @@ void game::main(camera *target_camera) {
     }
 
     for (auto &tri : boids) {
-      tri->update((const std::vector<const boid *> &)boids, delta_time);
+      tri->update((const std::list<const boid *> &)boids, delta_time);
     }
 
     if (shooting) {
-      glm::vec3 camera_position = target_camera->get_position();
-
-      glm::vec3 shoot_position =
-          camera_position + target_camera->get_front() * 10.0f;
-      fprintf(stderr, "Shooting at (%f, %f, %f)\n", shoot_position.x,
-              shoot_position.y, shoot_position.z);
-
-      if (wall->check_line(camera_position, shoot_position)) {
-        fprintf(stderr, "Hit wall\n");
-      }
-      if (cube1->check_line(camera_position, shoot_position)) {
-        fprintf(stderr, "Hit cube1\n");
-      }
+      glm::vec3 shoot_position = camera_position + camera_front * 10.0f;
 
       // Collision detection
       for (auto &tri : boids) {
-        if (tri->is_active() &&
-            tri->check_line(camera_position, shoot_position)) {
-          fprintf(stderr, "Hit triangle\n");
-          tri->deactivate();
+        if (tri->check_line(camera_position, shoot_position)) {
+          this->remove_object(tri);
+          delete tri;
+          boids.remove(tri);
           break;
         }
       }
 
       shooting = false;
     }
-    delta_time *= time_scale;
     glm::vec3 lght_pos = lght->get_position();
-    lght_pos.x = sin(current_time) * 4.0;
+    lght_pos.x = sin(current_time) *
+                 4.; // no need for * delta_time because we sine current_time
     lght->set_position(lght_pos.x, lght_pos.y, lght_pos.z);
   }
 }
