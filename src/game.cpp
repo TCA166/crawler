@@ -93,35 +93,26 @@ void game::main(camera *target_camera) {
     glm::vec3 camera_front = target_camera->get_front();
     glm::vec3 camera_right = target_camera->get_right();
 
-    float move_dist = camera_speed * delta_time;
     glm::vec3 move = glm::vec3(0.0);
     if (mv_forward) {
-      if (!check_line(camera_position,
-                      camera_position + camera_front * move_dist)) {
-        move += camera_front;
-      }
+      move += camera_front;
     } else if (mv_backward) {
-      if (!check_line(camera_position,
-                      camera_position - camera_front * move_dist)) {
-        move -= camera_front;
-      }
+      move -= camera_front;
     }
     if (mv_left) {
-      if (!check_line(camera_position,
-                      camera_position - camera_right * move_dist)) {
-        move -= camera_right;
-      }
+      move -= camera_right;
     } else if (mv_right) {
-      if (!check_line(camera_position,
-                      camera_position + camera_right * move_dist)) {
-        move += camera_right;
+      move += camera_right;
+    }
+    if (move.x != 0. || move.z != 0) {
+      move.y = 0;
+      move = glm::normalize(move) * camera_speed * (float)delta_time;
+      // float collision_dist = RENDER_MIN * 10.;
+      // TODO doesnt conserve speed when colliding
+      if (!check_line(camera_position, camera_position + move)) {
+        target_camera->translate(move);
       }
     }
-    move.y = 0;
-    move = glm::normalize(move) * move_dist;
-    // FIXME
-    // target_camera->translate(move);
-
     if (rot_left) {
       target_camera->rotate(0.0, 0.0, -delta_time);
     } else if (rot_right) {

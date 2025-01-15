@@ -1,7 +1,6 @@
 #include "camera.hpp"
 
-#define NEAR_PLANE 0.1f
-#define FAR_PLANE 100000.0f
+#include "../settings.hpp"
 
 #define MAX_TURN 89.0f
 
@@ -39,8 +38,8 @@ glm::mat4 camera::get_view_matrix() const {
 }
 
 glm::mat4 camera::get_projection_matrix(float aspect_ratio) const {
-  return glm::perspective(glm::radians(fov), aspect_ratio, NEAR_PLANE,
-                          FAR_PLANE);
+  return glm::perspective(glm::radians(fov), aspect_ratio, RENDER_MIN,
+                          RENDER_MAX);
 }
 
 glm::vec3 camera::get_position() const { return position; }
