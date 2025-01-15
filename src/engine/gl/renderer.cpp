@@ -5,6 +5,8 @@
 #include <stdexcept>
 #include <thread>
 
+#include "../utils/model_loader.hpp"
+
 static const glm::vec3 loading_color = glm::vec3(038.0f, 206.0f, 0.0f);
 
 static std::map<GLenum, const GLchar *> gl_source_name_map = {
@@ -268,6 +270,7 @@ void renderer::change_scene(scene *new_scene) {
   bool poll = true;
   std::thread keep_alive(keep_alive_thread, &poll);
   new_scene->init();
+  model_loader::get().init();
   poll = false;
   keep_alive.join();
   render_mutex->unlock();

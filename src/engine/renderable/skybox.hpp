@@ -29,8 +29,4 @@ public:
   void render(const glm::mat4 *view_projection, glm::vec3 camera_position,
               const std::list<const light *> &lights,
               glm::vec3 ambient_light) const;
-  /*!
-   @brief Initialize the skybox
-  */
-  void init();
 };

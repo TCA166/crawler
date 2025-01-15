@@ -4,7 +4,6 @@
 
 in vec2 texCoord;
 in vec3 fragPos;
-in mat3 TBN;
 
 uniform sampler2D texture0;
 uniform sampler2D normal0;
@@ -65,7 +64,6 @@ void main()
 {
     vec3 norm = texture(normal0, texCoord).rgb;
     norm = normalize(norm * 2.0 - 1.0);
-    //norm = normalize(TBN * norm);
 
     vec3 result = ambientLight;
     for (int i = 0; i < numLights; ++i) {

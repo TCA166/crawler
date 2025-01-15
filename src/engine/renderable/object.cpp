@@ -1,202 +1,27 @@
 
 #include "object.hpp"
 
-#include <assimp/Importer.hpp>
-#include <assimp/postprocess.h>
-#include <assimp/scene.h>
-
 #include <limits>
 #include <stdexcept>
 #include <vector>
 
-#define SHADER_VERTEX_POSITION "vertexPosition"
-#define SHADER_VERTEX_COLOR "vertexColor"
-#define SHADER_VERTEX_TEXCOORD "vertexTexCoord"
-#define SHADER_VERTEX_NORMAL "vertexNormal"
-#define SHADER_VERTEX_TANGENT "vertexTangent"
-#define SHADER_VERTEX_BITANGENT "vertexBitangent"
-
 #include "../utils/collision.hpp"
+#include "../utils/model_loader.hpp"
+
+object::object(const shader *object_shader, const model *object_model,
+               double xpos, double ypos, double zpos)
+    : object_shader(object_shader), scale(glm::vec3(1.)), rot(glm::vec3(0.)),
+      object_model(object_model), xpos(xpos), ypos(ypos), zpos(zpos) {}
 
 object::object(const shader *object_shader, const std::string &path,
-               double xpos, double ypos, double zpos) {
-  this->object_shader = object_shader;
-  this->xpos = xpos;
-  this->ypos = ypos;
-  this->zpos = zpos;
-  this->scale = glm::vec3(1.0);
-  this->rot = glm::vec3(0.0);
-  Assimp::Importer import;
-  const aiScene *scene =
-      import.ReadFile(path, aiProcess_Triangulate | aiProcess_CalcTangentSpace);
-  if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE ||
-      !scene->mRootNode) {
-    throw std::runtime_error("ERROR::ASSIMP::" +
-                             std::string(import.GetErrorString()));
-  }
-
-  if (scene->mNumMeshes == 0) {
-    throw std::runtime_error("No meshes found in file");
-  }
-
-  const aiMesh *mesh = scene->mMeshes[0];
-
-  float xbound = -std::numeric_limits<float>::infinity();
-  float xnegbound = std::numeric_limits<float>::infinity();
-  float ybound = -std::numeric_limits<float>::infinity();
-  float ynegbound = std::numeric_limits<float>::infinity();
-  float zbound = -std::numeric_limits<float>::infinity();
-  float znegbound = std::numeric_limits<float>::infinity();
-
-  for (unsigned int i = 0; i < mesh->mNumVertices; i++) {
-    if (mesh->mVertices[i].x > xbound) {
-      xbound = mesh->mVertices[i].x;
-    }
-    if (mesh->mVertices[i].x < xnegbound) {
-      xnegbound = mesh->mVertices[i].x;
-    }
-    data.push_back(mesh->mVertices[i].x);
-    if (mesh->mVertices[i].y > ybound) {
-      ybound = mesh->mVertices[i].y;
-    }
-    if (mesh->mVertices[i].y < ynegbound) {
-      ynegbound = mesh->mVertices[i].y;
-    }
-    data.push_back(mesh->mVertices[i].y);
-    if (mesh->mVertices[i].z > zbound) {
-      zbound = mesh->mVertices[i].z;
-    }
-    if (mesh->mVertices[i].z < znegbound) {
-      znegbound = mesh->mVertices[i].z;
-    }
-    data.push_back(mesh->mVertices[i].z);
-    if (mesh->mNormals != nullptr) {
-      data.push_back(mesh->mNormals[i].x);
-      data.push_back(mesh->mNormals[i].y);
-      data.push_back(mesh->mNormals[i].z);
-    } else {
-      data.push_back(0.0f);
-      data.push_back(0.0f);
-      data.push_back(0.0f);
-    }
-    if (mesh->mTextureCoords[0] != nullptr) {
-      data.push_back(mesh->mTextureCoords[0][i].x);
-      data.push_back(mesh->mTextureCoords[0][i].y);
-    } else {
-      data.push_back(0.0f);
-      data.push_back(0.0f);
-    }
-    if (mesh->mTangents != nullptr) {
-      data.push_back(mesh->mTangents[i].x);
-      data.push_back(mesh->mTangents[i].y);
-      data.push_back(mesh->mTangents[i].z);
-    } else {
-      data.push_back(0.0f);
-      data.push_back(0.0f);
-      data.push_back(0.0f);
-    }
-    if (mesh->mBitangents != nullptr) {
-      data.push_back(mesh->mBitangents[i].x);
-      data.push_back(mesh->mBitangents[i].y);
-      data.push_back(mesh->mBitangents[i].z);
-    } else {
-      data.push_back(0.0f);
-      data.push_back(0.0f);
-      data.push_back(0.0f);
-    }
-  }
-
-  this->bounds = glm::vec3(xbound, ybound, zbound);
-  this->negbounds = glm::vec3(xnegbound, ynegbound, znegbound);
-
-  for (unsigned int i = 0; i < mesh->mNumFaces; i++) {
-    aiFace face = mesh->mFaces[i];
-    // retrieve all indices of the face and store them in the indices vector
-    for (unsigned int j = 0; j < face.mNumIndices; j++)
-      indices.push_back(face.mIndices[j]);
-  }
-
-  vertex_count = mesh->mNumVertices;
-}
-
-object::object(const shader *object_shader, const std::vector<float> &data,
-               const std::vector<unsigned int> &indices, glm::vec3 bounds,
-               glm::vec3 negbounds, double xpos, double ypos, double zpos)
-    : object_shader(object_shader), data(data), indices(indices),
-      scale(glm::vec3(1.0)), rot(glm::vec3(0.0)),
-      vertex_count(data.size() / 14), bounds(bounds), negbounds(negbounds),
-      xpos(xpos), ypos(ypos), zpos(zpos) {}
+               double xpos, double ypos, double zpos)
+    : object(object_shader, model_loader::get().get_model(path), xpos, ypos,
+             zpos) {}
 
 object::~object() {
-  glDeleteVertexArrays(1, &VAO);
-  glDeleteBuffers(1, &VBO);
-  glDeleteBuffers(1, &EBO);
-
   for (object *parent : parents) {
     parent->remove_child(this);
   }
-}
-
-void object::init() {
-  // we allow for the shader to have either color or texture attributes
-  GLint posAttrib = object_shader->get_attrib_location(SHADER_VERTEX_POSITION);
-  if (posAttrib == -1) {
-    throw std::runtime_error("Failed to find " SHADER_VERTEX_POSITION
-                             " attribute in shader");
-  }
-  GLint texAttrib = object_shader->get_attrib_location(SHADER_VERTEX_TEXCOORD);
-  if (texAttrib == -1) {
-    texAttrib = 1;
-  }
-  GLint normAttrib = object_shader->get_attrib_location(SHADER_VERTEX_NORMAL);
-  if (normAttrib == -1) {
-    normAttrib = 2;
-  }
-  GLint tanAttrib = object_shader->get_attrib_location(SHADER_VERTEX_TANGENT);
-  if (tanAttrib == -1) {
-    tanAttrib = 3;
-  }
-  GLint biTanAttrib =
-      object_shader->get_attrib_location(SHADER_VERTEX_BITANGENT);
-  if (biTanAttrib == -1) {
-    biTanAttrib = 4;
-  }
-
-  unsigned int vertexDataBufferSize = sizeof(float) * vertex_count * 3;
-  unsigned int vertexTexBufferSize = sizeof(float) * vertex_count * 2;
-
-  glGenVertexArrays(1, &VAO);
-  glBindVertexArray(VAO);
-
-  glGenBuffers(1, &VBO);
-  glBindBuffer(GL_ARRAY_BUFFER, VBO);
-  glBufferData(GL_ARRAY_BUFFER, vertexDataBufferSize * 4 + vertexTexBufferSize,
-               data.data(), GL_STATIC_DRAW);
-  glGenBuffers(1, &EBO);
-  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-  glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * indices.size(),
-               indices.data(), GL_STATIC_DRAW);
-
-  glVertexAttribPointer(posAttrib, 3, GL_FLOAT, GL_FALSE, 14 * sizeof(float),
-                        (void *)0);
-  glEnableVertexAttribArray(posAttrib);
-  glVertexAttribPointer(normAttrib, 3, GL_FLOAT, GL_FALSE, 14 * sizeof(float),
-                        (void *)(3 * sizeof(float)));
-  glEnableVertexAttribArray(normAttrib);
-  glVertexAttribPointer(texAttrib, 2, GL_FLOAT, GL_FALSE, 14 * sizeof(float),
-                        (void *)(6 * sizeof(float)));
-  glEnableVertexAttribArray(texAttrib);
-  glVertexAttribPointer(tanAttrib, 3, GL_FLOAT, GL_FALSE, 14 * sizeof(float),
-                        (void *)(8 * sizeof(float)));
-  glEnableVertexAttribArray(tanAttrib);
-  glVertexAttribPointer(biTanAttrib, 3, GL_FLOAT, GL_FALSE, 14 * sizeof(float),
-                        (void *)(11 * sizeof(float)));
-  glEnableVertexAttribArray(biTanAttrib);
-
-  glBindVertexArray(0);
-  glBindBuffer(GL_ARRAY_BUFFER, 0);
-  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-  glEnableVertexAttribArray(0);
 }
 
 glm::mat4 object::get_model_matrix() const {
@@ -246,13 +71,7 @@ void object::render(const glm::mat4 *viewProjection, glm::vec3 viewPos,
   glUseProgram(0);
 }
 
-void object::draw() const {
-  glBindVertexArray(VAO);
-  glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, NULL);
-  glBindVertexArray(0);
-  glBindBuffer(GL_ARRAY_BUFFER, 0);
-  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-}
+void object::draw() const { object_model->draw(); }
 
 void object::render(const camera *target_camera, float aspect_ratio,
                     const std::list<const light *> &lights,
@@ -322,8 +141,9 @@ void object::add_parent(object *parent) {
 
 bool object::check_point(glm::vec3 point) const {
   glm::mat4 model = get_model_matrix();
-  glm::vec4 bounds = model * glm::vec4(this->bounds, 1.0f);
-  glm::vec4 negbounds = model * glm::vec4(this->negbounds, 1.0f);
+  glm::vec4 bounds = model * glm::vec4(this->object_model->get_bounds(), 1.0f);
+  glm::vec4 negbounds =
+      model * glm::vec4(this->object_model->get_negbounds(), 1.0f);
   return point.x <= bounds.x && point.x >= negbounds.x && point.y <= bounds.y &&
          point.y >= negbounds.y && point.z <= bounds.z &&
          point.z >= negbounds.z;
@@ -331,7 +151,8 @@ bool object::check_point(glm::vec3 point) const {
 
 bool object::check_line(glm::vec3 a, glm::vec3 b) const {
   glm::mat4 model = get_model_matrix();
-  glm::vec4 bounds = model * glm::vec4(this->bounds, 1.0f);
-  glm::vec4 negbounds = model * glm::vec4(this->negbounds, 1.0f);
+  glm::vec4 bounds = model * glm::vec4(this->object_model->get_bounds(), 1.0f);
+  glm::vec4 negbounds =
+      model * glm::vec4(this->object_model->get_negbounds(), 1.0f);
   return check_line_box(glm::vec3(negbounds), glm::vec3(bounds), a, b, a);
 }

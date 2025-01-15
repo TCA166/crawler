@@ -16,5 +16,3 @@ void skybox::render(const glm::mat4 *view_projection, glm::vec3 camera_position,
   object::render(view_projection, camera_position, lights, ambient_light);
   glDepthFunc(GL_LESS);
 }
-
-void skybox::init() { object::init(); }

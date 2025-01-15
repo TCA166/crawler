@@ -24,9 +24,11 @@ public:
   /*!
    @brief Updates the boid, including physics and flocking
    @param boids The boids to flock with
+   @param scene The collider to check collisions against
    @param deltaTime The time since the last update
   */
-  void update(const std::list<const boid *> &boids, double deltaTime);
+  void update(const std::list<const boid *> &boids, const collider *scene,
+              double deltaTime);
 
 private:
   void evaluate(double deltaTime);
@@ -54,8 +56,7 @@ inline boid::boid(const shader *object_shader, double xpos, double ypos,
 inline boid::~boid() {}
 
 inline void boid::update(const std::list<const boid *> &boids,
-                         double deltaTime) {
-  deltaTime *= 1.0;
+                         const collider *scene, double deltaTime) {
 
   glm::vec3 sep = separation(boids) * 4.0f;
   glm::vec3 ali = alignment(boids) * 1.0f;
@@ -65,7 +66,13 @@ inline void boid::update(const std::list<const boid *> &boids,
 
   this->evaluate(deltaTime);
 
-  this->translate(velocity * (float)deltaTime);
+  glm::vec3 position = this->get_position();
+  glm::vec3 target = position + velocity * (float)deltaTime;
+  if (scene->check_line(position, target)) {
+    this->velocity = -this->velocity;
+  } else {
+    this->set_position(target.x, target.y, target.z);
+  }
 
   // Boundary conditions
   if (xpos < -7.0f || xpos > 7.0f) {
@@ -74,7 +81,7 @@ inline void boid::update(const std::list<const boid *> &boids,
   if (ypos < -7.0f || ypos > 7.0f) {
     velocity.y = -velocity.y;
   }
-  if (ypos < -7.0f || ypos > 7.0f) {
+  if (zpos < -7.0f || zpos > 7.0f) {
     velocity.z = -velocity.z;
   }
   return;

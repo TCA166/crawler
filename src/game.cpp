@@ -26,6 +26,9 @@ game::~game() {
   delete this->simple_shader;
   delete this->tex2;
   delete this->triangle_shader;
+  for (auto &tri : boids) {
+    delete tri;
+  }
 }
 
 void game::init() {
@@ -57,9 +60,9 @@ void game::init() {
   this->add_object(view);
 
   for (int i = 0; i < 10; ++i) {
-    float x = static_cast<float>(rand()) / RAND_MAX * 2.0f - 1.0f;
-    float y = static_cast<float>(rand()) / RAND_MAX * 2.0f - 1.0f;
-    float z = static_cast<float>(rand()) / RAND_MAX * 2.0f - 1.0f;
+    float x = glm::linearRand(-5.0f, 5.0f);
+    float y = glm::linearRand(1.0f, 5.0f);
+    float z = glm::linearRand(-5.0f, 5.0f);
     boid *tri = new boid(triangle_shader, x, y, z, tex2);
     boids.push_back(tri);
     this->add_object(tri);
@@ -107,9 +110,8 @@ void game::main(camera *target_camera) {
     if (move.x != 0. || move.z != 0) {
       move.y = 0;
       move = glm::normalize(move) * camera_speed * (float)delta_time;
-      // float collision_dist = RENDER_MIN * 10.;
-      // TODO doesnt conserve speed when colliding
-      if (!check_line(camera_position, camera_position + move)) {
+      glm::vec3 collision_dist = move * (RENDER_MIN * 5e4f + 1.f);
+      if (!check_line(camera_position, camera_position + collision_dist)) {
         target_camera->translate(move);
       }
     }
@@ -120,7 +122,7 @@ void game::main(camera *target_camera) {
     }
 
     for (auto &tri : boids) {
-      tri->update((const std::list<const boid *> &)boids, delta_time);
+      tri->update((const std::list<const boid *> &)boids, this, delta_time);
     }
 
     if (shooting) {

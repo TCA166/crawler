@@ -26,6 +26,9 @@ cube.o: renderable/cube.cpp renderable/cube.hpp
 object.o: renderable/object.cpp renderable/object.hpp
 	$(CC) $(IFLAGS) $(CFLAGS) -c renderable/object.cpp
 
+model.o: renderable/model.cpp renderable/model.hpp
+	$(CC) $(IFLAGS) $(CFLAGS) -c renderable/model.cpp
+
 skybox.o: renderable/skybox.cpp renderable/skybox.hpp
 	$(CC) $(IFLAGS) $(CFLAGS) -c renderable/skybox.cpp
 
@@ -35,8 +38,8 @@ wall.o: renderable/wall.cpp renderable/wall.hpp
 triangle.o: renderable/triangle.cpp renderable/triangle.hpp
 	$(CC) $(IFLAGS) $(CFLAGS) -c renderable/triangle.cpp
 
-renderable.o: cube.o object.o skybox.o wall.o triangle.o
-	$(CC) $(CFLAGS) -r cube.o object.o skybox.o wall.o triangle.o -o renderable.o
+renderable.o: cube.o object.o skybox.o wall.o triangle.o model.o
+	$(CC) $(CFLAGS) -r cube.o object.o skybox.o wall.o model.o triangle.o -o renderable.o
 
 # scene subfolder
 
@@ -57,8 +60,11 @@ scene_m.o: scene.o light.o camera.o
 collision.o: utils/collision.cpp utils/collision.hpp
 	$(CC) $(IFLAGS) $(CFLAGS) -c utils/collision.cpp
 
-utils.o: collision.o
-	$(CC) $(CFLAGS) -r collision.o -o utils.o
+model_loader.o: utils/model_loader.cpp utils/model_loader.hpp
+	$(CC) $(IFLAGS) $(CFLAGS) -c utils/model_loader.cpp
+
+utils.o: collision.o model_loader.o
+	$(CC) $(CFLAGS) -r collision.o model_loader.o -o utils.o
 
 # complete engine
 

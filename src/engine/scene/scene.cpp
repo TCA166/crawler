@@ -12,12 +12,7 @@ scene::~scene() {}
 
 void scene::set_skybox(skybox *sky) { this->sky = sky; }
 
-void scene::add_object(object *obj) {
-  if (initialized) {
-    obj->init();
-  }
-  objects.push_back(obj);
-}
+void scene::add_object(object *obj) { objects.push_back(obj); }
 
 void scene::remove_object(const object *obj) {
   objects.remove(const_cast<object *>(obj));
@@ -30,12 +25,6 @@ void scene::remove_light(const light *lght) {
 void scene::add_light(light *light) { lights.push_back(light); }
 
 void scene::init() {
-  for (object *obj : objects) {
-    obj->init();
-  }
-  if (sky != nullptr) {
-    sky->init();
-  }
   light_pass_shader = new shader(SHADER_PATH("light_pass.vert"),
                                  SHADER_PATH("light_pass.frag"));
   initialized = true;

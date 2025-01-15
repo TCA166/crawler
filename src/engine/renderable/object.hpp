@@ -11,6 +11,7 @@
 #include "../gl/texture.hpp"
 #include "../scene/camera.hpp"
 #include "../scene/light.hpp"
+#include "model.hpp"
 
 /*!
  @brief Object class to handle rendering of objects.
@@ -18,18 +19,8 @@
 class object : public moveable {
 private:
   const shader *object_shader;
-  /*!
-   @brief the data of the object (vertices, normals, texture coordinates,
-   tangents and bitangents)
-  */
-  std::vector<float> data;
-  /*!
-   @brief the indices of the object
-  */
-  std::vector<unsigned int> indices;
-  GLuint VAO, VBO, EBO;
   glm::vec3 scale, rot;
-  unsigned int vertex_count;
+  const model *object_model;
 
 protected:
   /*!
@@ -50,12 +41,6 @@ protected:
   std::list<object *> parents;
   ///@{
   /*!
-   @brief The bounds of the object
-  */
-  glm::vec3 bounds, negbounds;
-  ///@}
-  ///@{
-  /*!
    @brief The position of the object
   */
   double xpos, ypos, zpos;
@@ -63,37 +48,26 @@ protected:
 
 public:
   /*!
-   @brief Constructs an object with a given shader and path to an obj file
+   @brief Constructs an object with a given shader and model
    @param object_shader The shader to use for rendering
-   @param path The path to the obj file
+   @param object_model the model to use for this object
+   @param xpos The x position of the object
+   @param ypos The y position of the object
+   @param zpos The z position of the object
+  */
+  object(const shader *object_shader, const model *object_model, double xpos,
+         double ypos, double zpos);
+  /*!
+   @brief Constructs an object with a given shader and a path to the obj file
+   @param object_shader The shader to use for rendering
+   @param path the path to the obj file
    @param xpos The x position of the object
    @param ypos The y position of the object
    @param zpos The z position of the object
   */
   object(const shader *object_shader, const std::string &path, double xpos,
          double ypos, double zpos);
-  /*!
-   @brief Constructs an object with a given shader and data
-   @param object_shader The shader to use for rendering
-   @param data The data of the object
-   @param indices The indices of the object
-   @param bounds The bounds of the object
-   @param negbounds The negative bounds of the object
-   @param xpos The x position of the object
-   @param ypos The y position of the object
-   @param zpos The z position of the object
-  */
-  object(const shader *object_shader, const std::vector<float> &data,
-         const std::vector<unsigned int> &indices, glm::vec3 bounds,
-         glm::vec3 negbounds, double xpos, double ypos, double zpos);
   virtual ~object();
-  /*!
-   @brief Initialize the object
-   @details Initializes the object by creating the VAO, VBO and EBO
-   @warning This function must be called before rendering the object, and
-   should only be called once per context
-  */
-  void init();
   /*!
    @brief Render the object
    @param target_camera The camera to render the object with
