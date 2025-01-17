@@ -1,8 +1,7 @@
 #include "cubemap.hpp"
 
+#include "../utils/image_loader.hpp"
 #include "texture.hpp"
-
-#include <SOIL/SOIL.h>
 
 #include <stdexcept>
 
@@ -16,20 +15,14 @@ static GLuint load_cubemap(const std::vector<std::string> &paths) {
   glGenTextures(1, &texture_id);
   glBindTexture(GL_TEXTURE_CUBE_MAP, texture_id);
   for (unsigned int i = 0; i < paths.size(); i++) {
-    int width, height, nr_channels;
-    unsigned char *image = SOIL_load_image(paths[i].c_str(), &width, &height,
-                                           &nr_channels, SOIL_LOAD_AUTO);
-    if (image == nullptr) {
-      throw std::runtime_error(SOIL_last_result());
-    }
+    const image_t *img = image_loader::get().load_image(paths[i], false);
     // flip_y(image, width, height, nr_channels);
     int format = GL_RGB;
-    if (nr_channels == 4) {
+    if (img->nr_channels == 4) {
       format = GL_RGBA;
     }
-    glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, format, width, height,
-                 0, format, GL_UNSIGNED_BYTE, image);
-    SOIL_free_image_data(image);
+    glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, format, img->width,
+                 img->height, 0, format, GL_UNSIGNED_BYTE, img->data);
   }
   glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
   glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);

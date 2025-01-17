@@ -1,24 +1,9 @@
 
 #include "texture.hpp"
 
-#include <SOIL/SOIL.h>
+#include "../utils/image_loader.hpp"
 
 #include <stdexcept>
-
-void flip_y(unsigned char *img, int width, int height, int channels) {
-  int i, j;
-  for (j = 0; j * 2 < height; ++j) {
-    int index1 = j * width * channels;
-    int index2 = (height - 1 - j) * width * channels;
-    for (i = width * channels; i > 0; --i) {
-      unsigned char temp = img[index1];
-      img[index1] = img[index2];
-      img[index2] = temp;
-      ++index1;
-      ++index2;
-    }
-  }
-}
 
 texture::texture(GLuint texture_id) : texture_id(texture_id) {}
 
@@ -28,31 +13,18 @@ texture::texture(const std::string &path) : texture(path, true) {}
 texture::texture(const std::string &path, bool flip) {
   glGenTextures(1, &texture_id);
   glBindTexture(GL_TEXTURE_2D, texture_id);
-  /* TODO why is this invalid?
-  glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER,
-                  GL_LINEAR_MIPMAP_LINEAR);
-  glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER,
-                  GL_LINEAR_MIPMAP_LINEAR);
-  */
   glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
   glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-  int width, height, nr_channels;
-  unsigned char *image = SOIL_load_image(path.c_str(), &width, &height,
-                                         &nr_channels, SOIL_LOAD_AUTO);
-  if (image == nullptr) {
-    throw std::runtime_error(SOIL_last_result());
-  }
-  if (flip) {
-    flip_y(image, width, height, nr_channels);
-  }
+
+  const image_t *img = image_loader::get().load_image(path, flip);
+
   int format = GL_RGB;
-  if (nr_channels == 4) {
+  if (img->nr_channels == 4) {
     format = GL_RGBA;
   }
-  glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format,
-               GL_UNSIGNED_BYTE, image);
+  glTexImage2D(GL_TEXTURE_2D, 0, format, img->width, img->height, 0, format,
+               GL_UNSIGNED_BYTE, img->data);
   glGenerateMipmap(GL_TEXTURE_2D);
-  SOIL_free_image_data(image);
 }
 
 texture::~texture() { glDeleteTextures(1, &texture_id); }

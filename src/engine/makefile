@@ -63,8 +63,11 @@ collision.o: utils/collision.cpp utils/collision.hpp
 model_loader.o: utils/model_loader.cpp utils/model_loader.hpp
 	$(CC) $(IFLAGS) $(CFLAGS) -c utils/model_loader.cpp
 
-utils.o: collision.o model_loader.o
-	$(CC) $(CFLAGS) -r collision.o model_loader.o -o utils.o
+image_loader.o: utils/image_loader.cpp utils/image_loader.hpp
+	$(CC) $(IFLAGS) $(CFLAGS) -c utils/image_loader.cpp
+
+utils.o: collision.o model_loader.o image_loader.o
+	$(CC) $(CFLAGS) -r collision.o model_loader.o image_loader.o -o utils.o
 
 # complete engine
 
