@@ -4,7 +4,7 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 
-#ifndef WEBASM // this define toggles the use of SOIL and Assimp
+#ifndef DIRECT_INCLUDE_GLM
 #include <glm/ext.hpp>
 #else
 #include <ext.hpp>

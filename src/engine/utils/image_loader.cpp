@@ -1,9 +1,15 @@
 #include "image_loader.hpp"
 
+#include "../settings.hpp"
+
 #include <stdexcept>
 
-#ifndef WEBASM
+#ifndef STATIC_ASSETS
 #include <SOIL/SOIL.h>
+#else
+#include "../../../textures/spaceship.c"
+#include "../../../textures/spaceship_normal.c"
+#include "../../../textures/texture.c"
 #endif
 
 void flip_y(unsigned char *img, int width, int height, int channels) {
@@ -21,7 +27,37 @@ void flip_y(unsigned char *img, int width, int height, int channels) {
   }
 }
 
-image_loader::image_loader() {}
+image_loader::image_loader() {
+#ifdef STATIC_ASSETS
+  image_t *spaceship_image = new image_t;
+  spaceship_image->data = spaceship.pixel_data;
+  spaceship_image->width = spaceship.width;
+  spaceship_image->height = spaceship.height;
+  spaceship_image->nr_channels = spaceship.bytes_per_pixel;
+  images[TEXTURE_PATH("spaceship.jpg")] = spaceship_image;
+  image_t *spaceship_normal_image = new image_t;
+  spaceship_normal_image->data = spaceship_normal.pixel_data;
+  spaceship_normal_image->width = spaceship_normal.width;
+  spaceship_normal_image->height = spaceship_normal.height;
+  spaceship_normal_image->nr_channels = spaceship_normal.bytes_per_pixel;
+  images[TEXTURE_PATH("spaceship_normal.jpg")] = spaceship_normal_image;
+  image_t *texture_image = new image_t;
+  texture_image->data = texture.pixel_data;
+  texture_image->width = texture.width;
+  texture_image->height = texture.height;
+  texture_image->nr_channels = texture.bytes_per_pixel;
+  images[TEXTURE_PATH("texture.jpg")] = texture_image;
+  /* TEXTURE_PATH("skybox/right.png"), TEXTURE_PATH("skybox/left.png"),
+  TEXTURE_PATH("skybox/top.png"), TEXTURE_PATH("skybox/bottom.png"),
+      TEXTURE_PATH("skybox/front.png"), TEXTURE_PATH("skybox/back.png") */
+  images[TEXTURE_PATH("skybox/right.png")] = spaceship_image;
+  images[TEXTURE_PATH("skybox/left.png")] = spaceship_image;
+  images[TEXTURE_PATH("skybox/top.png")] = spaceship_image;
+  images[TEXTURE_PATH("skybox/bottom.png")] = spaceship_image;
+  images[TEXTURE_PATH("skybox/front.png")] = spaceship_image;
+  images[TEXTURE_PATH("skybox/back.png")] = spaceship_image;
+#endif
+}
 
 image_loader &image_loader::get() {
   static image_loader instance;
@@ -32,7 +68,7 @@ const image_t *image_loader::load_image(const std::string &key, bool flip) {
   try {
     return images.at(key);
   } catch (const std::out_of_range &e) {
-#ifndef WEBASM
+#ifndef STATIC_ASSETS
     int width, height, nr_channels;
     unsigned char *image = SOIL_load_image(key.c_str(), &width, &height,
                                            &nr_channels, SOIL_LOAD_AUTO);
@@ -57,8 +93,8 @@ const image_t *image_loader::load_image(const std::string &key, bool flip) {
 
 image_loader::~image_loader() {
   for (auto &pair : images) {
-#ifndef WEBASM
-    SOIL_free_image_data(pair.second->data);
+#ifndef STATIC_ASSETS
+    SOIL_free_image_data((unsigned char *)pair.second->data);
 #endif
     delete pair.second;
   }

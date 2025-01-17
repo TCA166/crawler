@@ -1,7 +1,7 @@
 
 #pragma once
 
-#ifndef WEBASM
+#ifndef DIRECT_INCLUDE_GLM
 #include <glm/ext.hpp>
 #else
 #include <ext.hpp>

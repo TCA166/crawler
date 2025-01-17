@@ -166,7 +166,9 @@ renderer::renderer(int width, int height, const char *name, std::mutex *mutex,
   glfwSwapBuffers(window);
 
   glEnable(GL_DEBUG_OUTPUT);
+#ifndef WASM
   glDebugMessageCallback(gl_message_callback, NULL);
+#endif
 
   mutex->unlock();
 

@@ -6,7 +6,7 @@
 #include <string>
 
 typedef struct {
-  uint8_t *data;
+  const uint8_t *data;
   uint32_t width, height;
   uint8_t nr_channels;
 } image_t;

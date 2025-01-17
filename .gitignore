@@ -36,3 +36,12 @@ main
 *.log
 /doc/build
 *.pdf
+
+# web assembly
+*.wasm
+*.js
+*.html
+
+# C converted textures
+
+textures/*.c

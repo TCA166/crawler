@@ -24,7 +24,6 @@ static void glfw_error_callback(int error, const char *description) {
 static void renderer_thread(scene *target_scene, camera *target_camera,
                             uint32_t width, uint32_t height, const char *name,
                             std::mutex *mutex) {
-
   // renderer handles all the initialization
   renderer current_renderer =
       renderer(width, height, name, mutex, target_camera);
