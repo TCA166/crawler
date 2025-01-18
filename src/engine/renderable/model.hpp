@@ -42,11 +42,13 @@ public:
   model(const std::vector<float> &data,
         const std::vector<unsigned int> &indices, glm::vec3 bounds,
         glm::vec3 negbounds);
+#ifndef STATIC_ASSETS
   /*!
    @brief Create a new model using the obj model at the provided path
    @param path the path pointing to the model
   */
   model(const std::string &path);
+#endif
   ~model();
   /*!
    @brief Initializes the model within the OpenGL context

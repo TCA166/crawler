@@ -53,9 +53,13 @@ const model *model_loader::get_model(const std::string &key) {
   try {
     return models[key];
   } catch (const std::out_of_range &e) {
+#ifndef STATIC_ASSETS
     model *new_model = new model(key);
     models[key] = new_model;
     return new_model;
+#else
+    throw std::runtime_error("Model not found");
+#endif
   }
 }
 

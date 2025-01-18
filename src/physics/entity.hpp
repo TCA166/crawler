@@ -1,7 +1,11 @@
 
 #pragma once
 
-#include <glm/glm.hpp>
+#ifndef WASM
+#include <glm/ext.hpp>
+#else
+#include <ext.hpp>
+#endif
 
 /*!
  @brief An entity in the physics engine

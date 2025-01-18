@@ -25,6 +25,7 @@ private:
   bool should_close = false;
   skybox *sky;
   const shader *light_pass_shader;
+  double current_time, delta_time;
 
 public:
   /*!
@@ -62,7 +63,7 @@ public:
   /*!
    @brief Initialize the scene
   */
-  virtual void init();
+  virtual void init(camera *target_camera);
   /*!
    @brief Render the scene
    @param target_camera The camera to render the scene with
@@ -78,7 +79,9 @@ public:
    @brief Main function of the scene
    @param target_camera The camera that the scene is being rendered with
   */
-  virtual void main(camera *target_camera);
+  void main(camera *target_camera);
+  virtual void update(camera *target_camera, double delta_time,
+                      double current_time);
   /*!
    @brief Handle a scroll event
    @param xoffset The x offset of the scroll

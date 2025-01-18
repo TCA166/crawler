@@ -41,3 +41,24 @@ dependencies-dnf:
 
 dependencies-apt:
 	sudo apt install -y libglm-dev libglew-dev libglfw3 libglfw3-dev libsoil-dev libassimp-dev
+
+static-shaders: shaders/*.*
+	mkdir -p static/shaders
+	for file in $^ ; do \
+		xxd -i $$file static/shaders/$$(basename $$file).h ; \
+	done
+
+static-textures: textures/*.* textures/*/*.*
+	mkdir -p static/textures
+	for file in $^ ; do \
+		xxd -i $$file static/textures/$$(basename $$file | cut -d. -f1).h ; \
+	done
+
+c-assets: static-shaders static-textures
+
+main.html: CC=emcc
+main.html: IFLAGS= -DSTATIC_ASSETS -DWASM -DNO_THREADS -I/usr/include/glm
+main.html: CFLAGS= -std=c++11 -g -Og
+main.html: c-assets src/main.cpp engine.o game.o physics.o game_object.o
+# emcc really doesn't like the -r flag, so we have to compile everything in one go
+	$(CC) $(CFLAGS) -sNO_DISABLE_EXCEPTION_CATCHING -sUSE_GLFW=3 -sASSERTIONS -sUSE_WEBGL2=1 -sFULL_ES3=1 --emrun --use-port=contrib.glfw3 -o main.html src/main.cpp src/engine/camera.o src/engine/collision.o src/engine/cube.o src/engine/cubemap.o src/engine/image_loader.o src/engine/light.o src/engine/model.o src/engine/model_loader.o src/engine/shader_loader.o src/engine/object.o src/engine/renderer.o src/engine/shader.o src/engine/skybox.o src/engine/texture.o src/engine/triangle.o src/engine/scene.o src/engine/wall.o game.o entity.o game_object.o $(IFLAGS)

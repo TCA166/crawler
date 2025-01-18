@@ -13,16 +13,15 @@
 class game : public scene {
 private:
   double time_scale;
-  double current_time, delta_time;
   bool mv_forward, mv_backward, mv_left, mv_right, mv_up, mv_down, rot_left,
       rot_right, shooting;
   double xpos, ypos;
   debug_cube *cube1, *cube2;
-  debug_wall *floor, *wall, *view, *b_wall, *b_wall2, *b_wall3, *b_wall4,
-      *b_wall5, *b_wall6;
+  debug_wall *floor, *wall, *view;
   skybox *sky;
   light *lght;
-  shader *textured_shader, *skybox_shader, *simple_shader, *triangle_shader,*wall_shader;
+  shader *textured_shader, *skybox_shader, *simple_shader, *triangle_shader,
+      *wall_shader;
   texture *tex, *norm, *depth, *tex2;
   std::list<boid *> boids;
   bool is_shooting;
@@ -34,12 +33,8 @@ public:
   /*!
    @brief Initialize the scene
   */
-  virtual void init();
-  /*!
-   @brief Main function of the scene
-   @param target_camera The camera that the scene is being rendered with
-  */
-  virtual void main(camera *target_camera);
+  virtual void init(camera *target_camera);
+  void update(camera *target_camera, double delta_time, double current_time);
   /*!
    @brief Handle a scroll event
    @param xoffset The x offset of the scroll

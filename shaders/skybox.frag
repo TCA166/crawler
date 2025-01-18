@@ -1,4 +1,6 @@
 #version 410 core
+precision highp float;
+
 out vec4 FragColor;
 
 in vec3 TexCoords;

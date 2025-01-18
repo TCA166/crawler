@@ -1,8 +1,10 @@
 #include "model.hpp"
 
+#ifndef STATIC_ASSETS
 #include <assimp/Importer.hpp>
 #include <assimp/postprocess.h>
 #include <assimp/scene.h>
+#endif
 
 #include <limits>
 #include <stdexcept>
@@ -17,6 +19,7 @@ model::model(const std::vector<float> &data,
     : data(data), indices(indices), vertex_count(data.size() / MODEL_LINE_SIZE),
       bounds(bounds), negbounds(negbounds) {}
 
+#ifndef STATIC_ASSETS
 model::model(const std::string &path) {
   Assimp::Importer import;
   const aiScene *scene =
@@ -83,6 +86,7 @@ model::model(const std::string &path) {
 
   vertex_count = mesh->mNumVertices;
 }
+#endif
 
 model::~model() {}
 

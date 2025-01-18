@@ -22,12 +22,16 @@ light::light(glm::vec3 position, glm::vec3 direction, glm::vec3 color,
   glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
   glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D,
                          depthMap, 0);
+#ifndef WASM
   glDrawBuffer(GL_NONE);
+#endif
   glReadBuffer(GL_NONE);
 
+#ifndef WASM
   if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
     throw std::runtime_error("Framebuffer is not complete!");
   }
+#endif
 
   glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }

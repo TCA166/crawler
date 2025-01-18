@@ -1,4 +1,5 @@
 #version 410 core
+precision highp float;
 
 #define MAX_LIGHTS 10
 
@@ -45,7 +46,9 @@ vec3 CalcDirectionalLight(Light light, vec3 norm)
     float currentDepth = projCoords.z;
     float bias = max(0.005 * (1.0 - dot(norm, lightDir)), 0.005);
     float shadow = 0.0;
-    vec2 texelSize = 1.0 / textureSize(light.depthMap, 0);
+    vec2 texelSize = vec2(textureSize(light.depthMap, 0));
+    texelSize.x = 1.0 / texelSize.x;
+    texelSize.y = 1.0 / texelSize.y;
     for(int x = -1; x <= 1; ++x)
     {
         for(int y = -1; y <= 1; ++y)
