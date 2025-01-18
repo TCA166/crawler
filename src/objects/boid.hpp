@@ -31,6 +31,7 @@ public:
               double deltaTime);
 
 private:
+
   void evaluate(double deltaTime);
 
   glm::vec3 separation(const std::list<const boid *> &boids);
@@ -40,23 +41,28 @@ private:
   static constexpr float maxSpeed = 8.0f;
   static constexpr float maxForce = 1.0f;
   static constexpr float separationDistance = 2.0f;
-  static constexpr float alignmentDistance = 8.0f;
-  static constexpr float cohesionDistance = 4.0f;
+  static constexpr float alignmentDistance = 10.0f;
+  static constexpr float cohesionDistance = 20.0f;
 
   const texture *tex;
+  const texture *tex2;
+  const shader *triangle_object_shader;
 };
 
 inline boid::boid(const shader *object_shader, double xpos, double ypos,
                   double zpos, const texture *tex)
     : triangle(object_shader, xpos, ypos, zpos),
-      entity(1.0f, glm::sphericalRand(1.0f)), tex(tex) {
-  this->add_texture(tex, "texture");
+      entity(1.0f, glm::sphericalRand(0.5f)), tex(tex) {
+  triangle_object_shader = object_shader;
+  this->add_texture(tex, "diamond");
+  this->set_scale(0.5f);
 }
 
 inline boid::~boid() {}
 
 inline void boid::update(const std::list<const boid *> &boids,
                          const collider *scene, double deltaTime) {
+
 
   glm::vec3 sep = separation(boids) * 4.0f;
   glm::vec3 ali = alignment(boids) * 1.0f;
@@ -66,22 +72,46 @@ inline void boid::update(const std::list<const boid *> &boids,
 
   this->evaluate(deltaTime);
 
+  std::vector<float> verteces = this->get_triangle_data();
+
+  
+
   glm::vec3 position = this->get_position();
   glm::vec3 target = position + velocity * (float)deltaTime;
-  if (scene->check_line(position, target)) {
+  float scale = 0.5f;
+
+  glm::vec3 vertex1 = glm::vec3(verteces[0] + position.x, verteces[1] * scale + position.y, verteces[2]+ position.z);
+  glm::vec3 vertex2 = glm::vec3(verteces[3]+ position.x, verteces[4] * scale + position.y, verteces[5]+ position.z);
+  glm::vec3 vertex3 = glm::vec3(verteces[6]+ position.x, verteces[7] * scale + position.y, verteces[8]+ position.z);
+
+  // Compute the target vertices:
+  glm::vec3 target1 = vertex1 + velocity * (float)deltaTime;
+  glm::vec3 target2 = vertex2 + velocity * (float)deltaTime;
+  glm::vec3 target3 = vertex3 + velocity * (float)deltaTime;
+
+    if (scene->check_line(position, target)) {
     this->velocity = -this->velocity;
-  } else {
-    this->set_position(target.x, target.y, target.z);
   }
 
+        if (scene->check_line(vertex1, target1) ||
+      scene->check_line(vertex2, target2) ||
+      scene->check_line(vertex3, target3)) {
+          this->velocity = -this->velocity;
+  }
+
+    else {
+        this->set_position(target.x, target.y, target.z);
+      }
+
+
   // Boundary conditions
-  if (xpos < -7.0f || xpos > 7.0f) {
+  if (xpos < -10.0f || xpos > 10.0f) {
     velocity.x = -velocity.x;
   }
-  if (ypos < -7.0f || ypos > 7.0f) {
+  if (ypos < -10.0f || ypos > 10.0f) {
     velocity.y = -velocity.y;
   }
-  if (zpos < -7.0f || zpos > 7.0f) {
+  if (zpos < -10.0f || zpos > 10.0f) {
     velocity.z = -velocity.z;
   }
   return;
@@ -158,3 +188,7 @@ inline glm::vec3 boid::cohesion(const std::list<const boid *> &boids) {
   }
   return glm::vec3(0.0f);
 }
+
+
+
+

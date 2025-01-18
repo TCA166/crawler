@@ -1,5 +1,6 @@
 #include "game.hpp"
 #include "engine/renderable/triangle.hpp"
+#include "engine/renderable/wall.hpp"
 #include <iostream>
 
 const float camera_speed = 10.;
@@ -38,11 +39,13 @@ void game::init() {
       new shader(SHADER_PATH("textured.vert"), SHADER_PATH("textured.frag"));
   simple_shader = new shader(SHADER_PATH("textured.vert"),
                              SHADER_PATH("simple_textured.frag"));
+  wall_shader = new shader(SHADER_PATH("wall.vert"),
+                             SHADER_PATH("wall.frag"));
   lght = new light(glm::vec3(4.0, 2.0, 4.0), glm::vec3(0.0, 0.0, -1.0),
                    glm::vec3(1.0, 1.0, 1.0), 90.0f, 100.0f);
   this->add_light(lght);
   tex = new texture(TEXTURE_PATH("spaceship.jpg"));
-  tex2 = new texture(TEXTURE_PATH("texture.png"));
+  tex2 = new texture(TEXTURE_PATH("diamond.png"));
   norm = new texture(TEXTURE_PATH("spaceship_normal.jpg"));
   cube1 = new debug_cube(textured_shader, tex, norm, 0.0, 0.1, 0.0);
   this->add_object(cube1);
@@ -55,14 +58,36 @@ void game::init() {
   floor->set_rotation(1.57, 0.0, 0.0);
   floor->set_scale(10.0, 10.0, 1.0);
   this->add_object(floor);
+  //b_wall = new debug_wall(textured_shader, tex, norm, 7.0, 0.0, 0.0);
+  //b_wall->set_rotation(0.0, 1.57, 0.0);
+  //b_wall->set_scale(20.0, 20.0, 20.0);
+  //this->add_object(b_wall);
+  //b_wall2 = new debug_wall(textured_shader, tex, norm, -7.0, 0.0, 0.0);
+  //b_wall2->set_rotation(0.0, 1.57, 0.0);
+  //b_wall2->set_scale(20.0, 20.0, 20.0);
+  //this->add_object(b_wall2);
+  //b_wall3 = new debug_wall(textured_shader, tex, norm, 0.0, 0.0, 7.0);
+  //b_wall3->set_scale(20.0, 20.0, 20.0);
+  //this->add_object(b_wall3);
+  //b_wall4 = new debug_wall(textured_shader, tex, norm, 0.0, 0.0, -7.0);
+  //b_wall4->set_scale(20.0, 20.0, 20.0);
+  //this->add_object(b_wall4);
+  //b_wall5 = new debug_wall(textured_shader, tex, norm, 0.0, 7.0, 0.0);
+  //b_wall5->set_rotation(1.57, 0.0, 0.0);
+  //b_wall5->set_scale(20.0, 20.0, 20.0);
+  //this->add_object(b_wall5);
+  //b_wall6 = new debug_wall(textured_shader, tex, norm, 0.0, -7.0, 0.0);
+  //b_wall6->set_rotation(1.57, 0.0, 0.0);
+  //b_wall6->set_scale(20.0, 20.0, 20.0);
+  //this->add_object(b_wall6);
   depth = lght->get_view_map();
   view = new debug_wall(simple_shader, depth, norm, 0.0, 3.0, 0.0);
   this->add_object(view);
 
-  for (int i = 0; i < 10; ++i) {
-    float x = glm::linearRand(-5.0f, 5.0f);
-    float y = glm::linearRand(1.0f, 5.0f);
-    float z = glm::linearRand(-5.0f, 5.0f);
+  for (int i = 0; i < 25; ++i) {
+    float x = glm::linearRand(-1.0f, 1.0f);
+    float y = glm::linearRand(1.0f, 2.0f);
+    float z = glm::linearRand(-1.0f, 1.0f);
     boid *tri = new boid(triangle_shader, x, y, z, tex2);
     boids.push_back(tri);
     this->add_object(tri);

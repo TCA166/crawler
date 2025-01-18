@@ -18,10 +18,11 @@ private:
       rot_right, shooting;
   double xpos, ypos;
   debug_cube *cube1, *cube2;
-  debug_wall *floor, *wall, *view;
+  debug_wall *floor, *wall, *view, *b_wall, *b_wall2, *b_wall3, *b_wall4,
+      *b_wall5, *b_wall6;
   skybox *sky;
   light *lght;
-  shader *textured_shader, *skybox_shader, *simple_shader, *triangle_shader;
+  shader *textured_shader, *skybox_shader, *simple_shader, *triangle_shader,*wall_shader;
   texture *tex, *norm, *depth, *tex2;
   std::list<boid *> boids;
   bool is_shooting;

@@ -18,4 +18,6 @@ public:
   */
   triangle(const shader *object_shader, double xpos, double ypos, double zpos);
   ~triangle();
+
+	static const std::vector<float>& get_triangle_data();
 };
