@@ -1,7 +1,7 @@
 
 #pragma once
 
-#ifndef DIRECT_INCLUDE_GLM
+#ifndef WASM
 #include <glm/ext.hpp>
 #else
 #include <ext.hpp>

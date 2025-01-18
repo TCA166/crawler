@@ -46,8 +46,8 @@ c-assets: textures/*
 
 
 main.html: CC=emcc
-main.html: IFLAGS= -DSTATIC_ASSETS -DDIRECT_INCLUDE_GLM -DWASM -I/usr/include/glm -pthread
-main.html: CFLAGS= -std=c++11
+main.html: IFLAGS= -DSTATIC_ASSETS -DWASM -DNO_THREADS -I/usr/include/glm
+main.html: CFLAGS= -std=c++11 -g -Og
 main.html: src/main.cpp engine.o game.o physics.o game_object.o
 # emcc really doesn't like the -r flag, so we have to compile everything in one go
-	$(CC) $(CFLAGS) --emrun -sTOTAL_MEMORY=105185280 -sPTHREAD_POOL_SIZE=1 --use-port=contrib.glfw3 -o main.html src/main.cpp src/engine/camera.o src/engine/collision.o src/engine/cube.o src/engine/cubemap.o src/engine/image_loader.o src/engine/light.o src/engine/model.o src/engine/model_loader.o src/engine/object.o src/engine/renderer.o src/engine/shader.o src/engine/skybox.o src/engine/texture.o src/engine/triangle.o src/engine/scene.o src/engine/wall.o game.o entity.o game_object.o $(IFLAGS)
+	$(CC) $(CFLAGS) -s USE_GLFW=3 -sASSERTIONS -s USE_WEBGL2=1 -s FULL_ES3=1 --emrun --use-port=contrib.glfw3 -o main.html src/main.cpp src/engine/camera.o src/engine/collision.o src/engine/cube.o src/engine/cubemap.o src/engine/image_loader.o src/engine/light.o src/engine/model.o src/engine/model_loader.o src/engine/object.o src/engine/renderer.o src/engine/shader.o src/engine/skybox.o src/engine/texture.o src/engine/triangle.o src/engine/scene.o src/engine/wall.o game.o entity.o game_object.o $(IFLAGS)

@@ -13,7 +13,6 @@
 class game : public scene {
 private:
   double time_scale;
-  double current_time, delta_time;
   bool mv_forward, mv_backward, mv_left, mv_right, mv_up, mv_down, rot_left,
       rot_right, shooting;
   double xpos, ypos;
@@ -33,12 +32,8 @@ public:
   /*!
    @brief Initialize the scene
   */
-  virtual void init();
-  /*!
-   @brief Main function of the scene
-   @param target_camera The camera that the scene is being rendered with
-  */
-  virtual void main(camera *target_camera);
+  virtual void init(camera *target_camera);
+  void update(camera *target_camera, double delta_time, double current_time);
   /*!
    @brief Handle a scroll event
    @param xoffset The x offset of the scroll

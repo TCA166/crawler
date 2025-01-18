@@ -6,9 +6,9 @@ const float camera_speed = 10.;
 
 game::game()
     : scene(glm::vec3(0.1, 0.1, 0.1), glm::vec3(0.0)), time_scale(1),
-      current_time(glfwGetTime()), delta_time(0.0), mv_forward(false),
-      mv_backward(false), mv_left(false), mv_right(false), mv_up(false),
-      mv_down(false), rot_left(false), rot_right(false), xpos(0.0), ypos(0.0) {}
+      mv_forward(false), mv_backward(false), mv_left(false), mv_right(false),
+      mv_up(false), mv_down(false), rot_left(false), rot_right(false),
+      xpos(0.0), ypos(0.0) {}
 
 game::~game() {
   delete this->textured_shader;
@@ -31,7 +31,7 @@ game::~game() {
   }
 }
 
-void game::init() {
+void game::init(camera *target_camera) {
   triangle_shader =
       new shader(SHADER_PATH("triangle.vert"), SHADER_PATH("triangle.frag"));
   textured_shader =
@@ -76,75 +76,66 @@ void game::init() {
       TEXTURE_PATH("skybox/front.png"), TEXTURE_PATH("skybox/back.png")};
   sky = new skybox(skybox_shader, paths);
   this->set_skybox(sky);
-  scene::init();
+  target_camera->set_position(0.0, 1.0, 0.0);
+  scene::init(target_camera);
 }
 
-void game::main(camera *target_camera) {
-  target_camera->set_position(0.0, 1.0, 0.0);
-  while (!this->get_should_close()) {
-    if (!this->initialized) {
-      continue;
-    }
-    {
-      double new_time = glfwGetTime();
-      delta_time = new_time - current_time;
-      current_time = new_time;
-    }
-    delta_time *= time_scale;
+void game::update(camera *target_camera, double delta_time,
+                  double current_time) {
+  delta_time *= time_scale;
 
-    glm::vec3 camera_position = target_camera->get_position();
-    glm::vec3 camera_front = target_camera->get_front();
-    glm::vec3 camera_right = target_camera->get_right();
+  glm::vec3 camera_position = target_camera->get_position();
+  glm::vec3 camera_front = target_camera->get_front();
+  glm::vec3 camera_right = target_camera->get_right();
 
-    glm::vec3 move = glm::vec3(0.0);
-    if (mv_forward) {
-      move += camera_front;
-    } else if (mv_backward) {
-      move -= camera_front;
-    }
-    if (mv_left) {
-      move -= camera_right;
-    } else if (mv_right) {
-      move += camera_right;
-    }
-    if (move.x != 0. || move.z != 0) {
-      move.y = 0;
-      move = glm::normalize(move) * camera_speed * (float)delta_time;
-      glm::vec3 collision_dist = move * (RENDER_MIN * 5e4f + 1.f);
-      if (!check_line(camera_position, camera_position + collision_dist)) {
-        target_camera->translate(move);
-      }
-    }
-    if (rot_left) {
-      target_camera->rotate(0.0, 0.0, -delta_time);
-    } else if (rot_right) {
-      target_camera->rotate(0.0, 0.0, delta_time);
-    }
-
-    for (auto &tri : boids) {
-      tri->update((const std::list<const boid *> &)boids, this, delta_time);
-    }
-
-    if (shooting) {
-      glm::vec3 shoot_position = camera_position + camera_front * 10.0f;
-
-      // Collision detection
-      for (auto &tri : boids) {
-        if (tri->check_line(camera_position, shoot_position)) {
-          this->remove_object(tri);
-          delete tri;
-          boids.remove(tri);
-          break;
-        }
-      }
-
-      shooting = false;
-    }
-    glm::vec3 lght_pos = lght->get_position();
-    lght_pos.x = sin(current_time) *
-                 4.; // no need for * delta_time because we sine current_time
-    lght->set_position(lght_pos.x, lght_pos.y, lght_pos.z);
+  glm::vec3 move = glm::vec3(0.0);
+  if (mv_forward) {
+    move += camera_front;
+  } else if (mv_backward) {
+    move -= camera_front;
   }
+  if (mv_left) {
+    move -= camera_right;
+  } else if (mv_right) {
+    move += camera_right;
+  }
+  if (move.x != 0. || move.z != 0) {
+    move.y = 0;
+    move = glm::normalize(move) * camera_speed * (float)delta_time;
+    glm::vec3 collision_dist = move * (RENDER_MIN * 5e4f + 1.f);
+    if (!check_line(camera_position, camera_position + collision_dist)) {
+      target_camera->translate(move);
+    }
+  }
+  if (rot_left) {
+    target_camera->rotate(0.0, 0.0, -delta_time);
+  } else if (rot_right) {
+    target_camera->rotate(0.0, 0.0, delta_time);
+  }
+
+  for (auto &tri : boids) {
+    tri->update((const std::list<const boid *> &)boids, this, delta_time);
+  }
+
+  if (shooting) {
+    glm::vec3 shoot_position = camera_position + camera_front * 10.0f;
+
+    // Collision detection
+    for (auto &tri : boids) {
+      if (tri->check_line(camera_position, shoot_position)) {
+        this->remove_object(tri);
+        delete tri;
+        boids.remove(tri);
+        break;
+      }
+    }
+
+    shooting = false;
+  }
+  glm::vec3 lght_pos = lght->get_position();
+  lght_pos.x = sin(current_time) *
+               4.; // no need for * delta_time because we sine current_time
+  lght->set_position(lght_pos.x, lght_pos.y, lght_pos.z);
 }
 
 void game::scroll_callback(double, double yoffset, camera *target_camera) {

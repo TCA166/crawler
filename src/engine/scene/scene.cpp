@@ -6,7 +6,7 @@
 
 scene::scene(glm::vec3 ambient_light, glm::vec3 background_color)
     : ambient_light(ambient_light), background_color(background_color),
-      sky(nullptr) {}
+      sky(nullptr), current_time(glfwGetTime()), delta_time(0.0) {}
 
 scene::~scene() {}
 
@@ -24,7 +24,7 @@ void scene::remove_light(const light *lght) {
 
 void scene::add_light(light *light) { lights.push_back(light); }
 
-void scene::init() {
+void scene::init(camera *) {
   light_pass_shader = new shader(SHADER_PATH("light_pass.vert"),
                                  SHADER_PATH("light_pass.frag"));
   initialized = true;
@@ -71,11 +71,21 @@ void scene::shadow_pass() const {
   glCullFace(GL_BACK);
 }
 
-void scene::main(camera *) {
+void scene::main(camera *target_camera) {
   while (!should_close) {
-    // do nothing
+    if (!this->initialized) {
+      continue;
+    }
+    {
+      double new_time = glfwGetTime();
+      delta_time = new_time - current_time;
+      current_time = new_time;
+    }
+    this->update(target_camera, delta_time, current_time);
   }
 }
+
+void scene::update(camera *, double, double) {}
 
 void scene::scroll_callback(double, double, camera *) {
   // do nothing

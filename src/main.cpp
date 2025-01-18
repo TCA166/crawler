@@ -41,7 +41,11 @@ int main() {
     glfw_error_callback(code, desc);
     return -1;
   }
+#ifndef WASM
   glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+#else
+  glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 2);
+#endif
   glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
   glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
   glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, true);
@@ -55,11 +59,16 @@ int main() {
 
   std::mutex mutex;
 
+#ifndef NO_THREADS
   std::thread loop_thread(&renderer_thread, &game_scene, &main_camera,
                           WINDOW_WIDTH, WINDOW_HEIGHT, WINDOW_NAME, &mutex);
   // the game loop
   game_scene.main(&main_camera);
   loop_thread.join();
+#else
+  renderer_thread(&game_scene, &main_camera, WINDOW_WIDTH, WINDOW_HEIGHT,
+                  WINDOW_NAME, &mutex);
+#endif
 
   glfwTerminate();
   return 0;

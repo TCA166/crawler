@@ -163,7 +163,9 @@ renderer::renderer(int width, int height, const char *name, std::mutex *mutex,
   glClearColor(0.0, 0.0, 0.0, 1.0f);
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+#ifndef WASM
   glfwSwapBuffers(window);
+#endif
 
   glEnable(GL_DEBUG_OUTPUT);
 #ifndef WASM
@@ -177,7 +179,9 @@ renderer::renderer(int width, int height, const char *name, std::mutex *mutex,
   glfwSetMouseButtonCallback(window, global_mouse_button_callback);
   glfwSetScrollCallback(window, global_scroll_callback);
   glfwSetCursorPosCallback(window, global_mouse_callback);
+#ifndef WASM
   glfwSetWindowCloseCallback(window, global_window_close_callback);
+#endif
 
   this->focused = false;
   this->render_mutex = mutex;
@@ -233,6 +237,9 @@ void renderer::run() {
   if (target_scene == NULL) {
     throw std::runtime_error("No scene to render");
   }
+#ifdef NO_THREADS
+  double current_time = glfwGetTime();
+#endif
   while (!glfwWindowShouldClose(window) && !target_scene->get_should_close()) {
     render_mutex->lock();            // we wait for our turn to render
     glfwMakeContextCurrent(window);  // tell openGL we are outputting to this
@@ -243,8 +250,16 @@ void renderer::run() {
     // let go of the lock
     render_mutex->unlock();
     // show the rendered scene
+#ifndef WASM
     glfwSwapBuffers(window);
+#endif
     glfwPollEvents();
+#ifdef NO_THREADS
+    double new_time = glfwGetTime();
+    double delta_time = new_time - current_time;
+    current_time = new_time;
+    target_scene->update(target_camera, delta_time, current_time);
+#endif
   }
 }
 
@@ -270,11 +285,15 @@ void renderer::change_scene(scene *new_scene) {
   // we need to make sure something is polling events, else the OS will think
   // the program is unresponsive
   bool poll = true;
+#ifndef NO_THREADS
   std::thread keep_alive(keep_alive_thread, &poll);
-  new_scene->init();
+#endif
+  new_scene->init(target_camera);
   model_loader::get().init();
   poll = false;
+#ifndef NO_THREADS
   keep_alive.join();
+#endif
   render_mutex->unlock();
   target_scene = new_scene;
 }
@@ -297,5 +316,7 @@ void renderer::close_callback() {
 void renderer::show_loading() {
   glClearColor(loading_color.r, loading_color.g, loading_color.b, 1.0f);
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+#ifndef WASM
   glfwSwapBuffers(window);
+#endif
 }
