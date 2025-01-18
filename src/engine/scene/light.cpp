@@ -27,9 +27,11 @@ light::light(glm::vec3 position, glm::vec3 direction, glm::vec3 color,
 #endif
   glReadBuffer(GL_NONE);
 
+#ifndef WASM
   if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
     throw std::runtime_error("Framebuffer is not complete!");
   }
+#endif
 
   glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }

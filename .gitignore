@@ -44,4 +44,4 @@ main
 
 # C converted textures
 
-textures/*.c
+static

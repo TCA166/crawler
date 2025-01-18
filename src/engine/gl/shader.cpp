@@ -1,26 +1,8 @@
 #include "shader.hpp"
 
-#include <fstream>
-#include <sstream>
+#include "../utils/shader_loader.hpp"
+
 #include <stdexcept>
-
-// TODO shader loader so that we can provide static shaders
-
-/*!
- @brief Read a file and return its contents as a string
- @param file_path The path to the file
- @return The contents of the file as a string
-*/
-static std::string read_file(const std::string &file_path) {
-  std::ifstream file(file_path);
-  if (!file.is_open()) {
-    throw std::runtime_error("Could not open file: " + file_path);
-  }
-
-  std::stringstream buffer;
-  buffer << file.rdbuf();
-  return buffer.str();
-}
 
 /*!
  @brief Compile a shader from a given source
@@ -28,7 +10,7 @@ static std::string read_file(const std::string &file_path) {
  @param type The type of the shader
  @return The compiled shader
 */
-static GLuint compile_shader(std::string &source, GLenum type) {
+static GLuint compile_shader(const std::string &source, GLenum type) {
   GLuint shader = glCreateShader(type);
   const char *src = source.c_str();
   glShaderSource(shader, 1, &src, NULL);
@@ -48,11 +30,12 @@ static GLuint compile_shader(std::string &source, GLenum type) {
 }
 
 shader::shader(const std::string vertex_path, const std::string fragment_Path) {
-  std::string vertex_source = read_file(vertex_path);
-  std::string fragment_source = read_file(fragment_Path);
+  shader_loader &loader = shader_loader::get();
 
-  GLuint vertex_shader = compile_shader(vertex_source, GL_VERTEX_SHADER);
-  GLuint fragment_shader = compile_shader(fragment_source, GL_FRAGMENT_SHADER);
+  GLuint vertex_shader =
+      compile_shader(loader.load_shader(vertex_path), GL_VERTEX_SHADER);
+  GLuint fragment_shader =
+      compile_shader(loader.load_shader(fragment_Path), GL_FRAGMENT_SHADER);
 
   program = glCreateProgram();
   glAttachShader(program, vertex_shader);

@@ -7,9 +7,9 @@
 #ifndef STATIC_ASSETS
 #include <SOIL/SOIL.h>
 #else
-#include "../../../textures/spaceship.c"
-#include "../../../textures/spaceship_normal.c"
-#include "../../../textures/texture.c"
+#include "../../../static/textures/spaceship.h"
+#include "../../../static/textures/spaceship_normal.h"
+#include "../../../static/textures/texture.h"
 #endif
 
 void flip_y(unsigned char *img, int width, int height, int channels) {
@@ -30,26 +30,23 @@ void flip_y(unsigned char *img, int width, int height, int channels) {
 image_loader::image_loader() {
 #ifdef STATIC_ASSETS
   image_t *spaceship_image = new image_t;
-  spaceship_image->data = spaceship.pixel_data;
-  spaceship_image->width = spaceship.width;
-  spaceship_image->height = spaceship.height;
-  spaceship_image->nr_channels = spaceship.bytes_per_pixel;
+  spaceship_image->data = textures_spaceship_jpg;
+  spaceship_image->width = 4096;
+  spaceship_image->height = 4096;
+  spaceship_image->nr_channels = 3;
   images[TEXTURE_PATH("spaceship.jpg")] = spaceship_image;
   image_t *spaceship_normal_image = new image_t;
-  spaceship_normal_image->data = spaceship_normal.pixel_data;
-  spaceship_normal_image->width = spaceship_normal.width;
-  spaceship_normal_image->height = spaceship_normal.height;
-  spaceship_normal_image->nr_channels = spaceship_normal.bytes_per_pixel;
+  spaceship_normal_image->data = textures_spaceship_normal_jpg;
+  spaceship_normal_image->width = 4096;
+  spaceship_normal_image->height = 4096;
+  spaceship_normal_image->nr_channels = 3;
   images[TEXTURE_PATH("spaceship_normal.jpg")] = spaceship_normal_image;
   image_t *texture_image = new image_t;
-  texture_image->data = texture.pixel_data;
-  texture_image->width = texture.width;
-  texture_image->height = texture.height;
-  texture_image->nr_channels = texture.bytes_per_pixel;
-  images[TEXTURE_PATH("texture.jpg")] = texture_image;
-  /* TEXTURE_PATH("skybox/right.png"), TEXTURE_PATH("skybox/left.png"),
-  TEXTURE_PATH("skybox/top.png"), TEXTURE_PATH("skybox/bottom.png"),
-      TEXTURE_PATH("skybox/front.png"), TEXTURE_PATH("skybox/back.png") */
+  texture_image->data = textures_texture_png;
+  texture_image->width = 996;
+  texture_image->height = 664;
+  texture_image->nr_channels = 3;
+  images[TEXTURE_PATH("texture.png")] = texture_image;
   images[TEXTURE_PATH("skybox/right.png")] = spaceship_image;
   images[TEXTURE_PATH("skybox/left.png")] = spaceship_image;
   images[TEXTURE_PATH("skybox/top.png")] = spaceship_image;
