@@ -1,10 +1,10 @@
 
 #pragma once
 
-#include "engine/engine.hpp"
-#include "objects/boid.hpp"
-#include "objects/debug_cube.hpp"
-#include "objects/debug_wall.hpp"
+#include "../engine/engine.hpp"
+#include "../objects/boid.hpp"
+#include "../objects/debug_cube.hpp"
+#include "../objects/debug_wall.hpp"
 
 /*!
  @brief The scene used for the game.
@@ -12,7 +12,6 @@
 */
 class game : public scene {
 private:
-  double time_scale;
   bool mv_forward, mv_backward, mv_left, mv_right, mv_up, mv_down, rot_left,
       rot_right, shooting;
   double xpos, ypos;
@@ -20,36 +19,34 @@ private:
   debug_wall *floor, *wall, *view;
   skybox *sky;
   light *lght;
-  shader *textured_shader, *skybox_shader, *simple_shader, *triangle_shader,
-      *wall_shader;
+  shader *textured_shader, *skybox_shader, *simple_shader, *wall_shader;
   texture *tex, *norm, *depth, *tex2;
-  std::list<boid *> boids;
+  std::list<boid *> &boids;
   bool is_shooting;
   glm::vec3 shoot_direction;
 
 public:
-  game();
+  game(std::list<boid *> &boids);
   ~game();
   /*!
    @brief Initialize the scene
    @param target_camera The camera that will be used to render the scene
   */
-  virtual void init(camera &target_camera);
+  void init(camera *target_camera);
   /*!
    @brief Performs a single game tick
    @param target_camera The camera used
    @param delta_time Time elapsed from last tick
    @param current_time the current time
   */
-  void update(camera &target_camera, double delta_time, double current_time);
+  void update(camera *target_camera, double delta_time, double current_time);
   /*!
    @brief Handle a scroll event
    @param xoffset The x offset of the scroll
    @param yoffset The y offset of the scroll
    @param target_camera The camera to scroll
   */
-  virtual void scroll_callback(double xoffset, double yoffset,
-                               camera &target_camera);
+  void scroll_callback(double xoffset, double yoffset, camera &target_camera);
   /*!
    @brief Handle a key event
    @param key The key that was pressed
@@ -58,13 +55,13 @@ public:
    @param mods The mods that were pressed
    @param target_camera The camera to handle the key event
   */
-  virtual void key_callback(int key, int scancode, int action, int mods,
-                            camera &target_camera);
+  void key_callback(int key, int scancode, int action, int mods,
+                    camera &target_camera);
   /*!
    @brief Handle a mouse event
    @param xpos The x position of the mouse
    @param ypos The y position of the mouse
    @param target_camera The camera to handle the mouse event
   */
-  virtual void mouse_callback(double xpos, double ypos, camera &target_camera);
+  void mouse_callback(double xpos, double ypos, camera &target_camera);
 };

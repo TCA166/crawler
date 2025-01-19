@@ -12,7 +12,7 @@ typedef struct {
   /*!
    @brief The data of the image in the format indicated by nr_channels
   */
-  const uint8_t *data;
+  uint8_t *data;
   /*!
    @brief The width of the image in pixels
   */

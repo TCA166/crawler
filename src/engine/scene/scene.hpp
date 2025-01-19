@@ -16,13 +16,16 @@ protected:
    @brief Whether the scene has had its init function called
   */
   bool initialized = false;
+  /*!
+   @brief Clears the screen to the assigned color
+  */
+  void clear() const;
 
 private:
   std::list<object *> objects;
   std::list<light *> lights;
   glm::vec3 ambient_light;
   glm::vec3 background_color;
-  bool should_close = false;
   skybox *sky;
   const shader *light_pass_shader;
   double current_time, delta_time;
@@ -64,13 +67,13 @@ public:
    @brief Initialize the scene
    @param target_camera the camera that will be used in the scene
   */
-  virtual void init(camera &target_camera);
+  virtual void init(camera *target_camera);
   /*!
    @brief Render the scene
    @param target_camera The camera to render the scene with
    @param aspect_ratio The aspect ratio of the window
   */
-  void render(const camera &target_camera, float aspect_ratio);
+  virtual void render(const camera &target_camera, float aspect_ratio);
   /*!
    @brief Perform the shadow pass
    @warning May modify the viewport
@@ -80,14 +83,14 @@ public:
    @brief Main function of the scene
    @param target_camera The camera that the scene is being rendered with
   */
-  void main(camera &target_camera);
+  void main(camera *target_camera, bool *should_close);
   /*!
    @brief Performs a scene tick
    @param target_camera The camera in the scene
    @param delta_time The time elapsed from last tick
    @param current_time The current time
   */
-  virtual void update(camera &target_camera, double delta_time,
+  virtual void update(camera *target_camera, double delta_time,
                       double current_time);
   /*!
    @brief Handle a scroll event
@@ -123,15 +126,6 @@ public:
    @param target_camera The camera to handle the mouse event
   */
   virtual void mouse_callback(double xpos, double ypos, camera &target_camera);
-  /*!
-   @brief Handle a close event
-  */
-  void close_callback();
-  /*!
-   @brief Get the should close value
-   @return The should close value
-  */
-  bool get_should_close() const;
   /*!
    @brief Check if a point is inside the collider
    @param point The point to check

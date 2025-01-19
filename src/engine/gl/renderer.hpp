@@ -15,12 +15,13 @@
 class renderer {
 private:
   GLFWwindow *window;
-  scene *target_scene = NULL;
+  scene *target_scene;
   camera *target_camera;
   int width, height;
   bool focused;
   std::mutex *render_mutex;
   void show_loading();
+  bool *should_close;
 
 public:
   /*!
@@ -30,10 +31,13 @@ public:
    @param name The name of the window
    @param mutex The mutex to use for synchronization
    @param target_camera The camera to use for rendering
+   @param target_scene The scene to render
+   @param should_close A reference to a boolean that is used to synchronize
+    the closing of the window
    @note This will create a window and initialize GLEW
   */
   renderer(int width, int height, const char *name, std::mutex *mutex,
-           camera *target_camera);
+           camera *target_camera, scene *target_scene, bool *should_close);
   /*!
    @brief Constructs a renderer with a given scene, width, height, name and
    parent window.
@@ -42,11 +46,15 @@ public:
    @param name The name of the window
    @param mutex The mutex to use for synchronization
    @param target_camera The camera to use for rendering
+   @param target_scene The scene to render
+   @param should_close A reference to a boolean that is used to synchronize
+    the closing of the window
    @param parent_window The parent window of the renderer
    @note This will create a window and initialize GLEW
   */
   renderer(int width, int height, const char *name, std::mutex *mutex,
-           camera *target_camera, GLFWwindow *parent_window);
+           camera *target_camera, scene *target_scene, bool *should_close,
+           GLFWwindow *parent_window);
   ~renderer();
   /*!
    @brief Creates a new renderer based on this one, sharing the scene,
@@ -54,7 +62,7 @@ public:
    @param name The name of the new window
    @return The new renderer
   */
-  renderer clone(const char *name);
+  renderer clone(const char *name, scene *new_scene);
   /*!
    @brief Run the renderer
    @warning This function will block until the window is closed

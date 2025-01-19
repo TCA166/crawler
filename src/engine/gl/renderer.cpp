@@ -137,13 +137,17 @@ static void global_window_close_callback(GLFWwindow *window) {
 }
 
 renderer::renderer(int width, int height, const char *name, std::mutex *mutex,
-                   camera *render_camera)
-    : renderer(width, height, name, mutex, render_camera, NULL) {}
+                   camera *render_camera, scene *target_scene,
+                   bool *should_close)
+    : renderer(width, height, name, mutex, render_camera, target_scene,
+               should_close, NULL) {}
 
 renderer::renderer(int width, int height, const char *name, std::mutex *mutex,
-                   camera *render_camera, GLFWwindow *parent_window) {
-  this->width = width;
-  this->height = height;
+                   camera *render_camera, scene *target_scene,
+                   bool *should_close, GLFWwindow *parent_window)
+    : width(width), height(height), focused(false), render_mutex(mutex),
+      should_close(should_close) {
+  mutex->lock();
   this->window = glfwCreateWindow(width, height, name, NULL, parent_window);
   if (window == NULL) {
     const char *desc;
@@ -151,7 +155,7 @@ renderer::renderer(int width, int height, const char *name, std::mutex *mutex,
     throw std::runtime_error(desc);
   }
   glfwSetWindowUserPointer(window, this);
-  mutex->lock();
+
   glfwMakeContextCurrent(window);
   if (glewInit() != GLEW_OK) {
     throw std::runtime_error("Failed to initialize GLEW");
@@ -183,19 +187,18 @@ renderer::renderer(int width, int height, const char *name, std::mutex *mutex,
   glfwSetWindowCloseCallback(window, global_window_close_callback);
 #endif
 
-  this->focused = false;
-  this->render_mutex = mutex;
   this->target_camera = render_camera;
+  change_scene(target_scene);
 }
 
 renderer::~renderer() { glfwDestroyWindow(window); }
 
-renderer renderer::clone(const char *name) {
+renderer renderer::clone(const char *name, scene *new_scene) {
   int width, height;
   glfwGetWindowSize(window, &width, &height);
   renderer new_renderer =
-      renderer(width, height, name, render_mutex, target_camera, window);
-  new_renderer.change_scene(target_scene);
+      renderer(width, height, name, render_mutex, target_camera, new_scene,
+               should_close, window);
   return new_renderer;
 }
 
@@ -234,25 +237,23 @@ void renderer::scroll_callback(double xoffset, double yoffset) {
 }
 
 void renderer::run() {
-  if (target_scene == NULL) {
-    throw std::runtime_error("No scene to render");
-  }
 #ifdef NO_THREADS
   double current_time = glfwGetTime();
 #endif
-  while (!glfwWindowShouldClose(window) && !target_scene->get_should_close()) {
-    render_mutex->lock();            // we wait for our turn to render
+  while (!glfwWindowShouldClose(window) && !*should_close) {
+    // render_mutex->lock();            // we wait for our turn to render
     glfwMakeContextCurrent(window);  // tell openGL we are outputting to this
     target_scene->shadow_pass();     // create shadow maps
     glViewport(0, 0, width, height); // swap back to our resolution
     // render the scene
     target_scene->render(*target_camera, width / float(height));
-    // let go of the lock
-    render_mutex->unlock();
-    // show the rendered scene
 #ifndef WASM
     glfwSwapBuffers(window);
 #endif
+    // let go of the lock
+    glfwMakeContextCurrent(NULL);
+    // render_mutex->unlock();
+    // show the rendered scene
     glfwPollEvents();
 #ifdef NO_THREADS
     double new_time = glfwGetTime();
@@ -288,7 +289,7 @@ void renderer::change_scene(scene *new_scene) {
 #ifndef NO_THREADS
   std::thread keep_alive(keep_alive_thread, &poll);
 #endif
-  new_scene->init(*target_camera);
+  new_scene->init(target_camera);
   model_loader::get().init();
   poll = false;
 #ifndef NO_THREADS
@@ -310,7 +311,7 @@ void renderer::unfocus() {
 
 void renderer::close_callback() {
   glfwSetWindowShouldClose(window, GLFW_TRUE);
-  target_scene->close_callback();
+  *should_close = true;
 }
 
 void renderer::show_loading() {

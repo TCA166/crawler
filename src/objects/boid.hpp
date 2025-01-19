@@ -3,6 +3,8 @@
 #include "../engine/engine.hpp"
 #include "../physics/entity.hpp"
 
+#define BOID_LIMIT 10.f
+
 /*!
  @brief A boid object
  @details A boid object that can be used in a flocking simulation
@@ -53,7 +55,7 @@ inline boid::boid(const shader *object_shader, double xpos, double ypos,
     : triangle(object_shader, xpos, ypos, zpos),
       entity(1.0f, glm::sphericalRand(0.5f)), tex(tex) {
   triangle_object_shader = object_shader;
-  this->add_texture(tex, "diamond");
+  this->add_texture(tex, "texture0");
   this->set_scale(0.5f);
 }
 
@@ -87,13 +89,13 @@ inline void boid::update(const std::list<const boid *> &boids,
   }
 
   // Boundary conditions
-  if (xpos < -10.0f || xpos > 10.0f) {
+  if (xpos < -BOID_LIMIT || xpos > BOID_LIMIT) {
     velocity.x = -velocity.x;
   }
-  if (ypos < -10.0f || ypos > 10.0f) {
+  if (ypos < -BOID_LIMIT || ypos > BOID_LIMIT) {
     velocity.y = -velocity.y;
   }
-  if (zpos < -10.0f || zpos > 10.0f) {
+  if (zpos < -BOID_LIMIT || zpos > BOID_LIMIT) {
     velocity.z = -velocity.z;
   }
   return;

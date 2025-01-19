@@ -2,7 +2,8 @@
 #include <iostream>
 #include <thread>
 
-#include "game.hpp"
+#include "scenes/game.hpp"
+#include "scenes/radar.hpp"
 
 #define WINDOW_NAME "Crawler"
 #define WINDOW_WIDTH 500
@@ -23,12 +24,10 @@ static void glfw_error_callback(int error, const char *description) {
 */
 static void renderer_thread(scene *target_scene, camera *target_camera,
                             uint32_t width, uint32_t height, const char *name,
-                            std::mutex *mutex) {
+                            std::mutex *mutex, bool *should_close) {
   // renderer handles all the initialization
-  renderer current_renderer =
-      renderer(width, height, name, mutex, target_camera);
-
-  current_renderer.change_scene(static_cast<scene *>(target_scene));
+  renderer current_renderer(width, height, name, mutex, target_camera,
+                            target_scene, should_close);
 
   // loop of the renderer
   current_renderer.run();
@@ -38,7 +37,7 @@ int main() {
   if (glfwInit() == GLFW_FALSE) {
     const char *desc;
     int code = glfwGetError(&desc);
-    glfw_error_callback(code, desc);
+    std::cerr << "GLFW error: " << code << ", " << desc << std::endl;
     return -1;
   }
 #ifndef WASM
@@ -51,20 +50,31 @@ int main() {
   glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, true);
 
   glfwSetErrorCallback(glfw_error_callback);
+  std::list<boid *> boids;
 
   // a scene is a collection of objects
-  game game_scene;
+  game game_scene(boids);
+  radar second_scene(boids);
 
   camera main_camera(glm::vec3(0.0f, 0.0f, 0.0f));
 
   std::mutex mutex;
 
+  bool should_close = false;
+
 #ifndef NO_THREADS
   std::thread loop_thread(&renderer_thread, &game_scene, &main_camera,
-                          WINDOW_WIDTH, WINDOW_HEIGHT, WINDOW_NAME, &mutex);
+                          WINDOW_WIDTH, WINDOW_HEIGHT, WINDOW_NAME, &mutex,
+                          &should_close);
+  std::thread radar_thread(&renderer_thread, &second_scene, &main_camera,
+                           RADAR_SIZE, RADAR_SIZE, "Radar", &mutex,
+                           &should_close);
+  std::thread radar_main_thread(&radar::main, &second_scene, &main_camera,
+                                &should_close);
   // the game loop
-  game_scene.main(main_camera);
+  game_scene.main(&main_camera, &should_close);
   loop_thread.join();
+  radar_thread.join();
 #else
   renderer_thread(&game_scene, &main_camera, WINDOW_WIDTH, WINDOW_HEIGHT,
                   WINDOW_NAME, &mutex);

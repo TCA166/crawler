@@ -24,16 +24,20 @@ void scene::remove_light(const light *lght) {
 
 void scene::add_light(light *light) { lights.push_back(light); }
 
-void scene::init(camera &) {
+void scene::init(camera *) {
   light_pass_shader = new shader(SHADER_PATH("light_pass.vert"),
                                  SHADER_PATH("light_pass.frag"));
   initialized = true;
 }
 
-void scene::render(const camera &target_camera, float aspect_ratio) {
+void scene::clear() const {
   glClearColor(background_color.r, background_color.g, background_color.b,
                1.0f);
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+}
+
+void scene::render(const camera &target_camera, float aspect_ratio) {
+  clear();
   glm::mat4 projection = target_camera.get_projection_matrix(aspect_ratio);
   glm::mat4 view = target_camera.get_view_matrix();
   if (sky != nullptr) {
@@ -71,8 +75,8 @@ void scene::shadow_pass() const {
   glCullFace(GL_BACK);
 }
 
-void scene::main(camera &target_camera) {
-  while (!should_close) {
+void scene::main(camera *target_camera, bool *should_close) {
+  while (!*should_close) {
     if (!this->initialized) {
       continue;
     }
@@ -85,7 +89,7 @@ void scene::main(camera &target_camera) {
   }
 }
 
-void scene::update(camera &, double, double) {}
+void scene::update(camera *, double, double) {}
 
 void scene::scroll_callback(double, double, camera &) {
   // do nothing
@@ -102,10 +106,6 @@ void scene::mouse_button_callback(int, int, int, camera &) {
 void scene::mouse_callback(double, double, camera &) {
   // do nothing
 }
-
-void scene::close_callback() { should_close = true; }
-
-bool scene::get_should_close() const { return should_close; }
 
 bool scene::check_point(glm::vec3 point) const {
   for (const object *obj : objects) {

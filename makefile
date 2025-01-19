@@ -5,6 +5,15 @@ CC = g++
 
 all: main
 
+game.o: src/scenes/game.cpp src/scenes/game.hpp src/objects/* src/physics/constants.hpp
+	$(CC) $(IFLAGS) $(CFLAGS) -c src/scenes/game.cpp
+
+radar.o: src/scenes/radar.cpp src/scenes/radar.hpp
+	$(CC) $(IFLAGS) $(CFLAGS) -c src/scenes/radar.cpp
+
+scenes.o: game.o radar.o
+	$(CC) $(CFLAGS) -r game.o radar.o -o scenes.o
+
 engine.o: src/engine/makefile src/engine/*/*.cpp src/engine/*.hpp
 	$(MAKE) -C src/engine IFLAGS="$(IFLAGS)" CFLAGS="$(CFLAGS)" CC="$(CC)"
 	cp src/engine/engine.o .
@@ -18,11 +27,8 @@ physics.o: entity.o
 game_object.o: src/game_object.cpp src/game_object.hpp
 	$(CC) $(IFLAGS) $(CFLAGS) -c src/game_object.cpp
 
-game.o: src/game.cpp src/game.hpp src/objects/* src/physics/constants.hpp
-	$(CC) $(IFLAGS) $(CFLAGS) -c src/game.cpp
-
-main: src/main.cpp engine.o game.o physics.o game_object.o
-	$(CC) $(CFLAGS) -o main src/main.cpp engine.o game.o physics.o game_object.o $(IFLAGS)
+main: src/main.cpp engine.o scenes.o physics.o game_object.o
+	$(CC) $(CFLAGS) -o main src/main.cpp engine.o scenes.o physics.o game_object.o $(IFLAGS)
 
 clean:
 	rm -f *.o main

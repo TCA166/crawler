@@ -3,6 +3,7 @@
 
 #include <string>
 
+#include "../utils/image_loader.hpp"
 #include "shader.hpp"
 
 /*!
@@ -35,6 +36,11 @@ public:
    @note flips the texture
   */
   texture(const std::string &path);
+  /*!
+   @brief Constructs a texture based on an image
+   @param img The image to use
+  */
+  texture(const image_t *img);
   virtual ~texture();
   /*!
    @brief Set the active texture
@@ -44,6 +50,11 @@ public:
   */
   virtual void set_active_texture(const shader *target_shader, int texture_unit,
                                   std::string name) const;
+  /*!
+   @brief Bind the texture to the framebuffer
+   @note This is used for blitzing the texture to the screen
+  */
+  void bind_to_fb() const;
 };
 
 /*!

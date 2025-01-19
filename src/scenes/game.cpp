@@ -1,15 +1,13 @@
 #include "game.hpp"
-#include "engine/renderable/triangle.hpp"
-#include "engine/renderable/wall.hpp"
 #include <iostream>
 
 const float camera_speed = 10.;
 
-game::game()
-    : scene(glm::vec3(0.1, 0.1, 0.1), glm::vec3(0.0)), time_scale(1),
-      mv_forward(false), mv_backward(false), mv_left(false), mv_right(false),
-      mv_up(false), mv_down(false), rot_left(false), rot_right(false),
-      xpos(0.0), ypos(0.0) {}
+game::game(std::list<boid *> &boids)
+    : scene(glm::vec3(0.1, 0.1, 0.1), glm::vec3(0.0)), mv_forward(false),
+      mv_backward(false), mv_left(false), mv_right(false), mv_up(false),
+      mv_down(false), rot_left(false), rot_right(false), xpos(0.0), ypos(0.0),
+      boids(boids) {}
 
 game::~game() {
   if (!initialized) {
@@ -29,15 +27,15 @@ game::~game() {
   delete this->view;
   delete this->simple_shader;
   delete this->tex2;
-  delete this->triangle_shader;
   for (auto &tri : boids) {
     delete tri;
   }
 }
 
-void game::init(camera &target_camera) {
-  triangle_shader =
-      new shader(SHADER_PATH("triangle.vert"), SHADER_PATH("triangle.frag"));
+void game::init(camera *target_camera) {
+  if (initialized) {
+    return;
+  }
   textured_shader =
       new shader(SHADER_PATH("textured.vert"), SHADER_PATH("textured.frag"));
   simple_shader = new shader(SHADER_PATH("textured.vert"),
@@ -67,7 +65,7 @@ void game::init(camera &target_camera) {
     float x = glm::linearRand(-1.0f, 1.0f);
     float y = glm::linearRand(1.0f, 2.0f);
     float z = glm::linearRand(-1.0f, 1.0f);
-    boid *tri = new boid(triangle_shader, x, y, z, tex2);
+    boid *tri = new boid(textured_shader, x, y, z, tex2);
     boids.push_back(tri);
     this->add_object(tri);
   }
@@ -80,17 +78,16 @@ void game::init(camera &target_camera) {
       TEXTURE_PATH("skybox/front.png"), TEXTURE_PATH("skybox/back.png")};
   sky = new skybox(skybox_shader, paths);
   this->set_skybox(sky);
-  target_camera.set_position(0.0, 1.0, 0.0);
+  target_camera->set_position(0.0, 1.0, 0.0);
   scene::init(target_camera);
 }
 
-void game::update(camera &target_camera, double delta_time,
+void game::update(camera *target_camera, double delta_time,
                   double current_time) {
-  delta_time *= time_scale;
 
-  glm::vec3 camera_position = target_camera.get_position();
-  glm::vec3 camera_front = target_camera.get_front();
-  glm::vec3 camera_right = target_camera.get_right();
+  glm::vec3 camera_position = target_camera->get_position();
+  glm::vec3 camera_front = target_camera->get_front();
+  glm::vec3 camera_right = target_camera->get_right();
 
   glm::vec3 move = glm::vec3(0.0);
   if (mv_forward) {
@@ -108,13 +105,13 @@ void game::update(camera &target_camera, double delta_time,
     move = glm::normalize(move) * camera_speed * (float)delta_time;
     glm::vec3 collision_dist = move * (RENDER_MIN * 5e2f + 1.f);
     if (!check_line(camera_position, camera_position + collision_dist)) {
-      target_camera.translate(move);
+      target_camera->translate(move);
     }
   }
   if (rot_left) {
-    target_camera.rotate(0.0, 0.0, -delta_time);
+    target_camera->rotate(0.0, 0.0, -delta_time);
   } else if (rot_right) {
-    target_camera.rotate(0.0, 0.0, delta_time);
+    target_camera->rotate(0.0, 0.0, delta_time);
   }
 
   for (auto &tri : boids) {
