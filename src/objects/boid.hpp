@@ -31,7 +31,6 @@ public:
               double deltaTime);
 
 private:
-
   void evaluate(double deltaTime);
 
   glm::vec3 separation(const std::list<const boid *> &boids);
@@ -63,7 +62,6 @@ inline boid::~boid() {}
 inline void boid::update(const std::list<const boid *> &boids,
                          const collider *scene, double deltaTime) {
 
-
   glm::vec3 sep = separation(boids) * 4.0f;
   glm::vec3 ali = alignment(boids) * 1.0f;
   glm::vec3 coh = cohesion(boids) * 0.5f;
@@ -72,37 +70,21 @@ inline void boid::update(const std::list<const boid *> &boids,
 
   this->evaluate(deltaTime);
 
-  std::vector<float> verteces = this->get_triangle_data();
-
-  
+  glm::vec3 translation = velocity * (float)deltaTime;
 
   glm::vec3 position = this->get_position();
-  glm::vec3 target = position + velocity * (float)deltaTime;
-  float scale = 0.5f;
+  glm::vec3 target = position + translation;
 
-  glm::vec3 vertex1 = glm::vec3(verteces[0] + position.x, verteces[1] * scale + position.y, verteces[2]+ position.z);
-  glm::vec3 vertex2 = glm::vec3(verteces[3]+ position.x, verteces[4] * scale + position.y, verteces[5]+ position.z);
-  glm::vec3 vertex3 = glm::vec3(verteces[6]+ position.x, verteces[7] * scale + position.y, verteces[8]+ position.z);
+  glm::vec3 bound = get_bounds();
+  glm::vec3 negbound = get_negbounds();
 
-  // Compute the target vertices:
-  glm::vec3 target1 = vertex1 + velocity * (float)deltaTime;
-  glm::vec3 target2 = vertex2 + velocity * (float)deltaTime;
-  glm::vec3 target3 = vertex3 + velocity * (float)deltaTime;
-
-    if (scene->check_line(position, target)) {
+  if (scene->check_line(position, target) ||
+      scene->check_line(bound, bound + translation) ||
+      scene->check_line(negbound, negbound + translation)) {
     this->velocity = -this->velocity;
+  } else {
+    this->set_position(target.x, target.y, target.z);
   }
-
-        if (scene->check_line(vertex1, target1) ||
-      scene->check_line(vertex2, target2) ||
-      scene->check_line(vertex3, target3)) {
-          this->velocity = -this->velocity;
-  }
-
-    else {
-        this->set_position(target.x, target.y, target.z);
-      }
-
 
   // Boundary conditions
   if (xpos < -10.0f || xpos > 10.0f) {
@@ -188,7 +170,3 @@ inline glm::vec3 boid::cohesion(const std::list<const boid *> &boids) {
   }
   return glm::vec3(0.0f);
 }
-
-
-
-

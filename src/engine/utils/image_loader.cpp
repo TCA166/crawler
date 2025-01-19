@@ -70,7 +70,8 @@ const image_t *image_loader::load_image(const std::string &key, bool flip) {
     unsigned char *image = SOIL_load_image(key.c_str(), &width, &height,
                                            &nr_channels, SOIL_LOAD_AUTO);
     if (image == nullptr) {
-      throw std::runtime_error(SOIL_last_result());
+      std::string message(SOIL_last_result());
+      throw std::runtime_error("SOIL error: " + message + " for " + key);
     }
     if (flip) {
       flip_y(image, width, height, nr_channels);

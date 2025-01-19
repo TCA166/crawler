@@ -139,20 +139,27 @@ void object::add_parent(object *parent) {
   parent->add_child(this);
 }
 
-bool object::check_point(glm::vec3 point) const {
+glm::vec3 object::get_bounds() const {
   glm::mat4 model = get_model_matrix();
   glm::vec4 bounds = model * glm::vec4(this->object_model->get_bounds(), 1.0f);
+  return bounds;
+}
+
+glm::vec3 object::get_negbounds() const {
+  glm::mat4 model = get_model_matrix();
   glm::vec4 negbounds =
       model * glm::vec4(this->object_model->get_negbounds(), 1.0f);
+  return negbounds;
+}
+
+bool object::check_point(glm::vec3 point) const {
+  glm::vec3 bounds = get_bounds();
+  glm::vec3 negbounds = get_negbounds();
   return point.x <= bounds.x && point.x >= negbounds.x && point.y <= bounds.y &&
          point.y >= negbounds.y && point.z <= bounds.z &&
          point.z >= negbounds.z;
 }
 
 bool object::check_line(glm::vec3 a, glm::vec3 b) const {
-  glm::mat4 model = get_model_matrix();
-  glm::vec4 bounds = model * glm::vec4(this->object_model->get_bounds(), 1.0f);
-  glm::vec4 negbounds =
-      model * glm::vec4(this->object_model->get_negbounds(), 1.0f);
-  return check_line_box(glm::vec3(negbounds), glm::vec3(bounds), a, b, a);
+  return check_line_box(get_negbounds(), get_bounds(), a, b, a);
 }

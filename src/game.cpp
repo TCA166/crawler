@@ -39,7 +39,6 @@ void game::init(camera *target_camera) {
       new shader(SHADER_PATH("textured.vert"), SHADER_PATH("textured.frag"));
   simple_shader = new shader(SHADER_PATH("textured.vert"),
                              SHADER_PATH("simple_textured.frag"));
-  wall_shader = new shader(SHADER_PATH("wall.vert"), SHADER_PATH("wall.frag"));
   lght = new light(glm::vec3(4.0, 2.0, 4.0), glm::vec3(0.0, 0.0, -1.0),
                    glm::vec3(1.0, 1.0, 1.0), 90.0f, 100.0f);
   this->add_light(lght);
@@ -104,7 +103,7 @@ void game::update(camera *target_camera, double delta_time,
   if (move.x != 0. || move.z != 0) {
     move.y = 0;
     move = glm::normalize(move) * camera_speed * (float)delta_time;
-    glm::vec3 collision_dist = move * (RENDER_MIN * 5e4f + 1.f);
+    glm::vec3 collision_dist = move * (RENDER_MIN * 5e2f + 1.f);
     if (!check_line(camera_position, camera_position + collision_dist)) {
       target_camera->translate(move);
     }

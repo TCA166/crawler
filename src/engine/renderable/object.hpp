@@ -45,6 +45,8 @@ protected:
   */
   double xpos, ypos, zpos;
   ///@}
+  glm::vec3 get_bounds() const;
+  glm::vec3 get_negbounds() const;
 
 public:
   /*!
