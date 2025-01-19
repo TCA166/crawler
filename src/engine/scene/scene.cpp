@@ -24,27 +24,27 @@ void scene::remove_light(const light *lght) {
 
 void scene::add_light(light *light) { lights.push_back(light); }
 
-void scene::init(camera *) {
+void scene::init(camera &) {
   light_pass_shader = new shader(SHADER_PATH("light_pass.vert"),
                                  SHADER_PATH("light_pass.frag"));
   initialized = true;
 }
 
-void scene::render(const camera *target_camera, float aspect_ratio) {
+void scene::render(const camera &target_camera, float aspect_ratio) {
   glClearColor(background_color.r, background_color.g, background_color.b,
                1.0f);
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-  glm::mat4 projection = target_camera->get_projection_matrix(aspect_ratio);
-  glm::mat4 view = target_camera->get_view_matrix();
+  glm::mat4 projection = target_camera.get_projection_matrix(aspect_ratio);
+  glm::mat4 view = target_camera.get_view_matrix();
   if (sky != nullptr) {
     // special projection matrix that removes the translation
     glm::mat4 viewProjection = projection * glm::mat4(glm::mat3(view));
-    sky->render(&viewProjection, target_camera->get_position(),
+    sky->render(&viewProjection, target_camera.get_position(),
                 (const std::list<const light *> &)lights, ambient_light);
   }
   glm::mat4 viewProjection = projection * view;
   for (const object *obj : objects) {
-    obj->render(&viewProjection, target_camera->get_position(),
+    obj->render(&viewProjection, target_camera.get_position(),
                 (const std::list<const light *> &)lights, ambient_light);
   }
 }
@@ -71,7 +71,7 @@ void scene::shadow_pass() const {
   glCullFace(GL_BACK);
 }
 
-void scene::main(camera *target_camera) {
+void scene::main(camera &target_camera) {
   while (!should_close) {
     if (!this->initialized) {
       continue;
@@ -85,21 +85,21 @@ void scene::main(camera *target_camera) {
   }
 }
 
-void scene::update(camera *, double, double) {}
+void scene::update(camera &, double, double) {}
 
-void scene::scroll_callback(double, double, camera *) {
+void scene::scroll_callback(double, double, camera &) {
   // do nothing
 }
 
-void scene::key_callback(int, int, int, int, camera *) {
+void scene::key_callback(int, int, int, int, camera &) {
   // do nothing
 }
 
-void scene::mouse_button_callback(int, int, int, camera *) {
+void scene::mouse_button_callback(int, int, int, camera &) {
   // do nothing
 }
 
-void scene::mouse_callback(double, double, camera *) {
+void scene::mouse_callback(double, double, camera &) {
   // do nothing
 }
 

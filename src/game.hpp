@@ -32,9 +32,16 @@ public:
   ~game();
   /*!
    @brief Initialize the scene
+   @param target_camera The camera that will be used to render the scene
   */
-  virtual void init(camera *target_camera);
-  void update(camera *target_camera, double delta_time, double current_time);
+  virtual void init(camera &target_camera);
+  /*!
+   @brief Performs a single game tick
+   @param target_camera The camera used
+   @param delta_time Time elapsed from last tick
+   @param current_time the current time
+  */
+  void update(camera &target_camera, double delta_time, double current_time);
   /*!
    @brief Handle a scroll event
    @param xoffset The x offset of the scroll
@@ -42,7 +49,7 @@ public:
    @param target_camera The camera to scroll
   */
   virtual void scroll_callback(double xoffset, double yoffset,
-                               camera *target_camera);
+                               camera &target_camera);
   /*!
    @brief Handle a key event
    @param key The key that was pressed
@@ -52,12 +59,12 @@ public:
    @param target_camera The camera to handle the key event
   */
   virtual void key_callback(int key, int scancode, int action, int mods,
-                            camera *target_camera);
+                            camera &target_camera);
   /*!
    @brief Handle a mouse event
    @param xpos The x position of the mouse
    @param ypos The y position of the mouse
    @param target_camera The camera to handle the mouse event
   */
-  virtual void mouse_callback(double xpos, double ypos, camera *target_camera);
+  virtual void mouse_callback(double xpos, double ypos, camera &target_camera);
 };

@@ -45,7 +45,17 @@ protected:
   */
   double xpos, ypos, zpos;
   ///@}
+  /*!
+   @brief Gets the positive bounds of the object
+   @return A vector with 1 points on each axis representing the largest extent
+   of the model on that axis
+  */
   glm::vec3 get_bounds() const;
+  /*!
+   @brief Gets the negative bounds of the object
+   @return A vector with 1 point on each axis represeting the largest extent in
+   the opposite direction
+  */
   glm::vec3 get_negbounds() const;
 
 public:

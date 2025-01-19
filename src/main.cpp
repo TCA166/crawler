@@ -63,7 +63,7 @@ int main() {
   std::thread loop_thread(&renderer_thread, &game_scene, &main_camera,
                           WINDOW_WIDTH, WINDOW_HEIGHT, WINDOW_NAME, &mutex);
   // the game loop
-  game_scene.main(&main_camera);
+  game_scene.main(main_camera);
   loop_thread.join();
 #else
   renderer_thread(&game_scene, &main_camera, WINDOW_WIDTH, WINDOW_HEIGHT,

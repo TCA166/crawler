@@ -206,7 +206,7 @@ void renderer::key_callback(int key, int scancode, int action, int mods) {
   if (action == GLFW_PRESS && key == GLFW_KEY_ESCAPE) {
     this->unfocus();
   }
-  this->target_scene->key_callback(key, scancode, action, mods, target_camera);
+  this->target_scene->key_callback(key, scancode, action, mods, *target_camera);
 }
 
 void renderer::mouse_button_callback(int button, int action, int mods) {
@@ -215,7 +215,7 @@ void renderer::mouse_button_callback(int button, int action, int mods) {
   }
   if (focused && target_scene != nullptr) {
     this->target_scene->mouse_button_callback(button, action, mods,
-                                              target_camera);
+                                              *target_camera);
   }
 }
 
@@ -224,12 +224,12 @@ void renderer::mouse_callback(double xpos, double ypos) {
     return;
   }
   ypos = -ypos;
-  this->target_scene->mouse_callback(xpos, ypos, target_camera);
+  this->target_scene->mouse_callback(xpos, ypos, *target_camera);
 }
 
 void renderer::scroll_callback(double xoffset, double yoffset) {
   if (focused && target_scene != nullptr) {
-    this->target_scene->scroll_callback(xoffset, yoffset, target_camera);
+    this->target_scene->scroll_callback(xoffset, yoffset, *target_camera);
   }
 }
 
@@ -246,7 +246,7 @@ void renderer::run() {
     target_scene->shadow_pass();     // create shadow maps
     glViewport(0, 0, width, height); // swap back to our resolution
     // render the scene
-    target_scene->render(target_camera, width / float(height));
+    target_scene->render(*target_camera, width / float(height));
     // let go of the lock
     render_mutex->unlock();
     // show the rendered scene
@@ -288,7 +288,7 @@ void renderer::change_scene(scene *new_scene) {
 #ifndef NO_THREADS
   std::thread keep_alive(keep_alive_thread, &poll);
 #endif
-  new_scene->init(target_camera);
+  new_scene->init(*target_camera);
   model_loader::get().init();
   poll = false;
 #ifndef NO_THREADS

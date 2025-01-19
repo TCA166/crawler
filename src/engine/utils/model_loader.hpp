@@ -6,8 +6,7 @@
 #include <string>
 
 /*!
- @brief A singleton model loader that manages their initialization
- deinitialization
+ @brief A facility for loading models deinitialization
  @details A single centralized point for loading and storage of models. Actually
  a singleton factory that caches loaded models and retrieves them based on a
  certain key.
@@ -57,5 +56,4 @@ public:
    @brief Deinitializes the loaded models
   */
   void deinit() const;
-
 };

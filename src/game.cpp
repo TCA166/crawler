@@ -12,6 +12,9 @@ game::game()
       xpos(0.0), ypos(0.0) {}
 
 game::~game() {
+  if (!initialized) {
+    return;
+  }
   delete this->textured_shader;
   delete this->skybox_shader;
   delete this->cube1;
@@ -32,7 +35,7 @@ game::~game() {
   }
 }
 
-void game::init(camera *target_camera) {
+void game::init(camera &target_camera) {
   triangle_shader =
       new shader(SHADER_PATH("triangle.vert"), SHADER_PATH("triangle.frag"));
   textured_shader =
@@ -77,17 +80,17 @@ void game::init(camera *target_camera) {
       TEXTURE_PATH("skybox/front.png"), TEXTURE_PATH("skybox/back.png")};
   sky = new skybox(skybox_shader, paths);
   this->set_skybox(sky);
-  target_camera->set_position(0.0, 1.0, 0.0);
+  target_camera.set_position(0.0, 1.0, 0.0);
   scene::init(target_camera);
 }
 
-void game::update(camera *target_camera, double delta_time,
+void game::update(camera &target_camera, double delta_time,
                   double current_time) {
   delta_time *= time_scale;
 
-  glm::vec3 camera_position = target_camera->get_position();
-  glm::vec3 camera_front = target_camera->get_front();
-  glm::vec3 camera_right = target_camera->get_right();
+  glm::vec3 camera_position = target_camera.get_position();
+  glm::vec3 camera_front = target_camera.get_front();
+  glm::vec3 camera_right = target_camera.get_right();
 
   glm::vec3 move = glm::vec3(0.0);
   if (mv_forward) {
@@ -105,13 +108,13 @@ void game::update(camera *target_camera, double delta_time,
     move = glm::normalize(move) * camera_speed * (float)delta_time;
     glm::vec3 collision_dist = move * (RENDER_MIN * 5e2f + 1.f);
     if (!check_line(camera_position, camera_position + collision_dist)) {
-      target_camera->translate(move);
+      target_camera.translate(move);
     }
   }
   if (rot_left) {
-    target_camera->rotate(0.0, 0.0, -delta_time);
+    target_camera.rotate(0.0, 0.0, -delta_time);
   } else if (rot_right) {
-    target_camera->rotate(0.0, 0.0, delta_time);
+    target_camera.rotate(0.0, 0.0, delta_time);
   }
 
   for (auto &tri : boids) {
@@ -139,11 +142,11 @@ void game::update(camera *target_camera, double delta_time,
   lght->set_position(lght_pos.x, lght_pos.y, lght_pos.z);
 }
 
-void game::scroll_callback(double, double yoffset, camera *target_camera) {
-  target_camera->zoom(yoffset);
+void game::scroll_callback(double, double yoffset, camera &target_camera) {
+  target_camera.zoom(yoffset);
 }
 
-void game::key_callback(int key, int, int action, int, camera *) {
+void game::key_callback(int key, int, int action, int, camera &) {
   if (action == GLFW_REPEAT) {
     return;
   }
@@ -179,9 +182,9 @@ void game::key_callback(int key, int, int action, int, camera *) {
   }
 }
 
-void game::mouse_callback(double xpos, double ypos, camera *target_camera) {
+void game::mouse_callback(double xpos, double ypos, camera &target_camera) {
   if (xpos != this->xpos || ypos != this->ypos) {
-    target_camera->rotate(xpos - this->xpos, ypos - this->ypos, 0.0);
+    target_camera.rotate(xpos - this->xpos, ypos - this->ypos, 0.0);
     this->xpos = xpos;
     this->ypos = ypos;
   }
