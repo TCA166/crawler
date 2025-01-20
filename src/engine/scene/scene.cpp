@@ -36,8 +36,10 @@ void scene::clear() const {
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 
-void scene::render(const camera &target_camera, float aspect_ratio) {
+void scene::render(const camera &target_camera, uint16_t width,
+                   uint16_t height) {
   clear();
+  float aspect_ratio = (float)width / (float)height;
   glm::mat4 projection = target_camera.get_projection_matrix(aspect_ratio);
   glm::mat4 view = target_camera.get_view_matrix();
   if (sky != nullptr) {

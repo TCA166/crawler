@@ -75,6 +75,7 @@ int main() {
   game_scene.main(&main_camera, &should_close);
   loop_thread.join();
   radar_thread.join();
+  radar_main_thread.join();
 #else
   renderer_thread(&game_scene, &main_camera, WINDOW_WIDTH, WINDOW_HEIGHT,
                   WINDOW_NAME, &mutex);

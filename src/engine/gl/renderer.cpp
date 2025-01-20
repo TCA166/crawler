@@ -147,36 +147,38 @@ renderer::renderer(int width, int height, const char *name, std::mutex *mutex,
                    bool *should_close, GLFWwindow *parent_window)
     : width(width), height(height), focused(false), render_mutex(mutex),
       should_close(should_close) {
-  mutex->lock();
-  this->window = glfwCreateWindow(width, height, name, NULL, parent_window);
-  if (window == NULL) {
-    const char *desc;
-    glfwGetError(&desc);
-    throw std::runtime_error(desc);
-  }
-  glfwSetWindowUserPointer(window, this);
+  {
+    std::lock_guard<std::mutex> lock(*mutex);
+    this->window = glfwCreateWindow(width, height, name, NULL, parent_window);
+    if (window == NULL) {
+      const char *desc;
+      glfwGetError(&desc);
+      throw std::runtime_error(desc);
+    }
+    glfwSetWindowUserPointer(window, this);
 
-  glfwMakeContextCurrent(window);
-  if (glewInit() != GLEW_OK) {
-    throw std::runtime_error("Failed to initialize GLEW");
-  }
-  glViewport(0, 0, width, height);
+    glfwMakeContextCurrent(window);
+    if (glewInit() != GLEW_OK) {
+      throw std::runtime_error("Failed to initialize GLEW");
+    }
+    glViewport(0, 0, width, height);
 
-  glEnable(GL_DEPTH_TEST);
+    glEnable(GL_DEPTH_TEST);
 
-  glClearColor(0.0, 0.0, 0.0, 1.0f);
-  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glClearColor(0.0, 0.0, 0.0, 1.0f);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 #ifndef WASM
-  glfwSwapBuffers(window);
+    glfwSwapBuffers(window);
 #endif
 
-  glEnable(GL_DEBUG_OUTPUT);
+    glEnable(GL_DEBUG_OUTPUT);
 #ifndef WASM
-  glDebugMessageCallback(gl_message_callback, NULL);
+    glDebugMessageCallback(gl_message_callback, NULL);
 #endif
 
-  mutex->unlock();
+    glfwMakeContextCurrent(NULL);
+  } // exiting the scope will unlock the mutex
 
   glfwSetFramebufferSizeCallback(window, global_framebuffer_size_callback);
   glfwSetKeyCallback(window, global_key_callback);
@@ -246,7 +248,7 @@ void renderer::run() {
     target_scene->shadow_pass();     // create shadow maps
     glViewport(0, 0, width, height); // swap back to our resolution
     // render the scene
-    target_scene->render(*target_camera, width / float(height));
+    target_scene->render(*target_camera, width, height);
 #ifndef WASM
     glfwSwapBuffers(window);
 #endif

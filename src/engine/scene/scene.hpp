@@ -71,9 +71,11 @@ public:
   /*!
    @brief Render the scene
    @param target_camera The camera to render the scene with
-   @param aspect_ratio The aspect ratio of the window
+   @param width The width of the viewport
+   @param height The height of the viewport
   */
-  virtual void render(const camera &target_camera, float aspect_ratio);
+  virtual void render(const camera &target_camera, uint16_t width,
+                      uint16_t height);
   /*!
    @brief Perform the shadow pass
    @warning May modify the viewport

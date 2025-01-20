@@ -1,5 +1,7 @@
 #include "radar.hpp"
 
+static const float radar_radius = RADAR_SIZE / 20.f;
+
 static const glm::vec2 radar_mid_point =
     glm::vec2(RADAR_SIZE / 2, RADAR_SIZE / 2);
 
@@ -25,9 +27,12 @@ void radar::draw_line(uint16_t x, uint16_t y, uint8_t r, uint8_t g, uint8_t b,
       int cx_offset = radar_mid_point.x + i;
       int cy_offset = radar_mid_point.y + j;
       while (true) {
-        radar_image.data[cx_offset * 3 + cy_offset * RADAR_SIZE * 3] = r;
-        radar_image.data[cx_offset * 3 + cy_offset * RADAR_SIZE * 3 + 1] = g;
-        radar_image.data[cx_offset * 3 + cy_offset * RADAR_SIZE * 3 + 2] = b;
+        if (cx_offset >= 0 && cx_offset < RADAR_SIZE && cy_offset >= 0 &&
+            cy_offset < RADAR_SIZE) {
+          radar_image.data[cx_offset * 3 + cy_offset * RADAR_SIZE * 3] = r;
+          radar_image.data[cx_offset * 3 + cy_offset * RADAR_SIZE * 3 + 1] = g;
+          radar_image.data[cx_offset * 3 + cy_offset * RADAR_SIZE * 3 + 2] = b;
+        }
 
         if (cx_offset == x + i && cy_offset == y + j)
           break;
@@ -70,15 +75,17 @@ void radar::update(camera *cam, double delta_time, double) {
   draw_radar_cast(angle, 0, 255, 0);
 
   glm::vec3 cam_pos = cam->get_position();
-  glm::vec2 cam_pos_radar =
-      glm::vec2(cam_pos.x + BOID_LIMIT, cam_pos.z + BOID_LIMIT);
-  cam_pos_radar *= RADAR_SIZE / (2 * BOID_LIMIT);
+  // TODO rotate radar with camera
+  glm::vec2 radar_center = glm::vec2(cam_pos.x, cam_pos.z);
 
   for (auto &tri : boids) {
     glm::vec3 pos = tri->get_position();
-    glm::vec2 pos_radar = glm::vec2(pos.x + BOID_LIMIT, pos.z + BOID_LIMIT);
-    pos_radar *= RADAR_SIZE / (2 * BOID_LIMIT);
-    if (glm::distance(pos_radar, radar_mid_point) > RADAR_SIZE / 2) {
+    glm::vec2 pos_radar =
+        (radar_center - glm::vec2(pos.x, pos.z)) * radar_radius;
+    pos_radar += radar_mid_point;
+    // rotate the point so that the points rotate with cam_dir
+    float distance = glm::distance(radar_mid_point, pos_radar);
+    if (distance > RADAR_SIZE / 2) {
       continue;
     }
     radar_image.data[(int)pos_radar.x * 3 + (int)pos_radar.y * RADAR_SIZE * 3] =
@@ -86,13 +93,14 @@ void radar::update(camera *cam, double delta_time, double) {
   }
 }
 
-void radar::render(const camera &, float) {
+void radar::render(const camera &, uint16_t width, uint16_t height) {
   clear();
 
   texture radar_texture = texture(&radar_image);
   glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
   radar_texture.bind_to_fb();
-  glBlitFramebuffer(0, 0, RADAR_SIZE, RADAR_SIZE, 0, 0, RADAR_SIZE, RADAR_SIZE,
+  uint16_t out_size = std::min(width, height);
+  glBlitFramebuffer(0, 0, RADAR_SIZE, RADAR_SIZE, 0, 0, out_size, out_size,
                     GL_COLOR_BUFFER_BIT, GL_NEAREST);
 }
 

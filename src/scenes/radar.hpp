@@ -4,6 +4,8 @@
 #include "../engine/engine.hpp"
 #include "../objects/boid.hpp"
 
+#include <mutex>
+
 #define RADAR_SIZE 500
 
 class radar : public scene {
@@ -29,7 +31,8 @@ public:
   /*!
    @brief Render the scene
    @param target_camera The camera to render the scene with
-   @param aspect_ratio The aspect ratio of the window
+   @param width The width of the viewport
+   @param height The height of the viewport
   */
-  void render(const camera &target_camera, float aspect_ratio);
+  void render(const camera &target_camera, uint16_t width, uint16_t height);
 };
