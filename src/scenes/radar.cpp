@@ -1,4 +1,5 @@
 #include "radar.hpp"
+#include <stdexcept>
 
 #ifndef M_PI
 #define M_PI 3.14159265358979323846
@@ -66,6 +67,9 @@ void radar::init(camera *target_camera) {
 
   glGenFramebuffers(1, &fbo);
   glBindFramebuffer(GL_READ_FRAMEBUFFER, fbo);
+  if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
+    throw std::runtime_error("Framebuffer is not complete");
+  }
 }
 
 void radar::update(camera *cam, double delta_time, double) {
