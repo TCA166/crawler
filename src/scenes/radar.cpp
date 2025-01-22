@@ -1,5 +1,9 @@
 #include "radar.hpp"
 
+#ifndef M_PI
+#define M_PI 3.14159265358979323846
+#endif
+
 static const float radar_radius = RADAR_SIZE / 20.f;
 
 static const glm::vec2 radar_mid_point =
@@ -104,4 +108,7 @@ void radar::render(const camera &, uint16_t width, uint16_t height) {
                     GL_COLOR_BUFFER_BIT, GL_NEAREST);
 }
 
-radar::~radar() {}
+radar::~radar() {
+  glDeleteFramebuffers(1, &fbo);
+  delete[] radar_image.data;
+}
