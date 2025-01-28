@@ -84,6 +84,8 @@ public:
   /*!
    @brief Main function of the scene
    @param target_camera The camera that the scene is being rendered with
+   @param should_close A reference to a boolean that is used to synchronize the
+    closing of the window
   */
   void main(camera *target_camera, bool *should_close);
   /*!

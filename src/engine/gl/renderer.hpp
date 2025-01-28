@@ -60,6 +60,7 @@ public:
    @brief Creates a new renderer based on this one, sharing the scene,
    mutex and gl context
    @param name The name of the new window
+   @param new_scene the scene to attach to the new renderer
    @return The new renderer
   */
   renderer clone(const char *name, scene *new_scene);

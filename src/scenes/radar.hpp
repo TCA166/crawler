@@ -8,6 +8,9 @@
 
 #define RADAR_SIZE 500
 
+/*!
+ @brief A scene that shows a radar of the boids
+*/
 class radar : public scene {
 private:
   std::list<boid *> &boids;
@@ -20,6 +23,10 @@ private:
   void draw_radar_cast(float angle, uint8_t r, uint8_t g, uint8_t b);
 
 public:
+  /*!
+   @brief Constructs the radar display
+   @param boids The list of boids to show on the radar
+  */
   radar(std::list<boid *> &boids);
   ~radar();
   /*!

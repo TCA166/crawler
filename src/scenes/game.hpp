@@ -26,6 +26,10 @@ private:
   glm::vec3 shoot_direction;
 
 public:
+  /*!
+   @brief Initializes the main game scene
+   @param boids The list of boids to use
+  */
   game(std::list<boid *> &boids);
   ~game();
   /*!
