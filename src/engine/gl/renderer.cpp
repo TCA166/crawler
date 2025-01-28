@@ -253,7 +253,6 @@ void renderer::run() {
     glfwSwapBuffers(window);
 #endif
 #ifdef _WIN32
-#warning "Kompilowane na zjebanym systemie operacyjnym!"
     glfwPollEvents();
 #endif
     glfwMakeContextCurrent(NULL);
