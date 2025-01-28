@@ -75,7 +75,7 @@ int main() {
                                &should_close);
   // the game loop
   while (!should_close) {
-    glfwPollEvents();
+    glfwWaitEvents();
   }
   game_main_thread.join();
   loop_thread.join();

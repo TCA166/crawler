@@ -21,8 +21,8 @@ radar::radar(std::list<boid *> &boids)
 
 void radar::draw_line(uint16_t x, uint16_t y, uint8_t r, uint8_t g, uint8_t b,
                       uint8_t thickness) {
-  int dx = abs(x - radar_mid_point.x);
-  int dy = abs(y - radar_mid_point.y);
+  int dx = std::abs(x - radar_mid_point.x);
+  int dy = std::abs(y - radar_mid_point.y);
   int sx = radar_mid_point.x < x ? 1 : -1;
   int sy = radar_mid_point.y < y ? 1 : -1;
   int err = dx - dy;
