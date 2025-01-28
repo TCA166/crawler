@@ -252,12 +252,13 @@ void renderer::run() {
 #ifndef WASM
     glfwSwapBuffers(window);
 #endif
-    // let go of the lock
+#ifdef _WIN32
+#warning "Kompilowane na zjebanym systemie operacyjnym!"
+    glfwPollEvents();
+#endif
     glfwMakeContextCurrent(NULL);
-    // render_mutex->unlock();
     // show the rendered scene
 #ifdef NO_THREADS
-    glfwPollEvents();
     double new_time = glfwGetTime();
     double delta_time = new_time - current_time;
     current_time = new_time;
