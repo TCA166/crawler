@@ -256,8 +256,8 @@ void renderer::run() {
     glfwMakeContextCurrent(NULL);
     // render_mutex->unlock();
     // show the rendered scene
-    glfwPollEvents();
 #ifdef NO_THREADS
+    glfwPollEvents();
     double new_time = glfwGetTime();
     double delta_time = new_time - current_time;
     current_time = new_time;
@@ -271,32 +271,14 @@ void renderer::resize(int width, int height) {
   this->height = height;
 }
 
-/*!
- @brief A thread that keeps the program alive by polling events
-*/
-static void keep_alive_thread(const bool *poll) {
-  while (*poll) {
-    std::this_thread::sleep_for(std::chrono::milliseconds(500));
-    glfwPollEvents();
-  }
-}
-
 void renderer::change_scene(scene *new_scene) {
   render_mutex->lock();
   glfwMakeContextCurrent(window);
   show_loading();
   // we need to make sure something is polling events, else the OS will think
   // the program is unresponsive
-  bool poll = true;
-#ifndef NO_THREADS
-  std::thread keep_alive(keep_alive_thread, &poll);
-#endif
   new_scene->init(target_camera);
   model_loader::get().init();
-  poll = false;
-#ifndef NO_THREADS
-  keep_alive.join();
-#endif
   render_mutex->unlock();
   target_scene = new_scene;
 }

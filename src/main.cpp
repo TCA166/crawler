@@ -71,8 +71,13 @@ int main() {
                            &should_close);
   std::thread radar_main_thread(&radar::main, &second_scene, &main_camera,
                                 &should_close);
+  std::thread game_main_thread(&game::main, &game_scene, &main_camera,
+                               &should_close);
   // the game loop
-  game_scene.main(&main_camera, &should_close);
+  while (!should_close) {
+    glfwPollEvents();
+  }
+  game_main_thread.join();
   loop_thread.join();
   radar_thread.join();
   radar_main_thread.join();
