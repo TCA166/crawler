@@ -1,4 +1,6 @@
 #include "game.hpp"
+#include "../game_object.hpp"
+#include "../engine/utils/model_loader.hpp"
 #include <iostream>
 
 const float camera_speed = 10.;
@@ -40,26 +42,66 @@ void game::init(camera *target_camera) {
       new shader(SHADER_PATH("textured.vert"), SHADER_PATH("textured.frag"));
   simple_shader = new shader(SHADER_PATH("textured.vert"),
                              SHADER_PATH("simple_textured.frag"));
-  lght = new light(glm::vec3(4.0, 2.0, 4.0), glm::vec3(0.0, 0.0, -1.0),
-                   glm::vec3(1.0, 1.0, 1.0), 90.0f, 100.0f);
+  lght = new light(glm::vec3(0.0f, 8.0f, -6.0f), glm::vec3(0.0, 0.0, -1.0),
+                   glm::vec3(0.9, 0.9, 0.9), 90.0f, 100.0f);
   this->add_light(lght);
+
+  lght2 = new light(glm::vec3(15.0f, 8.0f, 25.0f), glm::vec3(0.0, 0.0, -1.0),
+                    glm::vec3(0.2, 0.5, 0.5), 90.0f, 100.0f);
+  this->add_light(lght2);
+  //to swiatlo 3 nie dziala
+  //lght3 = new light(glm::vec3(0.0, 3.0, 0.0), glm::vec3(0.0, 1.0, 0.0),
+  //                  glm::vec3(1.0, 0.0, 0.0), 2.0f, 2.0f);
+  //this->add_light(lght3);
   tex = new texture(TEXTURE_PATH("spaceship.jpg"));
   tex2 = new texture(TEXTURE_PATH("diamond.png"));
   norm = new texture(TEXTURE_PATH("spaceship_normal.jpg"));
-  cube1 = new debug_cube(textured_shader, tex, norm, 0.0, 0.1, 0.0);
-  this->add_object(cube1);
-  cube2 = new debug_cube(textured_shader, tex, norm, 1.0, 0.1, 1.0);
-  this->add_object(cube2);
-  wall = new debug_wall(textured_shader, tex, norm, 0.0, 1.0, -5.0);
-  wall->set_scale(10.0, 3.0, 1.0);
-  this->add_object(wall);
-  floor = new debug_wall(textured_shader, tex, norm, 0.0, -0.5, 0.0);
-  floor->set_rotation(1.57, 0.0, 0.0);
-  floor->set_scale(10.0, 10.0, 1.0);
-  this->add_object(floor);
+  tree_texture = new texture(TEXTURE_PATH("bark2.png"));
+  tree_normal = new texture(TEXTURE_PATH("bark_normal.png"));
+  //cliff_texture = new texture(TEXTURE_PATH("cliff_texture2.png"));
+
+  //cube1 = new debug_cube(textured_shader, tex, norm, 0.0, 0.1, 0.0);
+  //this->add_object(cube1);
+  //cube2 = new debug_cube(textured_shader, tex, norm, 1.0, 0.1, 1.0);
+  //this->add_object(cube2);
+  //wall = new debug_wall(textured_shader, tex, norm, 0.0, 1.0, -5.0);
+ // wall->set_scale(10.0, 3.0, 1.0);
+  //this->add_object(wall);
+ // floor = new debug_wall(textured_shader, tex, norm, 0.0, -0.5, 0.0);
+  //floor->set_rotation(1.57, 0.0, 0.0);
+  //floor->set_scale(10.0, 10.0, 1.0);
+  //this->add_object(floor);
   depth = lght->get_view_map();
   view = new debug_wall(simple_shader, depth, norm, 0.0, 3.0, 0.0);
   this->add_object(view);
+  model2 = new debug_model(textured_shader, MODEL_PATH("/bridge.obj"), tex, norm, 0.0, -7.0, 0.0);
+  model2->set_scale(0.6, 0.2, 0.2);
+  model2->set_rotation(0.0, 30.0, 0.0);
+  this->add_object(model2);
+  
+std::vector<glm::vec3> tree_positions = {
+      {15.0f, 8.0f, 23.0f},  {-18.0f, 10.0f, 19.0f},
+      {0.0f, 12.0f, 17.0f},                          
+      {25.0f, -5.0f, 10.0f},  {30.0f, 15.0f, -10.0f}, 
+      {-25.0f, 7.0f, 15.0f}, {-30.0f, 20.0f, -5.0f}  
+  };
+
+for (size_t i = 0; i < tree_positions.size(); ++i) {
+  const glm::vec3 &tree_pos = tree_positions[i];
+  debug_model *tree = new debug_model(
+      textured_shader, MODEL_PATH("/Lowpoly_tree_sample.obj"), tree_texture,
+      tree_normal, tree_pos.x, tree_pos.y, tree_pos.z);
+  tree->set_scale(0.7, 0.7, 0.7);
+  this->add_object(tree);
+  trees.push_back(tree);
+
+  debug_model *cliff =
+      new debug_model(textured_shader, MODEL_PATH("/island.obj"), tree_texture,
+                      tree_normal, tree_pos.x, tree_pos.y - 2.0f, tree_pos.z);
+  cliff->set_scale(0.7, 0.7, 0.7);
+  this->add_object(cliff);
+  cliffs.push_back(cliff); 
+}
 
   for (int i = 0; i < 15; ++i) {
     float x = glm::linearRand(-1.0f, 1.0f);
@@ -73,9 +115,9 @@ void game::init(camera *target_camera) {
   skybox_shader =
       new shader(SHADER_PATH("skybox.vert"), SHADER_PATH("skybox.frag"));
   std::vector<std::string> paths = {
-      TEXTURE_PATH("skybox/right.png"), TEXTURE_PATH("skybox/left.png"),
-      TEXTURE_PATH("skybox/top.png"),   TEXTURE_PATH("skybox/bottom.png"),
-      TEXTURE_PATH("skybox/front.png"), TEXTURE_PATH("skybox/back.png")};
+      TEXTURE_PATH("skybox_new/right.png"), TEXTURE_PATH("skybox_new/left.png"),
+      TEXTURE_PATH("skybox_new/top.png"),   TEXTURE_PATH("skybox_new/bottom.png"),
+      TEXTURE_PATH("skybox_new/front.png"), TEXTURE_PATH("skybox_new/back.png")};
   sky = new skybox(skybox_shader, paths);
   this->set_skybox(sky);
   target_camera->set_position(0.0, 1.0, 0.0);
@@ -88,6 +130,12 @@ void game::update(camera *target_camera, double delta_time,
   glm::vec3 camera_position = target_camera->get_position();
   glm::vec3 camera_front = target_camera->get_front();
   glm::vec3 camera_right = target_camera->get_right();
+
+  std::vector<glm::vec3> tree_positions = {
+      {15.0f, 8.0f, 23.0f},  {-18.0f, 10.0f, 19.0f}, {0.0f, 12.0f, 17.0f},
+      {25.0f, -5.0f, 10.0f}, {30.0f, 15.0f, -10.0f}, {-25.0f, 7.0f, 15.0f},
+      {-30.0f, 20.0f, -5.0f}   
+  };
 
   glm::vec3 move = glm::vec3(0.0);
   if (mv_forward) {
@@ -133,10 +181,30 @@ void game::update(camera *target_camera, double delta_time,
 
     shooting = false;
   }
+  
+
+  for (size_t i = 0; i < trees.size(); ++i) {
+    debug_model *tree = trees[i];
+    float base_y = tree_positions[i].y;          
+    float offset = sin(current_time + i) * 2.0f + 1.0f; 
+    tree->set_position(tree_positions[i].x, base_y + offset,
+                       tree_positions[i].z);
+  }
+
+  for (size_t i = 0; i < cliffs.size(); ++i) {
+    debug_model *cliff = cliffs[i];
+    float base_y = tree_positions[i].y - 2.0f;  
+    float offset = sin(current_time + i) * 2.0f + 1.0f; 
+    cliff->set_position(tree_positions[i].x, base_y + offset,
+                        tree_positions[i].z);
+  }
+
   glm::vec3 lght_pos = lght->get_position();
   lght_pos.x = sin(current_time) *
                4.; // no need for * delta_time because we sine current_time
   lght->set_position(lght_pos.x, lght_pos.y, lght_pos.z);
+
+  
 }
 
 void game::scroll_callback(double, double yoffset, camera &target_camera) {

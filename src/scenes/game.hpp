@@ -4,6 +4,7 @@
 #include "../engine/engine.hpp"
 #include "../objects/boid.hpp"
 #include "../objects/debug_cube.hpp"
+#include "../objects/debug_model.hpp"
 #include "../objects/debug_wall.hpp"
 
 /*!
@@ -18,12 +19,17 @@ private:
   debug_cube *cube1, *cube2;
   debug_wall *floor, *wall, *view;
   skybox *sky;
-  light *lght;
+  light *lght, *lght2, *lght3;
   shader *textured_shader, *skybox_shader, *simple_shader, *wall_shader;
-  texture *tex, *norm, *depth, *tex2;
+  texture *tex, *cliff_texture,  *norm, *depth, *tex2, *tree_texture,
+      *tree_normal;
   std::list<boid *> &boids;
   bool is_shooting;
   glm::vec3 shoot_direction;
+  std::vector<debug_model *> trees;
+  std::vector<debug_model *> cliffs;
+  debug_model *model1, *model2, *model3, *tree, *cliff;
+
 
 public:
   /*!

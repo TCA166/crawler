@@ -56,7 +56,7 @@ inline boid::boid(const shader *object_shader, double xpos, double ypos,
       entity(1.0f, glm::sphericalRand(0.5f)), tex(tex) {
   triangle_object_shader = object_shader;
   this->add_texture(tex, "texture0");
-  this->set_scale(0.5f);
+  this->set_scale(0.9f);
 }
 
 inline boid::~boid() {}

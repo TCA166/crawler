@@ -34,57 +34,68 @@ model::model(const std::string &path) {
     throw std::runtime_error("No meshes found in file");
   }
 
-  const aiMesh *mesh = scene->mMeshes[0];
+  // Przetwórz wszystkie siatki
+  for (unsigned int m = 0; m < scene->mNumMeshes; m++) {
+    const aiMesh *mesh = scene->mMeshes[m];
 
-  float xbound = -std::numeric_limits<float>::infinity();
-  float xnegbound = std::numeric_limits<float>::infinity();
-  float ybound = -std::numeric_limits<float>::infinity();
-  float ynegbound = std::numeric_limits<float>::infinity();
-  float zbound = -std::numeric_limits<float>::infinity();
-  float znegbound = std::numeric_limits<float>::infinity();
+    if (mesh->mNumVertices == 0) {
+      throw std::runtime_error("Mesh has no vertices!");
+    }
 
-  for (unsigned int i = 0; i < mesh->mNumVertices; i++) {
-    if (mesh->mVertices[i].x > xbound) {
-      xbound = mesh->mVertices[i].x;
+float xbound = mesh->mVertices[0].x;
+    float xnegbound = mesh->mVertices[0].x;
+    float ybound = mesh->mVertices[0].y;
+    float ynegbound = mesh->mVertices[0].y;
+    float zbound = mesh->mVertices[0].z;
+    float znegbound = mesh->mVertices[0].z;
+
+    for (unsigned int i = 0; i < mesh->mNumVertices; i++) {
+      if (mesh->mVertices[i].x > xbound) {
+        xbound = mesh->mVertices[i].x;
+      }
+      if (mesh->mVertices[i].x < xnegbound) {
+        xnegbound = mesh->mVertices[i].x;
+      }
+      data.push_back(mesh->mVertices[i].x);
+
+      if (mesh->mVertices[i].y > ybound) {
+        ybound = mesh->mVertices[i].y;
+      }
+      if (mesh->mVertices[i].y < ynegbound) {
+        ynegbound = mesh->mVertices[i].y;
+      }
+      data.push_back(mesh->mVertices[i].y);
+
+      if (mesh->mVertices[i].z > zbound) {
+        zbound = mesh->mVertices[i].z;
+      }
+      if (mesh->mVertices[i].z < znegbound) {
+        znegbound = mesh->mVertices[i].z;
+      }
+      data.push_back(mesh->mVertices[i].z);
+
+      if (mesh->mTextureCoords != nullptr &&
+          mesh->mTextureCoords[0] != nullptr) {
+        data.push_back(mesh->mTextureCoords[0][i].x);
+        data.push_back(mesh->mTextureCoords[0][i].y);
+      } else {
+        data.push_back(0.0f);
+        data.push_back(0.0f);
+      }
     }
-    if (mesh->mVertices[i].x < xnegbound) {
-      xnegbound = mesh->mVertices[i].x;
+
+    this->bounds = glm::vec3(xbound, ybound, zbound);
+    this->negbounds = glm::vec3(xnegbound, ynegbound, znegbound);
+
+    for (unsigned int i = 0; i < mesh->mNumFaces; i++) {
+      aiFace face = mesh->mFaces[i];
+      for (unsigned int j = 0; j < face.mNumIndices; j++) {
+        indices.push_back(face.mIndices[j]);
+      }
     }
-    data.push_back(mesh->mVertices[i].x);
-    if (mesh->mVertices[i].y > ybound) {
-      ybound = mesh->mVertices[i].y;
-    }
-    if (mesh->mVertices[i].y < ynegbound) {
-      ynegbound = mesh->mVertices[i].y;
-    }
-    data.push_back(mesh->mVertices[i].y);
-    if (mesh->mVertices[i].z > zbound) {
-      zbound = mesh->mVertices[i].z;
-    }
-    if (mesh->mVertices[i].z < znegbound) {
-      znegbound = mesh->mVertices[i].z;
-    }
-    data.push_back(mesh->mVertices[i].z);
-    if (mesh->mTextureCoords[0] != nullptr) {
-      data.push_back(mesh->mTextureCoords[0][i].x);
-      data.push_back(mesh->mTextureCoords[0][i].y);
-    } else {
-      data.push_back(0.0f);
-      data.push_back(0.0f);
-    }
+
+    vertex_count += mesh->mNumVertices;
   }
-
-  this->bounds = glm::vec3(xbound, ybound, zbound);
-  this->negbounds = glm::vec3(xnegbound, ynegbound, znegbound);
-
-  for (unsigned int i = 0; i < mesh->mNumFaces; i++) {
-    aiFace face = mesh->mFaces[i];
-    // retrieve all indices of the face and store them in the indices vector
-    for (unsigned int j = 0; j < face.mNumIndices; j++)
-      indices.push_back(face.mIndices[j]);
-  }
-
-  vertex_count = mesh->mNumVertices;
 }
 #endif
 

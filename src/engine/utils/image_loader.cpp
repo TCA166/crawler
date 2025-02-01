@@ -1,7 +1,7 @@
 #include "image_loader.hpp"
 
 #include "../settings.hpp"
-
+#include <iostream>
 #include <stdexcept>
 
 #ifndef STATIC_ASSETS
@@ -57,31 +57,40 @@ image_loader::image_loader() {
 }
 
 image_loader &image_loader::get() {
+  std::cout << "image_loader::get()" << std::endl;
   static image_loader instance;
   return instance;
 }
 
 const image_t *image_loader::load_image(const std::string &key, bool flip) {
   try {
+    std::cout << "image_loader::load_image()" << std::endl;
     return images.at(key);
   } catch (const std::out_of_range &e) {
+
 #ifndef STATIC_ASSETS
     int width, height, nr_channels;
+    std::cout << "soil_load_image()" << std::endl;
     unsigned char *image = SOIL_load_image(key.c_str(), &width, &height,
                                            &nr_channels, SOIL_LOAD_AUTO);
+    std::cout << "soil_load_image() done" << std::endl;
     if (image == nullptr) {
+
       std::string message(SOIL_last_result());
       throw std::runtime_error("SOIL error: " + message + " for " + key);
     }
     if (flip) {
       flip_y(image, width, height, nr_channels);
     }
+  std::cout << " trying to load_image "<<std::endl;
     image_t *new_image = new image_t;
     new_image->data = image;
     new_image->width = width;
     new_image->height = height;
     new_image->nr_channels = nr_channels;
+    std::cout << "linijka po nr_channels idk co to" << std::endl;
     images[key] = new_image;
+    std::cout << "new image loaded" << std::endl;
     return new_image;
 #else
     throw std::runtime_error("Image not found");
