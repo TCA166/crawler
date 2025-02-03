@@ -57,8 +57,12 @@ vec3 CalcDirectionalLight(Light light, vec3 norm)
     {
         for(int y = -1; y <= 1; ++y)
         {
-            float pcfDepth = texture(light.depthMap, projCoords.xy + vec2(x, y) * texelSize).r; 
-            shadow += currentDepth - bias > pcfDepth ? 1.0 : 0.0;        
+            vec2 coord = projCoords.xy + vec2(x, y) * texelSize;
+            // check if the current pixel is in bounds of the shadow map
+            if (coord.x >= 0.0 && coord.x <= 1.0 && coord.y >= 0.0 && coord.y <= 1.0) {
+                float pcfDepth = texture(light.depthMap, coord).r; 
+                shadow += currentDepth - bias > pcfDepth ? 1.0 : 0.0;        
+            }   
         }    
     }
     shadow /= 9.0;
