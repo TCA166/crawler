@@ -23,7 +23,6 @@ private:
   */
   std::vector<unsigned int> indices;
   GLuint VAO, VBO, EBO;
-  unsigned int vertex_count;
   ///@{
   /*!
    @brief The bounds of the object

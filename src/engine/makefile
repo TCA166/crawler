@@ -57,6 +57,9 @@ scene_m.o: scene.o light.o camera.o
 
 # utils subfolder
 
+noise.o: utils/noise.cpp utils/noise.hpp
+	$(CC) $(IFLAGS) $(CFLAGS) -c utils/noise.cpp
+
 collision.o: utils/collision.cpp utils/collision.hpp
 	$(CC) $(IFLAGS) $(CFLAGS) -c utils/collision.cpp
 
@@ -69,8 +72,8 @@ image_loader.o: utils/image_loader.cpp utils/image_loader.hpp
 shader_loader.o: utils/shader_loader.cpp utils/shader_loader.hpp
 	$(CC) $(IFLAGS) $(CFLAGS) -c utils/shader_loader.cpp
 
-utils.o: collision.o model_loader.o image_loader.o shader_loader.o
-	$(CC) $(CFLAGS) -r collision.o model_loader.o image_loader.o shader_loader.o -o utils.o
+utils.o: collision.o model_loader.o image_loader.o shader_loader.o noise.o
+	$(CC) $(CFLAGS) -r collision.o model_loader.o image_loader.o shader_loader.o noise.o -o utils.o
 
 # complete engine
 

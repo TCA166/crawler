@@ -277,8 +277,8 @@ void renderer::change_scene(scene *new_scene) {
   show_loading();
   // we need to make sure something is polling events, else the OS will think
   // the program is unresponsive
-  new_scene->init(target_camera);
   model_loader::get().init();
+  new_scene->init(target_camera);
   render_mutex->unlock();
   target_scene = new_scene;
 }

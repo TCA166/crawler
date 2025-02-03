@@ -2,6 +2,7 @@
 #include <iostream>
 
 const float camera_speed = 10.;
+const uint32_t floor_size = 100;
 
 game::game(std::list<boid *> &boids)
     : scene(glm::vec3(0.1, 0.1, 0.1), glm::vec3(0.0)), mv_forward(false),
@@ -18,7 +19,6 @@ game::~game() {
   delete this->cube1;
   delete this->cube2;
   delete this->wall;
-  delete this->floor;
   delete this->lght;
   delete this->sky;
   delete this->tex;
@@ -53,13 +53,13 @@ void game::init(camera *target_camera) {
   wall = new debug_wall(textured_shader, tex, norm, 0.0, 1.0, -5.0);
   wall->set_scale(10.0, 3.0, 1.0);
   this->add_object(wall);
-  floor = new debug_wall(textured_shader, tex, norm, 0.0, -0.5, 0.0);
-  floor->set_rotation(1.57, 0.0, 0.0);
-  floor->set_scale(10.0, 10.0, 1.0);
-  this->add_object(floor);
   depth = lght->get_view_map();
   view = new debug_wall(simple_shader, depth, norm, 0.0, 3.0, 0.0);
   this->add_object(view);
+
+  floor1 = new random_floor(textured_shader, floor_size / -2., 0.0,
+                            floor_size / -2., floor_size, floor_size, 0.1);
+  this->add_object(floor1);
 
   for (int i = 0; i < 15; ++i) {
     float x = glm::linearRand(-1.0f, 1.0f);
@@ -106,6 +106,11 @@ void game::update(camera *target_camera, double delta_time,
     glm::vec3 collision_dist = move * (RENDER_MIN * 5e2f + 1.f);
     if (!check_line(camera_position, camera_position + collision_dist)) {
       target_camera->translate(move);
+      camera_position = target_camera->get_position();
+      target_camera->set_position(
+          camera_position.x,
+          floor1->sample_noise(camera_position.x, camera_position.z) + 1.0,
+          camera_position.z);
     }
   }
   if (rot_left) {

@@ -5,6 +5,7 @@
 #include "../objects/boid.hpp"
 #include "../objects/debug_cube.hpp"
 #include "../objects/debug_wall.hpp"
+#include "../objects/random_floor.hpp"
 
 /*!
  @brief The scene used for the game.
@@ -16,7 +17,7 @@ private:
       rot_right, shooting;
   double xpos, ypos;
   debug_cube *cube1, *cube2;
-  debug_wall *floor, *wall, *view;
+  debug_wall *wall, *view;
   skybox *sky;
   light *lght;
   shader *textured_shader, *skybox_shader, *simple_shader, *wall_shader;
@@ -24,6 +25,7 @@ private:
   std::list<boid *> &boids;
   bool is_shooting;
   glm::vec3 shoot_direction;
+  random_floor *floor1;
 
 public:
   /*!

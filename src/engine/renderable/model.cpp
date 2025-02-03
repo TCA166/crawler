@@ -16,8 +16,7 @@
 model::model(const std::vector<float> &data,
              const std::vector<unsigned int> &indices, glm::vec3 bounds,
              glm::vec3 negbounds)
-    : data(data), indices(indices), vertex_count(data.size() / MODEL_LINE_SIZE),
-      bounds(bounds), negbounds(negbounds) {}
+    : data(data), indices(indices), bounds(bounds), negbounds(negbounds) {}
 
 #ifndef STATIC_ASSETS
 model::model(const std::string &path) {
@@ -83,8 +82,6 @@ model::model(const std::string &path) {
     for (unsigned int j = 0; j < face.mNumIndices; j++)
       indices.push_back(face.mIndices[j]);
   }
-
-  vertex_count = mesh->mNumVertices;
 }
 #endif
 
@@ -100,10 +97,8 @@ void model::init() {
 
   glGenBuffers(1, &VBO);
   glBindBuffer(GL_ARRAY_BUFFER, VBO);
-  glBufferData(GL_ARRAY_BUFFER,
-               (sizeof(float) * vertex_count * 3) +
-                   (sizeof(float) * vertex_count * 2),
-               data.data(), GL_STATIC_DRAW);
+  glBufferData(GL_ARRAY_BUFFER, sizeof(float) * data.size(), data.data(),
+               GL_STATIC_DRAW);
   glGenBuffers(1, &EBO);
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
   glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * indices.size(),

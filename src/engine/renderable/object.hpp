@@ -16,7 +16,7 @@
 /*!
  @brief Object class to handle rendering of objects.
 */
-class object : public moveable {
+class object : public moveable, public collider {
 private:
   const shader *object_shader;
   glm::vec3 scale, rot;
