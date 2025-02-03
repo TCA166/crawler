@@ -14,13 +14,12 @@
 class radar : public scene {
 private:
   std::list<boid *> &boids;
-  GLuint fbo;
-  image_t radar_image;
-  float angle;
+  GLuint PBO, texture_id, FBO;
+  float angle, last_time;
 
-  void draw_line(uint16_t x, uint16_t y, uint8_t r, uint8_t g, uint8_t b,
-                 uint8_t thickness);
-  void draw_radar_cast(float angle, uint8_t r, uint8_t g, uint8_t b);
+  void draw_line(uint16_t x, uint16_t y, glm::vec3 color, uint8_t thickness,
+                 uint8_t *data);
+  void draw_radar_cast(float angle, glm::vec3 color, uint8_t *data);
 
 public:
   /*!
@@ -34,7 +33,6 @@ public:
    @param target_camera The camera that will be used to render the scene
   */
   void init(camera *target_camera);
-  void update(camera *target_camera, double delta_time, double current_time);
   /*!
    @brief Render the scene
    @param target_camera The camera to render the scene with

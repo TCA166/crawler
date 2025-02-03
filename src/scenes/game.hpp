@@ -20,8 +20,8 @@ private:
   debug_wall *wall, *view;
   skybox *sky;
   light *lght;
-  shader *textured_shader, *skybox_shader, *simple_shader, *wall_shader;
-  texture *tex, *norm, *depth, *tex2;
+  shader *textured_shader, *skybox_shader, *simple_shader;
+  texture *depth, *norm, *tex;
   std::list<boid *> &boids;
   bool is_shooting;
   glm::vec3 shoot_direction;

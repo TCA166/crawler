@@ -43,6 +43,10 @@ vec3 CalcDirectionalLight(Light light, vec3 norm)
     vec3 projCoords = fragPosLightSpace.xyz / fragPosLightSpace.w;
     projCoords = projCoords * 0.5 + 0.5;
 
+    if (projCoords.z > 1.0) {
+        return vec3(0.0);
+    }
+
     float currentDepth = projCoords.z;
     float bias = max(0.005 * (1.0 - dot(norm, lightDir)), 0.005);
     float shadow = 0.0;

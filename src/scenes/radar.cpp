@@ -11,16 +11,11 @@ static const glm::vec2 radar_mid_point =
     glm::vec2(RADAR_SIZE / 2, RADAR_SIZE / 2);
 
 radar::radar(std::list<boid *> &boids)
-    : scene(glm::vec3(0.1, 0.1, 0.1), glm::vec3(0.0)), boids(boids) {
+    : scene(glm::vec3(0.1, 0.1, 0.1), glm::vec3(0.0)), boids(boids),
+      last_time(glfwGetTime()) {}
 
-  radar_image.data = new unsigned char[RADAR_SIZE * RADAR_SIZE * 3];
-  radar_image.width = RADAR_SIZE;
-  radar_image.height = RADAR_SIZE;
-  radar_image.nr_channels = 3;
-}
-
-void radar::draw_line(uint16_t x, uint16_t y, uint8_t r, uint8_t g, uint8_t b,
-                      uint8_t thickness) {
+void radar::draw_line(uint16_t x, uint16_t y, glm::vec3 color,
+                      uint8_t thickness, uint8_t *data) {
   int dx = std::abs(x - radar_mid_point.x);
   int dy = std::abs(y - radar_mid_point.y);
   int sx = radar_mid_point.x < x ? 1 : -1;
@@ -34,9 +29,9 @@ void radar::draw_line(uint16_t x, uint16_t y, uint8_t r, uint8_t g, uint8_t b,
       while (true) {
         if (cx_offset >= 0 && cx_offset < RADAR_SIZE && cy_offset >= 0 &&
             cy_offset < RADAR_SIZE) {
-          radar_image.data[cx_offset * 3 + cy_offset * RADAR_SIZE * 3] = r;
-          radar_image.data[cx_offset * 3 + cy_offset * RADAR_SIZE * 3 + 1] = g;
-          radar_image.data[cx_offset * 3 + cy_offset * RADAR_SIZE * 3 + 2] = b;
+          data[cx_offset * 3 + cy_offset * RADAR_SIZE * 3] = color.r;
+          data[cx_offset * 3 + cy_offset * RADAR_SIZE * 3 + 1] = color.g;
+          data[cx_offset * 3 + cy_offset * RADAR_SIZE * 3 + 2] = color.b;
         }
 
         if (cx_offset == x + i && cy_offset == y + j)
@@ -55,34 +50,51 @@ void radar::draw_line(uint16_t x, uint16_t y, uint8_t r, uint8_t g, uint8_t b,
   }
 }
 
-void radar::draw_radar_cast(float angle, uint8_t r, uint8_t g, uint8_t b) {
+void radar::draw_radar_cast(float angle, glm::vec3 color, uint8_t *data) {
   int x = RADAR_SIZE / 2 + (RADAR_SIZE / 2) * cos(angle);
   int y = RADAR_SIZE / 2 + (RADAR_SIZE / 2) * sin(angle);
 
-  draw_line(x, y, r, g, b, 5);
+  draw_line(x, y, color, 8, data);
 }
 
 void radar::init(camera *target_camera) {
   scene::init(target_camera);
 
-  glGenFramebuffers(1, &fbo);
-  glBindFramebuffer(GL_READ_FRAMEBUFFER, fbo);
+  glGenBuffers(1, &PBO);
+  glBindBuffer(GL_PIXEL_UNPACK_BUFFER, PBO);
+  glBufferData(GL_PIXEL_UNPACK_BUFFER, RADAR_SIZE * RADAR_SIZE * 3, NULL,
+               GL_STREAM_DRAW);
+
+  glGenFramebuffers(1, &FBO);
+  glBindFramebuffer(GL_READ_FRAMEBUFFER, FBO);
   if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
     throw std::runtime_error("Framebuffer is not complete");
   }
+
+  glGenTextures(1, &texture_id);
+  glBindTexture(GL_TEXTURE_2D, texture_id);
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, RADAR_SIZE, RADAR_SIZE, 0, GL_RGB,
+               GL_UNSIGNED_BYTE, NULL);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 }
 
-void radar::update(camera *cam, double delta_time, double) {
-  draw_radar_cast(angle - 0.1, 0, 0, 0);
+void radar::render(const camera &cam, uint16_t width, uint16_t height) {
+  clear();
 
-  angle += delta_time * 4.f;
+  glBindBuffer(GL_PIXEL_UNPACK_BUFFER, PBO);
+  uint8_t *ptr = (uint8_t *)glMapBuffer(GL_PIXEL_UNPACK_BUFFER, GL_WRITE_ONLY);
+  if (ptr == NULL) {
+    throw std::runtime_error("Failed to map PBO");
+  }
+  draw_radar_cast(angle, glm::vec3(0), ptr);
+  angle += (glfwGetTime() - last_time) * 4.f;
   if (angle > 2 * M_PI) {
     angle -= 2 * M_PI;
   }
+  draw_radar_cast(angle, glm::vec3(0, 255, 0), ptr);
 
-  draw_radar_cast(angle, 0, 255, 0);
-
-  glm::vec3 cam_pos = cam->get_position();
+  glm::vec3 cam_pos = cam.get_position();
   // TODO rotate radar with camera
   glm::vec2 radar_center = glm::vec2(cam_pos.x, cam_pos.z);
 
@@ -96,23 +108,21 @@ void radar::update(camera *cam, double delta_time, double) {
     if (distance > RADAR_SIZE / 2) {
       continue;
     }
-    radar_image.data[(int)pos_radar.x * 3 + (int)pos_radar.y * RADAR_SIZE * 3] =
-        255;
+    ptr[(int)pos_radar.x * 3 + (int)pos_radar.y * RADAR_SIZE * 3] = 255;
   }
-}
+  glUnmapBuffer(GL_PIXEL_UNPACK_BUFFER);
+  glBindTexture(GL_TEXTURE_2D, texture_id);
+  glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, RADAR_SIZE, RADAR_SIZE, GL_RGB,
+                  GL_UNSIGNED_BYTE, NULL);
+  glBindBuffer(GL_PIXEL_UNPACK_BUFFER, 0);
 
-void radar::render(const camera &, uint16_t width, uint16_t height) {
-  clear();
-
-  texture radar_texture = texture(&radar_image);
   glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
-  radar_texture.bind_to_fb();
+  glFramebufferTexture2D(GL_READ_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
+                         GL_TEXTURE_2D, texture_id, 0);
   uint16_t out_size = std::min(width, height);
   glBlitFramebuffer(0, 0, RADAR_SIZE, RADAR_SIZE, 0, 0, out_size, out_size,
                     GL_COLOR_BUFFER_BIT, GL_NEAREST);
+  last_time = glfwGetTime();
 }
 
-radar::~radar() {
-  glDeleteFramebuffers(1, &fbo);
-  delete[] radar_image.data;
-}
+radar::~radar() {}

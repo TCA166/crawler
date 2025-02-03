@@ -145,8 +145,8 @@ renderer::renderer(int width, int height, const char *name, std::mutex *mutex,
 renderer::renderer(int width, int height, const char *name, std::mutex *mutex,
                    camera *render_camera, scene *target_scene,
                    bool *should_close, GLFWwindow *parent_window)
-    : width(width), height(height), focused(false), render_mutex(mutex),
-      should_close(should_close) {
+    : target_scene(nullptr), width(width), height(height), focused(false),
+      render_mutex(mutex), should_close(should_close) {
   {
     std::lock_guard<std::mutex> lock(*mutex);
     this->window = glfwCreateWindow(width, height, name, NULL, parent_window);

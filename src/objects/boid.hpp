@@ -3,7 +3,24 @@
 #include "../engine/engine.hpp"
 #include "../physics/entity.hpp"
 
-#define BOID_LIMIT 10.f
+#define SEP_SCALE 4.0f
+#define ALI_SCALE 1.0f
+#define COH_SCALE 0.5f
+#define GROUND_SEP_SCALE 0.4f
+#define PREF_Y_SCALE 0.001f
+
+#define MAX_FORCE 1.0f
+
+struct boid_species {
+  float sep_dist; // separation distance
+  float ali_dist; // alignment distance
+  float coh_dist; // cohesion distance
+  float max_speed;
+  float pref_y;
+};
+
+const static boid_species default_boid_species = {2.0f, 10.0f, 20.0f, 8.0f,
+                                                  20.0f};
 
 /*!
  @brief A boid object
@@ -17,10 +34,10 @@ public:
    @param xpos The x position of the boid
    @param ypos The y position of the boid
    @param zpos The z position of the boid
-   @param tex The texture of the boid
+   @param species The species of the boid
   */
   boid(const shader *object_shader, double xpos, double ypos, double zpos,
-       const texture *tex);
+       const boid_species *species);
   ~boid();
 
   /*!
@@ -39,23 +56,17 @@ private:
   glm::vec3 alignment(const std::list<const boid *> &boids);
   glm::vec3 cohesion(const std::list<const boid *> &boids);
 
-  static constexpr float maxSpeed = 8.0f;
-  static constexpr float maxForce = 1.0f;
-  static constexpr float separationDistance = 2.0f;
-  static constexpr float alignmentDistance = 10.0f;
-  static constexpr float cohesionDistance = 20.0f;
-
-  const texture *tex;
-  const texture *tex2;
+  const boid_species *species;
+  const texture tex;
   const shader *triangle_object_shader;
 };
 
 inline boid::boid(const shader *object_shader, double xpos, double ypos,
-                  double zpos, const texture *tex)
+                  double zpos, const boid_species *species)
     : triangle(object_shader, xpos, ypos, zpos),
-      entity(1.0f, glm::sphericalRand(0.5f)), tex(tex) {
-  triangle_object_shader = object_shader;
-  this->add_texture(tex, "texture0");
+      entity(1.0f, glm::sphericalRand(0.5f)), species(species),
+      tex(TEXTURE_PATH("diamond.png")), triangle_object_shader(object_shader) {
+  this->add_texture(&tex, "texture0");
   this->set_scale(0.5f);
 }
 
@@ -64,17 +75,25 @@ inline boid::~boid() {}
 inline void boid::update(const std::list<const boid *> &boids,
                          const collider *scene, double deltaTime) {
 
-  glm::vec3 sep = separation(boids) * 4.0f;
-  glm::vec3 ali = alignment(boids) * 1.0f;
-  glm::vec3 coh = cohesion(boids) * 0.5f;
+  glm::vec3 position = this->get_position();
 
-  this->apply_force(sep + ali + coh);
+  glm::vec3 sep = separation(boids) * SEP_SCALE;
+  glm::vec3 ali = alignment(boids) * ALI_SCALE;
+  glm::vec3 coh = cohesion(boids) * COH_SCALE;
+  // our addition to alg: a ground separation force
+  glm::vec3 ground_sep = velocity * glm::vec3(0., GROUND_SEP_SCALE, 0.) *
+                         (float)pow(position.y, -1);
+  // another custom addition: a preference for a certain y position
+  glm::vec3 pref_y =
+      glm::vec3(0., (float)pow(species->pref_y - position.y, 3.f), 0.) *
+      PREF_Y_SCALE;
+
+  this->apply_force(sep + ali + coh + ground_sep + pref_y);
 
   this->evaluate(deltaTime);
 
   glm::vec3 translation = velocity * (float)deltaTime;
 
-  glm::vec3 position = this->get_position();
   glm::vec3 target = position + translation;
 
   glm::vec3 bound = get_bounds();
@@ -87,24 +106,12 @@ inline void boid::update(const std::list<const boid *> &boids,
   } else {
     this->set_position(target.x, target.y, target.z);
   }
-
-  // Boundary conditions
-  if (xpos < -BOID_LIMIT || xpos > BOID_LIMIT) {
-    velocity.x = -velocity.x;
-  }
-  if (ypos < -BOID_LIMIT || ypos > BOID_LIMIT) {
-    velocity.y = -velocity.y;
-  }
-  if (zpos < -BOID_LIMIT || zpos > BOID_LIMIT) {
-    velocity.z = -velocity.z;
-  }
-  return;
 }
 
 inline void boid::evaluate(double deltaTime) {
   entity::evaluate(deltaTime);
-  if (glm::length(velocity) > maxSpeed) {
-    velocity = glm::normalize(velocity) * maxSpeed;
+  if (glm::length(velocity) > species->max_speed) {
+    velocity = glm::normalize(velocity) * species->max_speed;
   }
 }
 
@@ -114,7 +121,7 @@ inline glm::vec3 boid::separation(const std::list<const boid *> &boids) {
   for (const boid *other : boids) {
     glm::vec3 diff = this->get_position() - other->get_position();
     float distance = glm::length(diff);
-    if (distance > 0 && distance < separationDistance) {
+    if (distance > 0 && distance < species->sep_dist) {
       diff = glm::normalize(diff) / distance;
       steer += diff;
       count++;
@@ -124,9 +131,9 @@ inline glm::vec3 boid::separation(const std::list<const boid *> &boids) {
     steer /= static_cast<float>(count);
   }
   if (glm::length(steer) > 0) {
-    steer = glm::normalize(steer) * maxSpeed - velocity;
-    if (glm::length(steer) > maxForce) {
-      steer = glm::normalize(steer) * maxForce;
+    steer = glm::normalize(steer) * species->max_speed - velocity;
+    if (glm::length(steer) > MAX_FORCE) {
+      steer = glm::normalize(steer) * MAX_FORCE;
     }
   }
   return steer;
@@ -137,17 +144,17 @@ inline glm::vec3 boid::alignment(const std::list<const boid *> &boids) {
   int count = 0;
   for (const boid *other : boids) {
     float distance = glm::length(this->get_position() - other->get_position());
-    if (distance > 0 && distance < alignmentDistance) {
+    if (distance > 0 && distance < species->ali_dist) {
       sum += other->get_velocity();
       count++;
     }
   }
   if (count > 0) {
     sum /= static_cast<float>(count);
-    sum = glm::normalize(sum) * maxSpeed;
+    sum = glm::normalize(sum) * species->max_speed;
     glm::vec3 steer = sum - velocity;
-    if (glm::length(steer) > maxForce) {
-      steer = glm::normalize(steer) * maxForce;
+    if (glm::length(steer) > MAX_FORCE) {
+      steer = glm::normalize(steer) * MAX_FORCE;
     }
     return steer;
   }
@@ -161,14 +168,14 @@ inline glm::vec3 boid::cohesion(const std::list<const boid *> &boids) {
   for (const triangle *other : boids) {
     glm::vec3 other_position = other->get_position();
     float distance = glm::length(position - other_position);
-    if (distance > 0 && distance < cohesionDistance) {
+    if (distance > 0 && distance < species->coh_dist) {
       sum += other_position;
       count++;
     }
   }
   if (count > 0) {
     sum /= static_cast<float>(count);
-    return glm::normalize(sum - position) * maxSpeed - velocity;
+    return glm::normalize(sum - position) * species->max_speed - velocity;
   }
   return glm::vec3(0.0f);
 }

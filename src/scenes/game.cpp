@@ -3,6 +3,7 @@
 
 const float camera_speed = 10.;
 const uint32_t floor_size = 100;
+const float camera_y = 1.f;
 
 game::game(std::list<boid *> &boids)
     : scene(glm::vec3(0.1, 0.1, 0.1), glm::vec3(0.0)), mv_forward(false),
@@ -14,22 +15,29 @@ game::~game() {
   if (!initialized) {
     return;
   }
-  delete this->textured_shader;
-  delete this->skybox_shader;
   delete this->cube1;
   delete this->cube2;
+
   delete this->wall;
-  delete this->lght;
+  delete this->view;
+
   delete this->sky;
-  delete this->tex;
+
+  delete this->lght;
+
+  delete this->textured_shader;
+  delete this->skybox_shader;
+  delete this->simple_shader;
+
   delete this->norm;
   delete this->depth;
-  delete this->view;
-  delete this->simple_shader;
-  delete this->tex2;
+  delete this->tex;
+
   for (auto &tri : boids) {
     delete tri;
   }
+
+  delete this->floor1;
 }
 
 void game::init(camera *target_camera) {
@@ -43,13 +51,17 @@ void game::init(camera *target_camera) {
   lght = new light(glm::vec3(4.0, 2.0, 4.0), glm::vec3(0.0, 0.0, -1.0),
                    glm::vec3(1.0, 1.0, 1.0), 90.0f, 100.0f);
   this->add_light(lght);
-  tex = new texture(TEXTURE_PATH("spaceship.jpg"));
-  tex2 = new texture(TEXTURE_PATH("diamond.png"));
-  norm = new texture(TEXTURE_PATH("spaceship_normal.jpg"));
-  cube1 = new debug_cube(textured_shader, tex, norm, 0.0, 0.1, 0.0);
+  floor1 = new random_floor(textured_shader, floor_size / -2., 0.0,
+                            floor_size / -2., floor_size, floor_size, 0.1);
+  this->add_object(floor1);
+  cube1 = new debug_cube(textured_shader, 0.0,
+                         0.1 + floor1->sample_noise(0., 0.), 0.0);
   this->add_object(cube1);
-  cube2 = new debug_cube(textured_shader, tex, norm, 1.0, 0.1, 1.0);
+  cube2 = new debug_cube(textured_shader, 1.0,
+                         0.1 + floor1->sample_noise(1., 1.), 1.0);
   this->add_object(cube2);
+  norm = new texture(TEXTURE_PATH("spaceship_normal.jpg"));
+  tex = new texture(TEXTURE_PATH("spaceship.jpg"));
   wall = new debug_wall(textured_shader, tex, norm, 0.0, 1.0, -5.0);
   wall->set_scale(10.0, 3.0, 1.0);
   this->add_object(wall);
@@ -57,15 +69,11 @@ void game::init(camera *target_camera) {
   view = new debug_wall(simple_shader, depth, norm, 0.0, 3.0, 0.0);
   this->add_object(view);
 
-  floor1 = new random_floor(textured_shader, floor_size / -2., 0.0,
-                            floor_size / -2., floor_size, floor_size, 0.1);
-  this->add_object(floor1);
-
   for (int i = 0; i < 15; ++i) {
     float x = glm::linearRand(-1.0f, 1.0f);
-    float y = glm::linearRand(1.0f, 2.0f);
+    float y = glm::linearRand(2.0f, 5.0f);
     float z = glm::linearRand(-1.0f, 1.0f);
-    boid *tri = new boid(textured_shader, x, y, z, tex2);
+    boid *tri = new boid(textured_shader, x, y, z, &default_boid_species);
     boids.push_back(tri);
     this->add_object(tri);
   }
@@ -78,7 +86,8 @@ void game::init(camera *target_camera) {
       TEXTURE_PATH("skybox/front.png"), TEXTURE_PATH("skybox/back.png")};
   sky = new skybox(skybox_shader, paths);
   this->set_skybox(sky);
-  target_camera->set_position(0.0, 1.0, 0.0);
+  target_camera->set_position(0.0, floor1->sample_noise(0.0, 0.0) + camera_y,
+                              0.0);
   scene::init(target_camera);
 }
 
@@ -109,7 +118,7 @@ void game::update(camera *target_camera, double delta_time,
       camera_position = target_camera->get_position();
       target_camera->set_position(
           camera_position.x,
-          floor1->sample_noise(camera_position.x, camera_position.z) + 1.0,
+          floor1->sample_noise(camera_position.x, camera_position.z) + camera_y,
           camera_position.z);
     }
   }

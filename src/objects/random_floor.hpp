@@ -6,7 +6,7 @@
 /*!
  @brief The maximum value of the noise
 */
-#define NOISE_MAX 1.0f
+#define NOISE_MAX 1.5f
 /*!
  @brief The amount of dillation to apply to the noise
 */
@@ -14,7 +14,7 @@
 /*!
  @brief The temperature of the noise (how random it is)
 */
-#define NOISE_TEMP 5.f
+#define NOISE_TEMP 10.f
 
 /*!
  @brief A surface that is generated using Perlin noise
