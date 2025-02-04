@@ -25,7 +25,8 @@ texture::texture(const image_t *img) {
   glGenerateMipmap(GL_TEXTURE_2D);
 }
 
-texture::~texture() { glDeleteTextures(1, &texture_id); }
+texture::~texture() { glDeleteTextures(1, &texture_id); } // FIXME segfault
+                                                          // here?
 
 void texture::set_active_texture(const shader *target_shader, int texture_unit,
                                  std::string name) const {

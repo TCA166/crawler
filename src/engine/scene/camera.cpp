@@ -82,3 +82,5 @@ glm::vec3 camera::get_up() const {
 glm::vec3 camera::get_right() const {
   return glm::normalize(glm::cross(front, UP));
 }
+
+glm::vec3 camera::get_rotation() const { return glm::vec3(pitch, yaw, roll); }

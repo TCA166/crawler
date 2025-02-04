@@ -136,6 +136,9 @@ inline bool random_floor::check_point(glm::vec3 point) const {
 }
 
 inline bool random_floor::check_line(glm::vec3 a, glm::vec3 b) const {
+  if (!object::check_line(a, b)) {
+    return false;
+  }
   glm::vec3 direction = b - a;
   float distance = glm::length(direction);
   glm::vec3 step = direction / distance;

@@ -1,9 +1,28 @@
 #include "game.hpp"
 #include <iostream>
 
-const float camera_speed = 10.;
-const uint32_t floor_size = 100;
+/*!
+ @brief The speed of the camera
+*/
+const static float camera_speed = 10.;
+
+/*!
+ @brief The size of the floor
+*/
+const static uint32_t floor_size = 100;
+
+/*!
+ @brief The y offset of the camera from the floor
+*/
 const float camera_y = 1.f;
+
+/*!
+ @brief The number of boid species to generate
+*/
+const uint8_t flock_count = 2;
+const float flock_radius = 5.0f;
+const float spawn_radius = 20.0f;
+const uint8_t flock_size = 15;
 
 game::game(std::list<boid *> &boids)
     : scene(glm::vec3(0.1, 0.1, 0.1), glm::vec3(0.0)), mv_forward(false),
@@ -69,13 +88,24 @@ void game::init(camera *target_camera) {
   view = new debug_wall(simple_shader, depth, norm, 0.0, 3.0, 0.0);
   this->add_object(view);
 
-  for (int i = 0; i < 15; ++i) {
-    float x = glm::linearRand(-1.0f, 1.0f);
-    float y = glm::linearRand(2.0f, 5.0f);
-    float z = glm::linearRand(-1.0f, 1.0f);
-    boid *tri = new boid(textured_shader, x, y, z, &default_boid_species);
-    boids.push_back(tri);
-    this->add_object(tri);
+  for (uint8_t flock = 0; flock < flock_count; flock++) {
+    species.push_back(default_boid_species);
+    boid_species &spec = species.back();
+
+    spec.id = flock;
+    spec.pref_y = glm::linearRand(5.f, 15.f);
+    spec.sep_dist = glm::linearRand(1.f, 3.f);
+    spec.max_speed = glm::linearRand(3.f, 8.f);
+
+    glm::vec3 center =
+        glm::vec3(glm::linearRand(-spawn_radius, spawn_radius), spec.pref_y,
+                  glm::linearRand(-spawn_radius, spawn_radius));
+    for (int i = 0; i < flock_size; ++i) {
+      glm::vec3 pos = center + glm::ballRand(flock_radius);
+      boid *tri = new boid(textured_shader, pos.x, pos.y, pos.z, spec);
+      boids.push_back(tri);
+      this->add_object(tri);
+    }
   }
 
   skybox_shader =
@@ -129,6 +159,7 @@ void game::update(camera *target_camera, double delta_time,
   }
 
   for (auto &tri : boids) {
+    // TODO boids sometimes dont get updated?
     tri->update((const std::list<const boid *> &)boids, this, delta_time);
   }
 

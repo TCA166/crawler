@@ -26,6 +26,7 @@ private:
   bool is_shooting;
   glm::vec3 shoot_direction;
   random_floor *floor1;
+  std::vector<boid_species> species;
 
 public:
   /*!

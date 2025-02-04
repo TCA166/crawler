@@ -109,6 +109,11 @@ public:
   */
   glm::vec3 get_front() const;
   /*!
+   @brief Get the rotation of the camera
+   @return The rotation of the camera
+  */
+  glm::vec3 get_rotation() const;
+  /*!
    @brief Get the up vector of the camera
    @return The up vector
   */

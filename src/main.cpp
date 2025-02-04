@@ -66,13 +66,14 @@ int main() {
   std::thread loop_thread(&renderer_thread, &game_scene, &main_camera,
                           WINDOW_WIDTH, WINDOW_HEIGHT, WINDOW_NAME, &mutex,
                           &should_close);
+  std::thread game_main_thread(&game::main, &game_scene, &main_camera,
+                               &should_close);
   std::thread radar_thread(&renderer_thread, &second_scene, &main_camera,
                            RADAR_SIZE, RADAR_SIZE, "Radar", &mutex,
                            &should_close);
+  /*
   std::thread radar_main_thread(&radar::main, &second_scene, &main_camera,
-                                &should_close);
-  std::thread game_main_thread(&game::main, &game_scene, &main_camera,
-                               &should_close);
+                                &should_close);*/
   // the game loop
   while (!should_close) {
     glfwWaitEvents();
@@ -80,7 +81,7 @@ int main() {
   game_main_thread.join();
   loop_thread.join();
   radar_thread.join();
-  radar_main_thread.join();
+  // radar_main_thread.join();
 #else
   renderer_thread(&game_scene, &main_camera, WINDOW_WIDTH, WINDOW_HEIGHT,
                   WINDOW_NAME, &mutex);
