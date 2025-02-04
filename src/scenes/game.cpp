@@ -104,10 +104,11 @@ for (size_t i = 0; i < tree_positions.size(); ++i) {
 }
 
   for (int i = 0; i < 15; ++i) {
-    float x = glm::linearRand(-1.0f, 1.0f);
-    float y = glm::linearRand(1.0f, 2.0f);
-    float z = glm::linearRand(-1.0f, 1.0f);
-    boid *tri = new boid(textured_shader, x, y, z, tex2);
+    float x = glm::linearRand(-10.0f, 10.0f);
+    float y = glm::linearRand(1.0f, 5.0f);
+    float z = glm::linearRand(-10.0f, 10.0f);
+    boid *tri =
+        new boid(textured_shader, MODEL_PATH("/ducky.obj"), x, y, z, tex2);
     boids.push_back(tri);
     this->add_object(tri);
   }
@@ -115,9 +116,9 @@ for (size_t i = 0; i < tree_positions.size(); ++i) {
   skybox_shader =
       new shader(SHADER_PATH("skybox.vert"), SHADER_PATH("skybox.frag"));
   std::vector<std::string> paths = {
-      TEXTURE_PATH("skybox_new/right.png"), TEXTURE_PATH("skybox_new/left.png"),
-      TEXTURE_PATH("skybox_new/top.png"),   TEXTURE_PATH("skybox_new/bottom.png"),
-      TEXTURE_PATH("skybox_new/front.png"), TEXTURE_PATH("skybox_new/back.png")};
+      TEXTURE_PATH("skybox/right.png"), TEXTURE_PATH("skybox/left.png"),
+      TEXTURE_PATH("skybox/top.png"),   TEXTURE_PATH("skybox/bottom.png"),
+      TEXTURE_PATH("skybox/front.png"), TEXTURE_PATH("skybox/back.png")};
   sky = new skybox(skybox_shader, paths);
   this->set_skybox(sky);
   target_camera->set_position(0.0, 1.0, 0.0);

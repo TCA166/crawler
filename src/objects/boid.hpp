@@ -19,7 +19,8 @@ public:
    @param zpos The z position of the boid
    @param tex The texture of the boid
   */
-  boid(const shader *object_shader, double xpos, double ypos, double zpos,
+  boid(const shader *object_shader, const std::string &model_path,  double xpos,
+       double ypos, double zpos,
        const texture *tex);
   ~boid();
 
@@ -50,13 +51,13 @@ private:
   const shader *triangle_object_shader;
 };
 
-inline boid::boid(const shader *object_shader, double xpos, double ypos,
+inline boid::boid(const shader *object_shader,const std::string &model_path, double xpos, double ypos,
                   double zpos, const texture *tex)
-    : triangle(object_shader, xpos, ypos, zpos),
+    : triangle(object_shader,model_path,  xpos, ypos, zpos),
       entity(1.0f, glm::sphericalRand(0.5f)), tex(tex) {
   triangle_object_shader = object_shader;
   this->add_texture(tex, "texture0");
-  this->set_scale(0.9f);
+  this->set_scale(0.07f);
 }
 
 inline boid::~boid() {}
