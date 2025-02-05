@@ -1,28 +1,36 @@
 #include "game.hpp"
 #include <iostream>
 
-/*!
- @brief The speed of the camera
-*/
-const static float camera_speed = 10.;
+#define CAMERA_Y_OFFSET 1.0f
+#define CAMERA_SPEED 10.0f
 
-/*!
- @brief The size of the floor
-*/
-const static uint32_t floor_size = 100;
+#define LIGHT_STRENGTH 0.5f
+#define LIGHT_RANGE 15.0f
+#define LIGHT_FOV glm::radians(70.f)
+#define LIGHT_OFFSET 0.25f
 
-/*!
- @brief The y offset of the camera from the floor
-*/
-const float camera_y = 1.f;
+#define FLOOR_SIZE 100
 
-/*!
- @brief The number of boid species to generate
-*/
-const uint8_t flock_count = 2;
-const float flock_radius = 5.0f;
-const float spawn_radius = 20.0f;
-const uint8_t flock_size = 15;
+#define FLOCK_COUNT 10
+// the radius from 0.0 to spawn boid flocks
+#define SPAWN_RADIUS 10.0f
+// the radius of the flock
+#define FLOCK_RADIUS 5.0f
+#define FLOCK_SIZE 15
+
+#define MIN_FLOCK_Y 10.0f
+#define MAX_FLOCK_Y 20.0f
+
+#define MIN_FLOCK_SPEED 3.0f
+#define MAX_FLOCK_SPEED 8.0f
+
+#define MIN_FLOCK_SEP 5.0f
+#define MAX_FLOCK_SEP 15.0f
+
+#define MIN_FLOCK_COH 15.0f
+#define MAX_FLOCK_COH 25.0f
+
+#define CAMERA_COLLISION_EPS (RENDER_MIN * 5e2f + 1.f)
 
 game::game(std::list<boid *> &boids)
     : scene(glm::vec3(0.1, 0.1, 0.1), glm::vec3(0.0)), mv_forward(false),
@@ -67,41 +75,52 @@ void game::init(camera *target_camera) {
       new shader(SHADER_PATH("textured.vert"), SHADER_PATH("textured.frag"));
   simple_shader = new shader(SHADER_PATH("textured.vert"),
                              SHADER_PATH("simple_textured.frag"));
-  lght = new light(glm::vec3(4.0, 2.0, 4.0), glm::vec3(0.0, 0.0, -1.0),
-                   glm::vec3(1.0, 1.0, 1.0), 90.0f, 100.0f);
-  this->add_light(lght);
-  floor1 = new random_floor(textured_shader, floor_size / -2., 0.0,
-                            floor_size / -2., floor_size, floor_size, 0.1);
+  floor1 = new random_floor(textured_shader, FLOOR_SIZE / -2., 0.0,
+                            FLOOR_SIZE / -2., FLOOR_SIZE, FLOOR_SIZE, 0.1);
   this->add_object(floor1);
   cube1 = new debug_cube(textured_shader, 0.0,
                          0.1 + floor1->sample_noise(0., 0.), 0.0);
   this->add_object(cube1);
+  this->add_collider(cube1);
   cube2 = new debug_cube(textured_shader, 1.0,
                          0.1 + floor1->sample_noise(1., 1.), 1.0);
   this->add_object(cube2);
+  this->add_collider(cube2);
   norm = new texture(TEXTURE_PATH("spaceship_normal.jpg"));
   tex = new texture(TEXTURE_PATH("spaceship.jpg"));
   wall = new debug_wall(textured_shader, tex, norm, 0.0, 1.0, -5.0);
   wall->set_scale(10.0, 3.0, 1.0);
   this->add_object(wall);
+  this->add_collider(wall);
+  target_camera->set_position(
+      0.0, floor1->sample_noise(0.0, 0.0) + CAMERA_Y_OFFSET, 0.0);
+  lght = new light(target_camera->get_position() +
+                       glm::vec3(-LIGHT_OFFSET, 0.f, LIGHT_OFFSET),
+                   target_camera->get_front(), glm::vec3(LIGHT_STRENGTH),
+                   LIGHT_FOV, LIGHT_RANGE);
+  this->add_light(lght);
   depth = lght->get_view_map();
   view = new debug_wall(simple_shader, depth, norm, 0.0, 3.0, 0.0);
   this->add_object(view);
+  // flock spawning
+  for (uint8_t flock = 0; flock < FLOCK_COUNT; flock++) {
+    boid_species *spec = new boid_species();
 
-  for (uint8_t flock = 0; flock < flock_count; flock++) {
-    species.push_back(default_boid_species);
-    boid_species &spec = species.back();
+    spec->id = (uint32_t)flock;
+    spec->pref_y = glm::linearRand(MIN_FLOCK_Y, MAX_FLOCK_Y);
+    spec->max_speed = glm::linearRand(MIN_FLOCK_SPEED, MAX_FLOCK_SPEED);
+    spec->ali_dist = 2.0f; // i see no reason to change this
+    // 10 was default
+    spec->sep_dist = glm::linearRand(MIN_FLOCK_SEP, MAX_FLOCK_SEP);
+    // 20 was default
+    spec->coh_dist = glm::linearRand(MIN_FLOCK_COH, MAX_FLOCK_COH);
 
-    spec.id = flock;
-    spec.pref_y = glm::linearRand(5.f, 15.f);
-    spec.sep_dist = glm::linearRand(1.f, 3.f);
-    spec.max_speed = glm::linearRand(3.f, 8.f);
-
+    species.push_back(spec);
     glm::vec3 center =
-        glm::vec3(glm::linearRand(-spawn_radius, spawn_radius), spec.pref_y,
-                  glm::linearRand(-spawn_radius, spawn_radius));
-    for (int i = 0; i < flock_size; ++i) {
-      glm::vec3 pos = center + glm::ballRand(flock_radius);
+        glm::vec3(glm::linearRand(-SPAWN_RADIUS, SPAWN_RADIUS), spec->pref_y,
+                  glm::linearRand(-SPAWN_RADIUS, SPAWN_RADIUS));
+    for (int i = 0; i < FLOCK_SIZE; ++i) {
+      glm::vec3 pos = center + glm::ballRand(FLOCK_RADIUS);
       boid *tri = new boid(textured_shader, pos.x, pos.y, pos.z, spec);
       boids.push_back(tri);
       this->add_object(tri);
@@ -116,13 +135,10 @@ void game::init(camera *target_camera) {
       TEXTURE_PATH("skybox/front.png"), TEXTURE_PATH("skybox/back.png")};
   sky = new skybox(skybox_shader, paths);
   this->set_skybox(sky);
-  target_camera->set_position(0.0, floor1->sample_noise(0.0, 0.0) + camera_y,
-                              0.0);
   scene::init(target_camera);
 }
 
-void game::update(camera *target_camera, double delta_time,
-                  double current_time) {
+void game::update(camera *target_camera, double delta_time, double) {
 
   glm::vec3 camera_position = target_camera->get_position();
   glm::vec3 camera_front = target_camera->get_front();
@@ -141,14 +157,15 @@ void game::update(camera *target_camera, double delta_time,
   }
   if (move.x != 0. || move.z != 0) {
     move.y = 0;
-    move = glm::normalize(move) * camera_speed * (float)delta_time;
-    glm::vec3 collision_dist = move * (RENDER_MIN * 5e2f + 1.f);
+    move = glm::normalize(move) * CAMERA_SPEED * (float)delta_time;
+    glm::vec3 collision_dist = move * CAMERA_COLLISION_EPS;
     if (!check_line(camera_position, camera_position + collision_dist)) {
       target_camera->translate(move);
       camera_position = target_camera->get_position();
       target_camera->set_position(
           camera_position.x,
-          floor1->sample_noise(camera_position.x, camera_position.z) + camera_y,
+          floor1->sample_noise(camera_position.x, camera_position.z) +
+              CAMERA_Y_OFFSET,
           camera_position.z);
     }
   }
@@ -159,7 +176,6 @@ void game::update(camera *target_camera, double delta_time,
   }
 
   for (auto &tri : boids) {
-    // TODO boids sometimes dont get updated?
     tri->update((const std::list<const boid *> &)boids, this, delta_time);
   }
 
@@ -178,10 +194,11 @@ void game::update(camera *target_camera, double delta_time,
 
     shooting = false;
   }
-  glm::vec3 lght_pos = lght->get_position();
-  lght_pos.x = sin(current_time) *
-               4.; // no need for * delta_time because we sine current_time
-  lght->set_position(lght_pos.x, lght_pos.y, lght_pos.z);
+  glm::vec3 light_position =
+      camera_position +
+      (camera_front + glm::vec3(-LIGHT_OFFSET, 0.f, LIGHT_OFFSET));
+  lght->set_position(light_position.x, light_position.y, light_position.z);
+  lght->set_direction(light_position + camera_front);
 }
 
 void game::scroll_callback(double, double yoffset, camera &target_camera) {

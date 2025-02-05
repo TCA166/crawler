@@ -24,6 +24,10 @@ void scene::remove_light(const light *lght) {
 
 void scene::add_light(light *light) { lights.push_back(light); }
 
+void scene::add_collider(const collider *collider) {
+  colliders.push_back(collider);
+}
+
 void scene::init(camera *) {
   light_pass_shader = new shader(SHADER_PATH("light_pass.vert"),
                                  SHADER_PATH("light_pass.frag"));
@@ -66,7 +70,7 @@ void scene::shadow_pass() const {
     light_pass_shader->apply_uniform_mat4(lght->get_light_space(),
                                           "lightSpaceMatrix");
     // draw all the objects
-    for (object *obj : objects) {
+    for (const object *obj : objects) {
       light_pass_shader->apply_uniform_mat4(obj->get_model_matrix(), "model");
       obj->draw();
     }
@@ -110,7 +114,7 @@ void scene::mouse_callback(double, double, camera &) {
 }
 
 bool scene::check_point(glm::vec3 point) const {
-  for (const object *obj : objects) {
+  for (const collider *obj : colliders) {
     if (obj->check_point(point)) {
       return true;
     }
@@ -119,7 +123,7 @@ bool scene::check_point(glm::vec3 point) const {
 }
 
 bool scene::check_line(glm::vec3 a, glm::vec3 b) const {
-  for (const object *obj : objects) {
+  for (const collider *obj : colliders) {
     if (obj->check_line(a, b)) {
       return true;
     }

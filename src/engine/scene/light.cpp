@@ -49,8 +49,7 @@ const glm::vec3 &light::get_position() const { return position; }
 
 const glm::mat4 light::get_light_space() const {
   return glm::perspective(fov, 1.0f, 1.0f, range) *
-         glm::lookAt(this->get_position(), this->get_direction(),
-                     glm::vec3(0.0f, 1.0f, 0.0f));
+         glm::lookAt(position, direction, glm::vec3(0.0f, 1.0f, 0.0f));
 }
 
 void light::set_direction(glm::vec3 direction) { this->direction = direction; }
@@ -75,15 +74,18 @@ texture *light::get_view_map() const { return new texture(depthMap); }
 
 void light::translate(glm::vec3 translation) { position += translation; }
 
-void light::rotate(double xrot, double yrot, double zrot) {
-  direction =
-      glm::rotate(glm::mat4(1.0f), (float)xrot, glm::vec3(1.0f, 0.0f, 0.0f)) *
-      glm::rotate(glm::mat4(1.0f), (float)yrot, glm::vec3(0.0f, 1.0f, 0.0f)) *
-      glm::rotate(glm::mat4(1.0f), (float)zrot, glm::vec3(0.0f, 0.0f, 1.0f)) *
-      glm::vec4(direction, 1.0f);
+void light::rotate(double xrot, double yrot, double) {
+  direction.x += cos(yrot) * cos(xrot);
+  direction.y += sin(xrot);
+  direction.z += sin(yrot) * cos(xrot);
+  direction = glm::normalize(direction);
 }
 
 void light::set_rotation(double xrot, double yrot, double zrot) {
-  direction = glm::vec3(0.0f, 0.0f, 1.0f);
+  direction = glm::vec3(0.0f, 0.0f, 0.0f);
   this->rotate(xrot, yrot, zrot);
 }
+
+float light::get_range() const { return range; }
+
+float light::get_fov() const { return fov; }

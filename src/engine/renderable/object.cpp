@@ -60,6 +60,7 @@ void object::render(const glm::mat4 *viewProjection, glm::vec3 viewPos,
     object_shader->apply_uniform_vec3(light->get_color(), name + ".color");
     object_shader->apply_uniform_mat4(light->get_light_space(),
                                       name + ".lightSpaceMatrix");
+    object_shader->apply_uniform_scalar(light->get_range(), name + ".range");
     light->use_depth_map(tex_i);
     object_shader->apply_uniform(tex_i, name + ".depthMap");
     tex_i++;

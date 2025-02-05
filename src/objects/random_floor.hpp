@@ -40,8 +40,8 @@ public:
    @return The noise value at the given point
   */
   float sample_noise(float x, float y) const;
-  bool check_point(glm::vec3 point) const;
-  bool check_line(glm::vec3 a, glm::vec3 b) const;
+  bool check_point_floor(glm::vec3 point) const;
+  bool check_line_floor(glm::vec3 a, glm::vec3 b) const;
 };
 
 /*!
@@ -64,10 +64,9 @@ static inline float sample_noise(float x, float y) {
  @param noise_shift The amount to shift the noise by
  @return A vector of floats representing the points of the floor
 */
-static inline std::vector<float> generate_points(uint32_t width,
-                                                 uint32_t height,
-                                                 float resolution,
-                                                 glm::vec2 noise_shift) {
+static inline std::vector<float> generate_data(uint32_t width, uint32_t height,
+                                               float resolution,
+                                               glm::vec2 noise_shift) {
   std::vector<float> points;
   for (uint32_t x = 0; x < width / resolution; x++) {
     for (uint32_t y = 0; y < height / resolution; y++) {
@@ -78,6 +77,32 @@ static inline std::vector<float> generate_points(uint32_t width,
       // texture coordinates
       points.push_back(x * resolution);
       points.push_back(y * resolution);
+      // normals
+      float height_l =
+          sample_noise((x * resolution) - resolution + noise_shift.x,
+                       (y * resolution) + noise_shift.y);
+      float height_r =
+          sample_noise((x * resolution) + resolution + noise_shift.x,
+                       (y * resolution) + noise_shift.y);
+      float height_d =
+          sample_noise((x * resolution) + noise_shift.x,
+                       (y * resolution) - resolution + noise_shift.y);
+      float height_u =
+          sample_noise((x * resolution) + noise_shift.x,
+                       (y * resolution) + resolution + noise_shift.y);
+      glm::vec3 normal = glm::normalize(
+          glm::vec3(height_l - height_r, 2.0f, height_d - height_u));
+      points.push_back(normal.x);
+      points.push_back(normal.y);
+      points.push_back(normal.z);
+      // tangent
+      points.push_back(1.0);
+      points.push_back(0.0);
+      points.push_back(0.0);
+      // bitangent
+      points.push_back(0.0);
+      points.push_back(0.0);
+      points.push_back(1.0);
     }
   }
   return points;
@@ -112,7 +137,7 @@ inline random_floor::random_floor(const shader *object_shader, double xpos,
     : object(object_shader, &floor, xpos, ypos, zpos),
       noise_shift(glm::linearRand(0.f, NOISE_TEMP),
                   glm::linearRand(0.f, NOISE_TEMP)),
-      floor(generate_points(width, height, resolution, noise_shift),
+      floor(generate_data(width, height, resolution, noise_shift),
             generate_indices(width / resolution, height / resolution),
             glm::vec3(width / resolution, NOISE_MAX, height / resolution),
             glm::vec3(0.0)),
@@ -131,11 +156,11 @@ inline float random_floor::sample_noise(float x, float y) const {
                         y + noise_shift.y - position.z);
 }
 
-inline bool random_floor::check_point(glm::vec3 point) const {
+inline bool random_floor::check_point_floor(glm::vec3 point) const {
   return point.y < sample_noise(point.x, point.z);
 }
 
-inline bool random_floor::check_line(glm::vec3 a, glm::vec3 b) const {
+inline bool random_floor::check_line_floor(glm::vec3 a, glm::vec3 b) const {
   if (!object::check_line(a, b)) {
     return false;
   }

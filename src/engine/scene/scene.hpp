@@ -22,8 +22,9 @@ protected:
   void clear() const;
 
 private:
-  std::list<object *> objects;
-  std::list<light *> lights;
+  std::list<const object *> objects;
+  std::list<const light *> lights;
+  std::list<const collider *> colliders;
   glm::vec3 ambient_light;
   glm::vec3 background_color;
   skybox *sky;
@@ -63,6 +64,11 @@ public:
    @param light The light to remove
   */
   void remove_light(const light *light);
+  /*!
+   @brief Add a collider to the scene
+   @param collider The collider to add
+  */
+  void add_collider(const collider *collider);
   /*!
    @brief Initialize the scene
    @param target_camera the camera that will be used in the scene

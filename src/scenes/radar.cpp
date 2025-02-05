@@ -5,7 +5,9 @@
 #define M_PI 3.14159265358979323846
 #endif
 
-static const float radar_radius = RADAR_SIZE / 20.f;
+#define SCALE 30.f
+
+static const float radar_radius = RADAR_SIZE / SCALE;
 
 static const glm::vec2 radar_mid_point =
     glm::vec2(RADAR_SIZE / 2, RADAR_SIZE / 2);
@@ -95,20 +97,19 @@ void radar::render(const camera &cam, uint16_t width, uint16_t height) {
   draw_radar_cast(angle, glm::vec3(0, 255, 0), ptr);
 
   glm::vec3 cam_pos = cam.get_position();
-  float cam_yaw = glm::radians(cam.get_rotation().y);
+  float cam_yaw = glm::radians(cam.get_rotation().y + 90);
   glm::vec2 radar_center = glm::vec2(cam_pos.x, cam_pos.z);
 
   float cos_yaw = cos(cam_yaw);
   float sin_yaw = sin(cam_yaw);
   glm::mat2 rotation_matrix = glm::mat2(cos_yaw, -sin_yaw, sin_yaw, cos_yaw);
 
-  for (auto &tri : boids) {
+  for (auto tri : boids) {
     glm::vec3 pos = tri->get_position();
     glm::vec2 pos_radar =
         (rotation_matrix *
          ((radar_center - glm::vec2(pos.x, pos.z)) * radar_radius)) +
         radar_mid_point;
-    // rotate the point so that the points rotate with cam_dir
     float distance = glm::distance(radar_mid_point, pos_radar);
     if (distance > RADAR_SIZE / 2 || glm::isnan(pos_radar.x) ||
         glm::isnan(pos_radar.y)) {

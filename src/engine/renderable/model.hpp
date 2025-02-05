@@ -5,9 +5,10 @@
 #include <string>
 #include <vector>
 
-#define MODEL_LINE(x, y, z, tx, ty) x, y, z, tx, ty
+#define MODEL_LINE(x, y, z, tx, ty, nx, ny, nz, tgx, tgy, tgz, btx, bty, btz)  \
+  x, y, z, tx, ty, nx, ny, nz, tgx, tgy, tgz, btx, bty, btz
 
-#define MODEL_LINE_SIZE 5
+#define MODEL_LINE_SIZE 14
 
 /*!
  @brief A collection of OpenGL entities necessary for things to get drawn

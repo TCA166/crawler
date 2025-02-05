@@ -22,16 +22,16 @@ public:
   virtual void set_position(double xpos, double ypos, double zpos) = 0;
   /*!
    @brief Rotate the object
-   @param xrot The rotation around the x axis
-   @param yrot The rotation around the y axis
-   @param zrot The rotation around the z axis
+   @param xrot The rotation around the x axis in radians
+   @param yrot The rotation around the y axis in radians
+   @param zrot The rotation around the z axis in radians
   */
   virtual void rotate(double xrot, double yrot, double zrot) = 0;
   /*!
    @brief Set the rotation of the object
-   @param xrot The rotation around the x axis
-   @param yrot The rotation around the y axis
-   @param zrot The rotation around the z axis
+   @param xrot The rotation around the x axis in radians
+   @param yrot The rotation around the y axis in radians
+   @param zrot The rotation around the z axis in radians
   */
   virtual void set_rotation(double xrot, double yrot, double zrot) = 0;
   virtual ~moveable() {}

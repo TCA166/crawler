@@ -2,9 +2,11 @@
 precision highp float;
 
 #define MAX_LIGHTS 10
+const int smoothing_window = 1;
 
 in vec2 texCoord;
 in vec3 fragPos;
+in mat3 TBN;
 
 uniform sampler2D texture0;
 uniform sampler2D normal0;
@@ -12,6 +14,7 @@ uniform sampler2D normal0;
 struct Light {
     vec3 position;
     vec3 color;
+    float range;
     mat4 lightSpaceMatrix;
     sampler2D depthMap;
 };
@@ -27,12 +30,14 @@ out vec4 out_color;
 
 vec3 CalcDirectionalLight(Light light, vec3 norm)
 {
-    vec3 lightDir = normalize(light.position - fragPos);
+    vec3 light_distance = light.position - fragPos;
+    float distance = length(light_distance);
+    vec3 lightDir = normalize(light_distance);
         
     // Diffuse shading
     float diff = max(dot(norm, lightDir), 0.0);
     vec3 diffuse = diff * light.color;
-
+    // Specular shading
     vec3 viewDir = normalize(viewPos - fragPos);
     vec3 halfwayDir = normalize(lightDir + viewDir);
     float spec = pow(max(dot(norm, halfwayDir), 0.0), shininess);
@@ -42,8 +47,8 @@ vec3 CalcDirectionalLight(Light light, vec3 norm)
     vec4 fragPosLightSpace = light.lightSpaceMatrix * vec4(fragPos, 1.0);
     vec3 projCoords = fragPosLightSpace.xyz / fragPosLightSpace.w;
     projCoords = projCoords * 0.5 + 0.5;
-
-    if (projCoords.z > 1.0) {
+    // very important sanity checks THAT NOBODY TOLD ME ABOUT
+    if (projCoords.z > 1.0 || projCoords.z < 0.0 || projCoords.x > 1.0 || projCoords.x < 0.0 || projCoords.y > 1.0 || projCoords.y < 0.0) {
         return vec3(0.0);
     }
 
@@ -53,19 +58,17 @@ vec3 CalcDirectionalLight(Light light, vec3 norm)
     vec2 texelSize = vec2(textureSize(light.depthMap, 0));
     texelSize.x = 1.0 / texelSize.x;
     texelSize.y = 1.0 / texelSize.y;
-    for(int x = -1; x <= 1; ++x)
+    for(int x = -smoothing_window; x <= smoothing_window; ++x)
     {
-        for(int y = -1; y <= 1; ++y)
+        for(int y = -smoothing_window; y <= smoothing_window; ++y)
         {
             vec2 coord = projCoords.xy + vec2(x, y) * texelSize;
             // check if the current pixel is in bounds of the shadow map
-            if (coord.x >= 0.0 && coord.x <= 1.0 && coord.y >= 0.0 && coord.y <= 1.0) {
-                float pcfDepth = texture(light.depthMap, coord).r; 
-                shadow += currentDepth - bias > pcfDepth ? 1.0 : 0.0;        
-            }   
+            float pcfDepth = texture(light.depthMap, coord).r; 
+            shadow += currentDepth - bias > pcfDepth ? 1.0 : 0.0;    
         }    
     }
-    shadow /= 9.0;
+    shadow /= pow(smoothing_window * 2 + 1, 2);
 
     return (1.0 - shadow) * (diffuse + specular);
 }
@@ -73,7 +76,7 @@ vec3 CalcDirectionalLight(Light light, vec3 norm)
 void main()
 {
     vec3 norm = texture(normal0, texCoord).rgb;
-    norm = normalize(norm * 2.0 - 1.0);
+    norm = normalize(TBN * (norm * 2.0 - 1.0));
 
     vec3 result = ambientLight;
     for (int i = 0; i < numLights; ++i) {

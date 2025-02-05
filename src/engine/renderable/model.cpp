@@ -12,6 +12,9 @@
 
 #define SHADER_VERTEX_POS 0
 #define SHADER_TEX_POS 1
+#define SHADER_NORMAL_POS 2
+#define SHADER_TANGENT_POS 3
+#define SHADER_BITANGENT_POS 4
 
 model::model(const std::vector<float> &data,
              const std::vector<unsigned int> &indices, glm::vec3 bounds,
@@ -71,6 +74,33 @@ model::model(const std::string &path) {
       data.push_back(0.0f);
       data.push_back(0.0f);
     }
+    if (mesh->mNormals != nullptr) {
+      data.push_back(mesh->mNormals[i].x);
+      data.push_back(mesh->mNormals[i].y);
+      data.push_back(mesh->mNormals[i].z);
+    } else {
+      data.push_back(0.0f);
+      data.push_back(0.0f);
+      data.push_back(0.0f);
+    }
+    if (mesh->mTangents != nullptr) {
+      data.push_back(mesh->mTangents[i].x);
+      data.push_back(mesh->mTangents[i].y);
+      data.push_back(mesh->mTangents[i].z);
+    } else {
+      data.push_back(0.0f);
+      data.push_back(0.0f);
+      data.push_back(0.0f);
+    }
+    if (mesh->mBitangents != nullptr) {
+      data.push_back(mesh->mBitangents[i].x);
+      data.push_back(mesh->mBitangents[i].y);
+      data.push_back(mesh->mBitangents[i].z);
+    } else {
+      data.push_back(0.0f);
+      data.push_back(0.0f);
+      data.push_back(0.0f);
+    }
   }
 
   this->bounds = glm::vec3(xbound, ybound, zbound);
@@ -111,6 +141,18 @@ void model::init() {
                         MODEL_LINE_SIZE * sizeof(float),
                         (void *)(3 * sizeof(float)));
   glEnableVertexAttribArray(SHADER_TEX_POS);
+  glVertexAttribPointer(SHADER_NORMAL_POS, 3, GL_FLOAT, GL_FALSE,
+                        MODEL_LINE_SIZE * sizeof(float),
+                        (void *)(5 * sizeof(float)));
+  glEnableVertexAttribArray(SHADER_NORMAL_POS);
+  glVertexAttribPointer(SHADER_TANGENT_POS, 3, GL_FLOAT, GL_FALSE,
+                        MODEL_LINE_SIZE * sizeof(float),
+                        (void *)(8 * sizeof(float)));
+  glEnableVertexAttribArray(SHADER_TANGENT_POS);
+  glVertexAttribPointer(SHADER_BITANGENT_POS, 3, GL_FLOAT, GL_FALSE,
+                        MODEL_LINE_SIZE * sizeof(float),
+                        (void *)(11 * sizeof(float)));
+  glEnableVertexAttribArray(SHADER_BITANGENT_POS);
 
   glBindVertexArray(0);
   glBindBuffer(GL_ARRAY_BUFFER, 0);

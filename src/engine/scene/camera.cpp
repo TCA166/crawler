@@ -2,7 +2,7 @@
 
 #include "../settings.hpp"
 
-#define MAX_TURN 89.0f
+#define MAX_TURN glm::radians(89.0f)
 
 #define UP glm::vec3(0.0f, 1.0f, 0.0f)
 
@@ -14,7 +14,7 @@ camera::camera(glm::vec3 position, float fov, float look_speed, float pitch,
 }
 
 camera::camera(glm::vec3 position)
-    : camera(position, 90.0f, 0.1f, 0.0f, 0.0f, 0.0f) {}
+    : camera(position, 90.0f, 0.005f, 0.0f, 0.0f, 0.0f) {}
 
 camera::~camera() {}
 
@@ -27,9 +27,9 @@ void camera::zoom(float value) {
 }
 
 void camera::update_front() {
-  front.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch));
-  front.y = sin(glm::radians(pitch));
-  front.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
+  front.x = cos(yaw) * cos(pitch);
+  front.y = sin(pitch);
+  front.z = sin(yaw) * cos(pitch);
   front = glm::normalize(front);
 }
 
@@ -75,8 +75,7 @@ void camera::set_rotation(double xrot, double yrot, double zrot) {
 glm::vec3 camera::get_front() const { return front; }
 
 glm::vec3 camera::get_up() const {
-  return glm::rotate(glm::mat4(1), glm::radians(roll), front) *
-         glm::vec4(UP, 1.0f);
+  return glm::rotate(glm::mat4(1), roll, front) * glm::vec4(UP, 1.0f);
 }
 
 glm::vec3 camera::get_right() const {

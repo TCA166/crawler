@@ -3,33 +3,79 @@
 #include <stdexcept>
 
 static const std::vector<float> triangle_data = {
-    MODEL_LINE(-0.5f, -0.5f, -0.5f, 0.0f, 0.0f),
-    MODEL_LINE(-0.5f, -0.5f, 0.5f, 0.0f, 1.0f),
-    MODEL_LINE(-0.5f, 0.5f, -0.5f, 1.0f, 1.0f)};
+    MODEL_LINE(-.5f, -.5f, -.5f, 0.f, 0.f, 0.f, 0.f, 1.f, 0.f, 0.f, 0.f, 0.f,
+               0.f, 0.f),
+    MODEL_LINE(-.5f, -.5f, .5f, 0.f, 1.f, 0.f, 0.f, 1.f, 0.f, 0.f, 0.f, 0.f,
+               0.f, 0.f),
+    MODEL_LINE(-.5f, .5f, -.5f, 1.f, 1.f, 0.f, 0.f, 1.f, 0.f, 0.f, 0.f, 0.f,
+               0.f, 0.f),
+};
 
 static const std::vector<unsigned int> triangle_indices = {0, 1, 2};
 
 static const std::vector<float> cube_data = {
-    MODEL_LINE(-0.5f, -0.5f, -0.5f, 0.0f, 0.0f),
-    MODEL_LINE(-0.5f, -0.5f, 0.5f, 0.0f, 1.0f),
-    MODEL_LINE(-0.5f, 0.5f, -0.5f, 1.0f, 1.0f),
-    MODEL_LINE(-0.5f, 0.5f, 0.5f, 1.0f, 0.0f),
-    MODEL_LINE(0.5f, -0.5f, -0.5f, 1.0f, 0.0f),
-    MODEL_LINE(0.5f, -0.5f, 0.5f, 1.0f, 1.0f),
-    MODEL_LINE(0.5f, 0.5f, -0.5f, 0.0f, 0.0f),
-    MODEL_LINE(0.5f, 0.5f, 0.5f, 0.0f, 1.0f),
-};
+    MODEL_LINE(-.5f, -.5f, -.5f, 0.f, 0.f, -1.f, 0.f, 0.f, -1.f, 1.f, 0.f, 0.f,
+               0.f, 1.f),
+    MODEL_LINE(.5f, -.5f, -.5f, 1.f, 0.f, -1.f, 0.f, 0.f, -1.f, 1.f, 0.f, 0.f,
+               0.f, 1.f),
+    MODEL_LINE(.5f, .5f, -.5f, 1.f, 1.f, -1.f, 0.f, 0.f, -1.f, 1.f, 0.f, 0.f,
+               0.f, 1.f),
+    MODEL_LINE(-.5f, .5f, -.5f, 0.f, 1.f, -1.f, 0.f, 0.f, -1.f, 1.f, 0.f, 0.f,
+               0.f, 1.f),
+    MODEL_LINE(-.5f, -.5f, .5f, 0.f, 0.f, 1.f, 0.f, 0.f, 1.f, 1.f, 0.f, 0.f,
+               0.f, 1.f),
+    MODEL_LINE(.5f, -.5f, .5f, 1.f, 0.f, 1.f, 0.f, 0.f, 1.f, 1.f, 0.f, 0.f, 0.f,
+               1.f),
+    MODEL_LINE(.5f, .5f, .5f, 1.f, 1.f, 1.f, 0.f, 0.f, 1.f, 1.f, 0.f, 0.f, 0.f,
+               1.f),
+    MODEL_LINE(-.5f, .5f, .5f, 0.f, 1.f, 1.f, 0.f, 0.f, 1.f, 1.f, 0.f, 0.f, 0.f,
+               1.f),
+    MODEL_LINE(-.5f, -.5f, -.5f, 0.f, 0.f, 0.f, -1.f, 0.f, 0.f, 1.f, 0.f, 0.f,
+               1.f, 0.f),
+    MODEL_LINE(-.5f, -.5f, .5f, 1.f, 0.f, 0.f, -1.f, 0.f, 0.f, 1.f, 0.f, 0.f,
+               1.f, 0.f),
+    MODEL_LINE(-.5f, .5f, .5f, 1.f, 1.f, 0.f, -1.f, 0.f, 0.f, 1.f, 0.f, 0.f,
+               1.f, 0.f),
+    MODEL_LINE(-.5f, .5f, -.5f, 0.f, 1.f, 0.f, -1.f, 0.f, 0.f, 1.f, 0.f, 0.f,
+               1.f, 0.f),
+    MODEL_LINE(.5f, -.5f, -.5f, 0.f, 0.f, 0.f, 1.f, 0.f, 0.f, 1.f, 0.f, 0.f,
+               1.f, 0.f),
+    MODEL_LINE(.5f, -.5f, .5f, 1.f, 0.f, 0.f, 1.f, 0.f, 0.f, 1.f, 0.f, 0.f, 1.f,
+               0.f),
+    MODEL_LINE(.5f, .5f, .5f, 1.f, 1.f, 0.f, 1.f, 0.f, 0.f, 1.f, 0.f, 0.f, 1.f,
+               0.f),
+    MODEL_LINE(.5f, .5f, -.5f, 0.f, 1.f, 0.f, 1.f, 0.f, 0.f, 1.f, 0.f, 0.f, 1.f,
+               0.f),
+    MODEL_LINE(-.5f, -.5f, -.5f, 0.f, 0.f, 0.f, 0.f, -1.f, 0.f, 1.f, 0.f, 1.f,
+               0.f, 0.f),
+    MODEL_LINE(.5f, -.5f, -.5f, 1.f, 0.f, 0.f, 0.f, -1.f, 0.f, 1.f, 0.f, 1.f,
+               0.f, 0.f),
+    MODEL_LINE(.5f, -.5f, .5f, 1.f, 1.f, 0.f, 0.f, -1.f, 0.f, 1.f, 0.f, 1.f,
+               0.f, 0.f),
+    MODEL_LINE(-.5f, -.5f, .5f, 0.f, 1.f, 0.f, 0.f, -1.f, 0.f, 1.f, 0.f, 1.f,
+               0.f, 0.f),
+    MODEL_LINE(-.5f, .5f, -.5f, 0.f, 0.f, 0.f, 0.f, 1.f, 0.f, 1.f, 0.f, 1.f,
+               0.f, 0.f),
+    MODEL_LINE(.5f, .5f, -.5f, 1.f, 0.f, 0.f, 0.f, 1.f, 0.f, 1.f, 0.f, 1.f, 0.f,
+               0.f),
+    MODEL_LINE(.5f, .5f, .5f, 1.f, 1.f, 0.f, 0.f, 1.f, 0.f, 1.f, 0.f, 1.f, 0.f,
+               0.f),
+    MODEL_LINE(-.5f, .5f, .5f, 0.f, 1.f, 0.f, 0.f, 1.f, 0.f, 1.f, 0.f, 1.f, 0.f,
+               0.f)};
 
 static const std::vector<unsigned int> cube_indices = {
-    0, 1, 2, 1, 2, 3, 4, 5, 6, 5, 6, 7, 0, 1, 4, 1, 4, 5,
-    2, 3, 6, 3, 6, 7, 0, 2, 4, 2, 4, 6, 1, 3, 5, 3, 5, 7};
+    0,  1,  2,  2,  3,  0,  4,  5,  6,  6,  7,  4,  8,  9,  10, 10, 11, 8,
+    12, 13, 14, 14, 15, 12, 16, 17, 18, 18, 19, 16, 20, 21, 22, 22, 23, 20};
 
 static const std::vector<float> wall_data = {
-    MODEL_LINE(-0.5f, -0.5f, 0.0f, 0.0f, 0.0f),
-    MODEL_LINE(0.5f, -0.5f, 0.0f, 1.0f, 0.0f),
-    MODEL_LINE(-0.5f, 0.5f, 0.0f, 0.0f, 1.0f),
-    MODEL_LINE(0.5f, 0.5f, 0.0f, 1.0f, 1.0f),
-};
+    MODEL_LINE(-0.5f, -0.5f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f,
+               0.0f, 0.0f, 1.0f, 0.0f),
+    MODEL_LINE(0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f,
+               0.0f, 0.0f, 1.0f, 0.0f),
+    MODEL_LINE(-0.5f, 0.5f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f,
+               0.0f, 0.0f, 1.0f, 0.0f),
+    MODEL_LINE(0.5f, 0.5f, 0.0f, 1.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f,
+               0.0f, 1.0f, 0.0f)};
 
 static const std::vector<unsigned int> wall_indices = {0, 1, 2, 1, 3, 2};
 

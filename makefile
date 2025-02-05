@@ -5,7 +5,7 @@ CC = g++
 
 all: main
 
-game.o: src/scenes/game.cpp src/scenes/game.hpp src/objects/* src/physics/constants.hpp
+game.o: src/scenes/game.cpp src/scenes/game.hpp src/objects/*.hpp src/physics/constants.hpp
 	$(CC) $(IFLAGS) $(CFLAGS) -c src/scenes/game.cpp
 
 radar.o: src/scenes/radar.cpp src/scenes/radar.hpp
