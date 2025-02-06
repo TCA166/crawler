@@ -61,13 +61,13 @@ static inline std::vector<float> generate_data(uint8_t segments) {
     data.push_back(0.0);
     data.push_back(sin(angle));
     // tangent
-    data.push_back(1.0);
+    data.push_back(-sin(angle));
     data.push_back(0.0);
-    data.push_back(0.0);
+    data.push_back(cos(angle));
     // bitangent
     data.push_back(0.0);
-    data.push_back(0.0);
     data.push_back(1.0);
+    data.push_back(0.0);
   }
   return data;
 }

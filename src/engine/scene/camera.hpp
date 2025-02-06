@@ -15,13 +15,6 @@ private:
   */
   glm::vec3 position;
   /*!
-   @brief The front vector of the camera
-   @details The vector signifying the direction the camera is facing
-   @warning You probably shouldn't modify this directly, use the update_front
-   method instead
-  */
-  glm::vec3 front;
-  /*!
    @brief The look speed of the camera
   */
   float look_speed;
@@ -30,12 +23,7 @@ private:
    @note this can be used to zoom in and out
   */
   float fov;
-  float yaw, pitch, roll;
-  /*!
-   @brief Updates the front vector of the camera.
-   @details Automatically called when the pitch or yaw is updated.
-  */
-  void update_front();
+  glm::vec3 rotation;
 
 public:
   /*!
@@ -84,25 +72,21 @@ public:
   void translate(glm::vec3 translation);
   /*!
    @brief Set the position of the object
-   @param xpos The x position of the object
-   @param ypos The y position of the object
-   @param zpos The z position of the object
+   @param position The new position of the object
   */
-  void set_position(double xpos, double ypos, double zpos);
+  void set_position(glm::vec3 position);
   /*!
    @brief Rotate the object
    @param xrot The rotation around the x axis
    @param yrot The rotation around the y axis
    @param zrot The rotation around the z axis
   */
-  void rotate(double xrot, double yrot, double zrot);
+  void rotate(glm::vec3 rotation);
   /*!
    @brief Set the rotation of the object
-   @param xrot The rotation around the x axis
-   @param yrot The rotation around the y axis
-   @param zrot The rotation around the z axis
+   @param rotation The new rotation of the object
   */
-  void set_rotation(double xrot, double yrot, double zrot);
+  void set_rotation(glm::vec3 rotation);
   /*!
    @brief Get the front vector of the camera
    @return The front vector of the camera

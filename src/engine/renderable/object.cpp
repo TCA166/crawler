@@ -11,7 +11,7 @@
 object::object(const shader *object_shader, const model *object_model,
                double xpos, double ypos, double zpos)
     : object_shader(object_shader), scale(glm::vec3(1.)), rot(glm::vec3(0.)),
-      object_model(object_model), xpos(xpos), ypos(ypos), zpos(zpos) {}
+      object_model(object_model), position(xpos, ypos, zpos) {}
 
 object::object(const shader *object_shader, const std::string &path,
                double xpos, double ypos, double zpos)
@@ -25,7 +25,7 @@ object::~object() {
 }
 
 glm::mat4 object::get_model_matrix() const {
-  return glm::translate(glm::mat4(1.0f), glm::vec3(xpos, ypos, zpos)) *
+  return glm::translate(glm::mat4(1.0f), position) *
          glm::rotate(glm::mat4(1.0f), rot.x, glm::vec3(1.0f, 0.0f, 0.0f)) *
          glm::rotate(glm::mat4(1.0f), rot.y, glm::vec3(0.0f, 1.0f, 0.0f)) *
          glm::rotate(glm::mat4(1.0f), rot.z, glm::vec3(0.0f, 0.0f, 1.0f)) *
@@ -87,12 +87,10 @@ void object::add_texture(const texture *tex, std::string name) {
   textures[name] = tex;
 }
 
-void object::set_position(double xpos, double ypos, double zpos) {
-  this->xpos = xpos;
-  this->ypos = ypos;
-  this->zpos = zpos;
+void object::set_position(glm::vec3 position) {
+  this->position = position;
   for (moveable *child : children) {
-    child->set_position(xpos, ypos, zpos);
+    child->set_position(position);
   }
 }
 
@@ -102,32 +100,28 @@ void object::set_scale(float scalex, float scaley, float scalez) {
 
 void object::set_scale(float scale) { this->scale = glm::vec3(scale); }
 
-void object::rotate(double xrot, double yrot, double zrot) {
-  this->rot.x += xrot;
-  this->rot.y += yrot;
-  this->rot.z += zrot;
+void object::rotate(glm::vec3 rotation) {
+  this->rot += rotation;
   for (moveable *child : children) {
-    child->rotate(xrot, yrot, zrot);
+    child->rotate(rotation);
   }
 }
 
-void object::set_rotation(double xrot, double yrot, double zrot) {
-  double xdiff = xrot - this->rot.x;
-  double ydiff = yrot - this->rot.y;
-  double zdiff = zrot - this->rot.z;
-  this->rotate(xdiff, ydiff, zdiff);
+void object::set_rotation(glm::vec3 rotation) {
+  this->rot = rotation;
+  for (moveable *child : children) {
+    child->set_rotation(rotation);
+  }
 }
 
 void object::translate(glm::vec3 translation) {
-  xpos += translation.x;
-  ypos += translation.y;
-  zpos += translation.z;
+  this->position += translation;
   for (moveable *child : children) {
     child->translate(translation);
   }
 }
 
-glm::vec3 object::get_position() const { return glm::vec3(xpos, ypos, zpos); }
+glm::vec3 object::get_position() const { return position; }
 
 void object::add_child(moveable *child) { children.push_back(child); }
 

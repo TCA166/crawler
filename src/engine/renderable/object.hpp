@@ -39,12 +39,10 @@ protected:
    @brief The parents of the object, objects that move the object
   */
   std::list<object *> parents;
-  ///@{
   /*!
    @brief The position of the object
   */
-  double xpos, ypos, zpos;
-  ///@}
+  glm::vec3 position;
   /*!
    @brief Gets the positive bounds of the object
    @return A vector with 1 points on each axis representing the largest extent
@@ -111,11 +109,9 @@ public:
   void add_texture(const texture *tex, std::string name);
   /*!
    @brief Set the position of the object
-   @param xpos The x position of the object
-   @param ypos The y position of the object
-   @param zpos The z position of the object
+   @param position The position to set
   */
-  void set_position(double xpos, double ypos, double zpos);
+  void set_position(glm::vec3 position);
   /*!
    @brief Set the scale of the object
    @param scalex The x scale of the object
@@ -130,18 +126,14 @@ public:
   void set_scale(float scale);
   /*!
    @brief Set the rotation of the object in radians
-   @param xrot The x rotation of the object in radians
-   @param yrot The y rotation of the object in radians
-   @param zrot The z rotation of the object in radians
+   @param rotation The rotation to apply
   */
-  void set_rotation(double xrot, double yrot, double zrot);
+  void set_rotation(glm::vec3 rotation);
   /*!
    @brief Rotate the object in radians
-   @param xrot The delta x rotation
-   @param yrot The delta y rotation
-   @param zrot The delta z rotation
+   @param rotation The rotation to apply
   */
-  void rotate(double xrot, double yrot, double zrot);
+  void rotate(glm::vec3 rotation);
   /*!
    @brief Translate the object
    @param translation The translation to apply

@@ -73,9 +73,9 @@ void game::init(camera *target_camera) {
                             FLOOR_SIZE / -2., FLOOR_SIZE, FLOOR_SIZE, 0.1);
   this->add_object(floor1);
   target_camera->set_position(
-      0.0, floor1->sample_noise(0.0, 0.0) + CAMERA_Y_OFFSET, 0.0);
-  lght = new light(target_camera->get_position(), target_camera->get_front(),
-                   glm::vec3(LIGHT_STRENGTH), LIGHT_FOV, LIGHT_RANGE);
+      glm::vec3(0.0, floor1->sample_noise(0.0, 0.0) + CAMERA_Y_OFFSET, 0.0));
+  lght = new light(target_camera->get_position(), glm::vec3(LIGHT_STRENGTH),
+                   LIGHT_FOV, LIGHT_RANGE);
   this->add_light(lght);
   // flock spawning
   for (uint8_t flock = 0; flock < FLOCK_COUNT; flock++) {
@@ -151,17 +151,16 @@ void game::update(camera *target_camera, double delta_time, double) {
     if (!check_line(camera_position, camera_position + collision_dist)) {
       target_camera->translate(move);
       camera_position = target_camera->get_position();
-      target_camera->set_position(
-          camera_position.x,
+      camera_position.y =
           floor1->sample_noise(camera_position.x, camera_position.z) +
-              CAMERA_Y_OFFSET,
-          camera_position.z);
+          CAMERA_Y_OFFSET;
+      target_camera->set_position(camera_position);
     }
   }
   if (rot_left) {
-    target_camera->rotate(0.0, 0.0, -delta_time);
+    target_camera->rotate(glm::vec3(0.0, 0.0, -delta_time));
   } else if (rot_right) {
-    target_camera->rotate(0.0, 0.0, delta_time);
+    target_camera->rotate(glm::vec3(0.0, 0.0, delta_time));
   }
 
   for (auto &tri : boids) {
@@ -183,11 +182,9 @@ void game::update(camera *target_camera, double delta_time, double) {
 
     shooting = false;
   }
-  glm::vec3 light_position =
-      camera_position +
-      (camera_front * glm::vec3(-LIGHT_OFFSET, 0.f, -LIGHT_OFFSET));
-  lght->set_position(light_position.x, light_position.y, light_position.z);
-  lght->set_direction(light_position + camera_front);
+  lght->set_position(camera_position +
+                     (camera_front * glm::vec3(-LIGHT_OFFSET, 0.f, 0.f)));
+  lght->look_at(camera_position + target_camera->get_front());
 }
 
 void game::scroll_callback(double, double yoffset, camera &target_camera) {
@@ -232,7 +229,8 @@ void game::key_callback(int key, int, int action, int, camera &) {
 
 void game::mouse_callback(double xpos, double ypos, camera &target_camera) {
   if (xpos != this->xpos || ypos != this->ypos) {
-    target_camera.rotate(xpos - this->xpos, ypos - this->ypos, 0.0);
+    glm::vec3 rot(ypos - this->ypos, xpos - this->xpos, 0.0);
+    target_camera.rotate(rot);
     this->xpos = xpos;
     this->ypos = ypos;
   }

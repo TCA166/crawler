@@ -159,7 +159,7 @@ inline void boid::update(const std::list<const boid *> &boids,
       scene->check_line(negbound, negbound + translation)) {
     this->velocity = -this->velocity;
   } else {
-    this->set_position(target.x, target.y, target.z);
+    this->set_position(target);
   }
 }
 

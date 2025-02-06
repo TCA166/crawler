@@ -99,6 +99,7 @@ static inline std::vector<float> generate_data(uint32_t width, uint32_t height,
       points.push_back(x * resolution);
       points.push_back(y * resolution);
       // normals
+      // https://stackoverflow.com/a/13983431/12520385 - simplified normal calc
       float height_l =
           sample_noise((x * resolution) - resolution + noise_shift.x,
                        (y * resolution) + noise_shift.y);
@@ -117,13 +118,17 @@ static inline std::vector<float> generate_data(uint32_t width, uint32_t height,
       points.push_back(normal.y);
       points.push_back(normal.z);
       // tangent
-      points.push_back(1.0);
-      points.push_back(0.0);
-      points.push_back(0.0);
+      glm::vec3 tangent = glm::normalize(
+          glm::vec3(1.0, 0.0, (height_r - height_l) / (2.0f * resolution)));
+      points.push_back(tangent.x);
+      points.push_back(tangent.y);
+      points.push_back(tangent.z);
       // bitangent
-      points.push_back(0.0);
-      points.push_back(0.0);
-      points.push_back(1.0);
+      glm::vec3 bitangent = glm::normalize(
+          glm::cross(normal, tangent)); // cross product of normal and tangent
+      points.push_back(bitangent.x);
+      points.push_back(bitangent.y);
+      points.push_back(bitangent.z);
     }
   }
   return points;
