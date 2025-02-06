@@ -96,6 +96,7 @@ inline branch::branch(uint8_t num_segments, float segment_height,
   bounds = glm::vec3(root_radius, tip_y, root_radius);
   // add a tip
   points.push_back(glm::vec3(0.0f, tip_y, 0.0f));
+  // TODO branched tip?
   // then we use the rings to generate the bark
   for (size_t i = 0; i < points.size(); i++) {
     uint8_t ring_index = i % RING_POINTS;
@@ -134,7 +135,7 @@ inline branch::branch(uint8_t num_segments, float segment_height,
                         BRANCH_RADIUS * ((float)cos(angle)) * bitangent +
                         BRANCH_RADIUS * ((float)sin(angle)) * normal;
       add_data(data, point, glm::vec2(angle, 0.f), normal, tangent, bitangent);
-    }
+    } // TODO some flat ended branches?
     // add end
     add_data(data, branch_end_points[i], glm::vec2(0.f, glm::length(direction)),
              normal, tangent, bitangent);
