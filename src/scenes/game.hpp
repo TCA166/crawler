@@ -26,6 +26,7 @@ private:
   random_floor *floor1;
   std::vector<boid_species *> species;
   std::vector<random_tree *> trees;
+  texture *boid_tex, *boid_norm;
 
 public:
   /*!

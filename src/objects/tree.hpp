@@ -5,47 +5,47 @@
 #define BARK_POINTS 8
 #define RING_POINTS (BARK_POINTS * 2)
 
-#define MIN_BARK_RADIUS 0.2f
-#define MAX_BARK_RADIUS 0.3f
-#define BARK_VARIANCE 0.01f
-
-#define MIN_SEGMENTS 20
-#define MAX_SEGMENTS 30
-
-#define SEGMENT_HEIGHT 0.1f
-
-class random_tree : public object {
-private:
-  glm::vec3 bark_bound, bark_negbound;
-  uint8_t bark_segment_count;
-  model tree;
-  texture tex, norm;
-
+/*!
+ @brief A procedurally generated model of a tree branch (cylinder with tip)
+*/
+class branch : public model {
 public:
-  random_tree(const shader *object_shader, double xpos, double ypos,
-              double zpos);
-  ~random_tree();
+  /*!
+   @brief Constructs a branch object
+   @param num_segments The number of segments in the branch
+   @param segment_height The height of each segment
+   @param root_radius The radius of the root of the branch
+   @param variance The variance of the branch
+   @param tip_offset The offset of the tip of the branch
+  */
+  branch(uint8_t num_segments, float segment_height, float root_radius,
+         float variance, float tip_offset);
+  ~branch();
 };
 
-static inline std::vector<float> generate_data(uint8_t segments) {
+inline branch::branch(uint8_t num_segments, float segment_height,
+                      float root_radius, float variance, float tip_offset) {
   // https://math.stackexchange.com/questions/4459356/find-n-evenly-spaced-points-on-circle-with-radius-r
-  std::vector<glm::vec2> ring_points;
+  std::vector<glm::vec2> ring_points; // first we generate a flat ring
   for (uint8_t i = 0; i < RING_POINTS; i++) {
     float angle = (2 * M_PI * i) / RING_POINTS;
     ring_points.push_back(glm::vec2(cos(angle), sin(angle)));
   }
-  float base_radius = glm::linearRand(MIN_BARK_RADIUS, MAX_BARK_RADIUS);
+  // then we copy this ring for each segment
   std::vector<glm::vec3> points;
-  for (uint8_t i = 0; i < segments; i++) {
-    float radius = base_radius + glm::linearRand(-BARK_VARIANCE, BARK_VARIANCE);
+  for (uint8_t i = 0; i < num_segments; i++) {
+    float radius = root_radius + glm::linearRand(-variance, variance);
     for (size_t j = 0; j < ring_points.size(); j++) {
-      points.push_back(glm::vec3(radius * ring_points[j].x, i * SEGMENT_HEIGHT,
+      points.push_back(glm::vec3(radius * ring_points[j].x, i * segment_height,
                                  radius * ring_points[j].y));
     }
   }
-  points.push_back(glm::vec3(
-      0.0f, segments * SEGMENT_HEIGHT * glm::linearRand(1.0, 2.0), 0.0f));
-  std::vector<float> data;
+  negbounds = glm::vec3(-root_radius, 0.0, -root_radius);
+  float tip_y = num_segments * segment_height + tip_offset;
+  bounds = glm::vec3(root_radius, tip_y, root_radius);
+  // add a tip
+  points.push_back(glm::vec3(0.0f, tip_y, 0.0f));
+  // then we use the rings to generate the bark
   for (size_t i = 0; i < points.size(); i++) {
     data.push_back(points[i].x);
     data.push_back(points[i].y);
@@ -69,12 +69,8 @@ static inline std::vector<float> generate_data(uint8_t segments) {
     data.push_back(1.0);
     data.push_back(0.0);
   }
-  return data;
-}
-
-static inline std::vector<unsigned int> generate_indices(uint8_t segments) {
-  std::vector<unsigned int> indices;
-  for (uint8_t y = 0; y < segments - 1; y++) {
+  // indices
+  for (uint8_t y = 0; y < num_segments - 1; y++) {
     for (uint8_t x = 0; x < RING_POINTS; x++) {
       indices.push_back(y * RING_POINTS + x);
       indices.push_back(y * RING_POINTS + (x + 1) % RING_POINTS);
@@ -85,24 +81,43 @@ static inline std::vector<unsigned int> generate_indices(uint8_t segments) {
     }
   }
   for (uint8_t x = 0; x < RING_POINTS; x++) {
-    indices.push_back((segments - 1) * RING_POINTS + x);
-    indices.push_back((segments - 1) * RING_POINTS + (x + 1) % RING_POINTS);
-    indices.push_back(segments * RING_POINTS);
+    indices.push_back((num_segments - 1) * RING_POINTS + x);
+    indices.push_back((num_segments - 1) * RING_POINTS + (x + 1) % RING_POINTS);
+    indices.push_back(num_segments * RING_POINTS);
   }
-  return indices;
 }
+
+inline branch::~branch() {}
+
+#define MIN_BARK_RADIUS 0.2f
+#define MAX_BARK_RADIUS 0.3f
+#define BARK_VARIANCE 0.01f
+
+#define BARK_HEIGHT 2.f
+#define SEGMENT_HEIGHT .1f
+
+#define MIN_SEGMENTS (BARK_HEIGHT / SEGMENT_HEIGHT)
+#define MAX_SEGMENTS MIN_SEGMENTS * 1.5f
+
+class random_tree : public object {
+private:
+  branch tree;
+  texture tex, norm;
+
+public:
+  random_tree(const shader *object_shader, double xpos, double ypos,
+              double zpos);
+  ~random_tree();
+};
 
 inline random_tree::random_tree(const shader *object_shader, double xpos,
                                 double ypos, double zpos)
     : object(object_shader, &tree, xpos, ypos, zpos),
-      bark_segment_count(glm::linearRand(MIN_SEGMENTS, MAX_SEGMENTS)),
-      tree(generate_data(bark_segment_count),
-           generate_indices(bark_segment_count), glm::vec3(0.0f),
-           glm::vec3(0.0f)),
+      tree(glm::linearRand(MIN_SEGMENTS, MAX_SEGMENTS), SEGMENT_HEIGHT,
+           glm::linearRand(MIN_BARK_RADIUS, MAX_BARK_RADIUS), BARK_VARIANCE,
+           0.5),
       tex(TEXTURE_PATH("poplar.jpg")), norm(TEXTURE_PATH("poplar_normal.jpg")) {
   tree.init();
-  bark_bound = glm::vec3(0.5, 1.0, 0.5);
-  bark_negbound = glm::vec3(-0.5, 0.0, -0.5);
   add_texture(&tex, "texture0");
   add_texture(&norm, "normal0");
 }

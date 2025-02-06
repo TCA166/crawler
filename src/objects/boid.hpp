@@ -50,13 +50,15 @@ public:
   /*!
    @brief Constructs a boid object
    @param object_shader The shader to use for rendering
+   @param tex The texture of the boid
+   @param norm The normal map of the boid
    @param xpos The x position of the boid
    @param ypos The y position of the boid
    @param zpos The z position of the boid
    @param species The species of the boid
   */
-  boid(const shader *object_shader, double xpos, double ypos, double zpos,
-       const boid_species *species);
+  boid(const shader *object_shader, const texture *tex, const texture *norm,
+       double xpos, double ypos, double zpos, const boid_species *species);
   ~boid();
 
   /*!
@@ -78,16 +80,17 @@ private:
   void evaluate(double deltaTime);
 
   const boid_species *species;
-  const texture tex;
   const shader *triangle_object_shader;
 };
 
-inline boid::boid(const shader *object_shader, double xpos, double ypos,
-                  double zpos, const boid_species *species)
+inline boid::boid(const shader *object_shader, const texture *tex,
+                  const texture *norm, double xpos, double ypos, double zpos,
+                  const boid_species *species)
     : triangle(object_shader, xpos, ypos, zpos),
       entity(1.0f, glm::sphericalRand(0.5f)), species(species),
-      tex(TEXTURE_PATH("diamond.png")), triangle_object_shader(object_shader) {
-  this->add_texture(&tex, "texture0");
+      triangle_object_shader(object_shader) {
+  this->add_texture(tex, "texture0");
+  this->add_texture(norm, "normal0");
   this->set_scale(0.5f);
 }
 

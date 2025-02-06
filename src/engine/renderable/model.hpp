@@ -15,6 +15,13 @@
 */
 class model {
 private:
+  GLuint VAO, VBO, EBO;
+
+protected:
+  /*!
+   @brief Hidden constructor creating an empty model
+  */
+  model() = default;
   /*!
    @brief the data of the object (vertices, texture coordinates)
   */
@@ -23,7 +30,6 @@ private:
    @brief the indices of the object
   */
   std::vector<unsigned int> indices;
-  GLuint VAO, VBO, EBO;
   ///@{
   /*!
    @brief The bounds of the object

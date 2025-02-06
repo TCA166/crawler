@@ -78,6 +78,8 @@ void game::init(camera *target_camera) {
                    LIGHT_FOV, LIGHT_RANGE);
   this->add_light(lght);
   // flock spawning
+  boid_tex = new texture(TEXTURE_PATH("diamond.png"));
+  boid_norm = new texture(TEXTURE_PATH("grass_normal.png"));
   for (uint8_t flock = 0; flock < FLOCK_COUNT; flock++) {
     boid_species *spec = new boid_species();
 
@@ -96,7 +98,8 @@ void game::init(camera *target_camera) {
                   glm::linearRand(-SPAWN_RADIUS, SPAWN_RADIUS));
     for (int i = 0; i < FLOCK_SIZE; ++i) {
       glm::vec3 pos = center + glm::ballRand(FLOCK_RADIUS);
-      boid *tri = new boid(textured_shader, pos.x, pos.y, pos.z, spec);
+      boid *tri = new boid(textured_shader, boid_tex, boid_norm, pos.x, pos.y,
+                           pos.z, spec);
       boids.push_back(tri);
       this->add_object(tri);
     }
