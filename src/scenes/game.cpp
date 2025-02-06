@@ -10,6 +10,7 @@
 #define LIGHT_OFFSET 0.25f
 
 #define FLOOR_SIZE 100
+#define TREE_COUNT 20
 
 #define FLOCK_COUNT 10
 // the radius from 0.0 to spawn boid flocks
@@ -42,11 +43,6 @@ game::~game() {
   if (!initialized) {
     return;
   }
-  delete this->cube1;
-  delete this->cube2;
-
-  delete this->wall;
-  delete this->view;
 
   delete this->sky;
 
@@ -55,10 +51,6 @@ game::~game() {
   delete this->textured_shader;
   delete this->skybox_shader;
   delete this->simple_shader;
-
-  delete this->norm;
-  delete this->depth;
-  delete this->tex;
 
   for (auto &tri : boids) {
     delete tri;
@@ -75,33 +67,16 @@ void game::init(camera *target_camera) {
       new shader(SHADER_PATH("textured.vert"), SHADER_PATH("textured.frag"));
   simple_shader = new shader(SHADER_PATH("textured.vert"),
                              SHADER_PATH("simple_textured.frag"));
+  debug_shader =
+      new shader(SHADER_PATH("textured.vert"), SHADER_PATH("red.frag"));
   floor1 = new random_floor(textured_shader, FLOOR_SIZE / -2., 0.0,
                             FLOOR_SIZE / -2., FLOOR_SIZE, FLOOR_SIZE, 0.1);
   this->add_object(floor1);
-  cube1 = new debug_cube(textured_shader, 0.0,
-                         0.1 + floor1->sample_noise(0., 0.), 0.0);
-  this->add_object(cube1);
-  this->add_collider(cube1);
-  cube2 = new debug_cube(textured_shader, 1.0,
-                         0.1 + floor1->sample_noise(1., 1.), 1.0);
-  this->add_object(cube2);
-  this->add_collider(cube2);
-  norm = new texture(TEXTURE_PATH("spaceship_normal.jpg"));
-  tex = new texture(TEXTURE_PATH("spaceship.jpg"));
-  wall = new debug_wall(textured_shader, tex, norm, 0.0, 1.0, -5.0);
-  wall->set_scale(10.0, 3.0, 1.0);
-  this->add_object(wall);
-  this->add_collider(wall);
   target_camera->set_position(
       0.0, floor1->sample_noise(0.0, 0.0) + CAMERA_Y_OFFSET, 0.0);
-  lght = new light(target_camera->get_position() +
-                       glm::vec3(-LIGHT_OFFSET, 0.f, LIGHT_OFFSET),
-                   target_camera->get_front(), glm::vec3(LIGHT_STRENGTH),
-                   LIGHT_FOV, LIGHT_RANGE);
+  lght = new light(target_camera->get_position(), target_camera->get_front(),
+                   glm::vec3(LIGHT_STRENGTH), LIGHT_FOV, LIGHT_RANGE);
   this->add_light(lght);
-  depth = lght->get_view_map();
-  view = new debug_wall(simple_shader, depth, norm, 0.0, 3.0, 0.0);
-  this->add_object(view);
   // flock spawning
   for (uint8_t flock = 0; flock < FLOCK_COUNT; flock++) {
     boid_species *spec = new boid_species();
@@ -127,12 +102,26 @@ void game::init(camera *target_camera) {
     }
   }
 
+  // tree spawning
+
+  for (int x = FLOOR_SIZE / -2; x < FLOOR_SIZE / 2;
+       x += FLOOR_SIZE / TREE_COUNT) {
+    for (int z = FLOOR_SIZE / -2; z < FLOOR_SIZE / 2;
+         z += FLOOR_SIZE / TREE_COUNT) {
+      glm::vec2 pos = glm::vec2(x, z) + glm::circularRand(3.f);
+      random_tree *tree = new random_tree(
+          textured_shader, pos.x, floor1->sample_noise(pos.x, pos.y), pos.y);
+      this->add_object(tree);
+      trees.push_back(tree);
+    }
+  }
+
   skybox_shader =
       new shader(SHADER_PATH("skybox.vert"), SHADER_PATH("skybox.frag"));
   std::vector<std::string> paths = {
-      TEXTURE_PATH("skybox/right.png"), TEXTURE_PATH("skybox/left.png"),
-      TEXTURE_PATH("skybox/top.png"),   TEXTURE_PATH("skybox/bottom.png"),
-      TEXTURE_PATH("skybox/front.png"), TEXTURE_PATH("skybox/back.png")};
+      TEXTURE_PATH("sky.png"), TEXTURE_PATH("sky.png"),
+      TEXTURE_PATH("sky.png"), TEXTURE_PATH("sky.png"),
+      TEXTURE_PATH("sky.png"), TEXTURE_PATH("sky.png")};
   sky = new skybox(skybox_shader, paths);
   this->set_skybox(sky);
   scene::init(target_camera);
@@ -196,7 +185,7 @@ void game::update(camera *target_camera, double delta_time, double) {
   }
   glm::vec3 light_position =
       camera_position +
-      (camera_front + glm::vec3(-LIGHT_OFFSET, 0.f, LIGHT_OFFSET));
+      (camera_front * glm::vec3(-LIGHT_OFFSET, 0.f, -LIGHT_OFFSET));
   lght->set_position(light_position.x, light_position.y, light_position.z);
   lght->set_direction(light_position + camera_front);
 }

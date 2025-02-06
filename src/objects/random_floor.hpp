@@ -162,8 +162,7 @@ inline random_floor::random_floor(const shader *object_shader, double xpos,
             generate_indices(width / resolution, height / resolution),
             glm::vec3(width / resolution, NOISE_MAX, height / resolution),
             glm::vec3(0.0)),
-      tex(TEXTURE_PATH("spaceship.jpg")),
-      norm(TEXTURE_PATH("spaceship_normal.jpg")) {
+      tex(TEXTURE_PATH("grass.jpg")), norm(TEXTURE_PATH("grass_normal.png")) {
   floor.init();
   this->add_texture(&tex, "texture0");
   this->add_texture(&norm, "normal0");
