@@ -43,19 +43,23 @@ static inline std::vector<float> generate_data(uint8_t segments) {
                                  radius * ring_points[j].y));
     }
   }
-  points.push_back(glm::vec3(0.0f, segments * SEGMENT_HEIGHT * 2, 0.0f));
+  points.push_back(glm::vec3(
+      0.0f, segments * SEGMENT_HEIGHT * glm::linearRand(1.0, 2.0), 0.0f));
   std::vector<float> data;
   for (size_t i = 0; i < points.size(); i++) {
     data.push_back(points[i].x);
     data.push_back(points[i].y);
     data.push_back(points[i].z);
+    uint8_t ring_index = i % RING_POINTS;
+    float angle = (2 * M_PI * ring_index) / RING_POINTS;
     // texture
-    data.push_back(points[i].x);
-    data.push_back(points[i].z);
+    data.push_back(angle); // we wrap the texture around the bark
+    data.push_back(points[i].y);
     // normal
+    // a normal is meant to be perpendicular to the tangent of the circle
+    data.push_back(cos(angle));
     data.push_back(0.0);
-    data.push_back(1.0);
-    data.push_back(0.0);
+    data.push_back(sin(angle));
     // tangent
     data.push_back(1.0);
     data.push_back(0.0);

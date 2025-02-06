@@ -70,7 +70,10 @@ vec3 CalcDirectionalLight(Light light, vec3 norm)
     }
     shadow /= pow(smoothing_window * 2 + 1, 2);
 
-    return (1.0 - shadow) * (diffuse + specular);
+    float attenuation = 1.0 / (1 + 0.09 * distance + 0.032 * distance * distance);
+    attenuation *= max(0.0, 1.0 - distance / light.range); // Ensure light falls off to zero at the maximum range
+
+    return (1.0 - shadow) * (diffuse + specular) * attenuation;
 }
 
 void main()
