@@ -50,6 +50,9 @@ int main() {
   glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, true);
 
   glfwSetErrorCallback(glfw_error_callback);
+
+  std::srand(std::time(nullptr));
+
   std::list<boid *> boids;
 
   // a scene is a collection of objects
