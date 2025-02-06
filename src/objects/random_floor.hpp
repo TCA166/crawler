@@ -30,6 +30,16 @@ private:
   texture tex, norm;
 
 public:
+  /*!
+   @brief Constructs a random floor object
+   @param object_shader The shader to use for rendering
+   @param xpos The x position of the floor
+   @param ypos The y position of the floor
+   @param zpos The z position of the floor
+   @param width The width of the floor
+   @param height The height of the floor
+   @param resolution The distance between each sample
+  */
   random_floor(const shader *object_shader, double xpos, double ypos,
                double zpos, uint32_t width, uint32_t height, float resolution);
   ~random_floor();
@@ -40,7 +50,18 @@ public:
    @return The noise value at the given point
   */
   float sample_noise(float x, float y) const;
+  /*!
+   @brief Check if a point is below the floor
+   @param point The point to check
+   @return True if the point is below the floor, false otherwise
+  */
   bool check_point_floor(glm::vec3 point) const;
+  /*!
+   @brief Check if a line intersects the floor
+   @param a The start of the line
+   @param b The end of the line
+   @return True if the line intersects the floor, false otherwise
+  */
   bool check_line_floor(glm::vec3 a, glm::vec3 b) const;
 };
 

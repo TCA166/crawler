@@ -11,13 +11,34 @@
 
 #define MAX_FORCE 1.0f
 
+/*!
+ @brief A species of boid, with parameters for flocking
+*/
 struct boid_species {
-  uint32_t id;    // species id
-  float sep_dist; // min acceptable distance between boids
-  float ali_dist; // distance within which to align to other boids
-  float coh_dist; // distance within which to cohere with other boids
+  /*!
+   @brief A unique identifier for the species
+  */
+  uint32_t id;
+  /*!
+   @brief The minimum acceptable distance between boids
+  */
+  float sep_dist;
+  /*!
+   @brief The distance within which to align to other boids
+  */
+  float ali_dist;
+  /*!
+   @brief The distance within which to cohere with other boids
+  */
+  float coh_dist;
+  /*!
+   @brief The maximum speed of the boid
+  */
   float max_speed;
-  float pref_y; // preferred y position
+  /*!
+   @brief The y position the boid prefers
+  */
+  float pref_y;
 };
 
 /*!
@@ -47,6 +68,10 @@ public:
   void update(const std::list<const boid *> &boids, const collider *scene,
               double deltaTime);
 
+  /*!
+   @brief Returns the species id of the boid
+   @return The species id of the boid
+  */
   uint32_t get_species_id() const;
 
 private:

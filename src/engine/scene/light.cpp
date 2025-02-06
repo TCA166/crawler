@@ -87,5 +87,3 @@ void light::set_rotation(double xrot, double yrot, double zrot) {
 }
 
 float light::get_range() const { return range; }
-
-float light::get_fov() const { return fov; }

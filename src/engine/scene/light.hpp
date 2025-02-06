@@ -93,6 +93,9 @@ public:
    @warning the caller is responsible for deleting the texture object
   */
   texture *get_view_map() const;
-  float get_fov() const;
+  /*!
+   @brief Gets the range of the light
+   @return the range of the light
+  */
   float get_range() const;
 };
