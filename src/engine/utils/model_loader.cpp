@@ -120,9 +120,6 @@ void model_loader::init() {
   wall.init();
   cube.init();
   triangle.init();
-  for (auto pair : models) {
-    pair.second->init();
-  }
 }
 
 void model_loader::deinit() const {
