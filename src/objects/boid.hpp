@@ -11,6 +11,13 @@
 
 #define MAX_FORCE 1.0f
 
+#define MAX_X 10.0f
+#define MAX_Y 10.0f
+#define MAX_Z 10.0f
+#define MIN_X -10.0f
+#define MIN_Y -10.0f
+#define MIN_Z -10.0f
+
 /*!
  @brief A species of boid, with parameters for flocking
 */
@@ -96,10 +103,19 @@ inline boid::boid(const shader *object_shader, const texture *tex,
 
 inline boid::~boid() {}
 
+inline float clamp(float value, float min, float max) {
+  if (value < min)
+    return min;
+  if (value > max)
+    return max;
+  return value;
+}
+
 inline void boid::update(const std::list<const boid *> &boids,
                          const collider *scene, double deltaTime) {
 
   glm::vec3 position = this->get_position();
+  fprintf(stderr, "Position: %f %f %f\n", position.x, position.y, position.z);
 
   glm::vec3 steer(0.0f); // steer accumulator
   {
@@ -111,6 +127,10 @@ inline void boid::update(const std::list<const boid *> &boids,
       }
       glm::vec3 diff = position - other->get_position();
       float distance = glm::length(diff);
+      if (distance == 0.0f) {
+        fprintf(stderr, "Distance is zero\n");
+        continue; // Skip if distance is zero to avoid division by zero
+      }
       if (other->get_species_id() == species->id) { // if species match
         // we add alignment speed if the boid is close enough
         if (distance < species->ali_dist) {
@@ -134,23 +154,41 @@ inline void boid::update(const std::list<const boid *> &boids,
     }
     if (count > 0) {
       steer /= count;
-      steer = glm::normalize(steer) * species->max_speed - velocity;
-      if (glm::length(steer) > MAX_FORCE) {
-        steer = glm::normalize(steer) * MAX_FORCE;
+      if (glm::length(steer) > 0.0f) {
+        steer = glm::normalize(steer) * species->max_speed - velocity;
+        if (glm::length(steer) > MAX_FORCE) {
+          steer = glm::normalize(steer) * MAX_FORCE;
+        }
+      } else {
+        fprintf(stderr, "Steer length is zero\n");
       }
     }
   }
 
+    // Log the steer vector
+  fprintf(stderr, "Steer: %f %f %f\n", steer.x, steer.y, steer.z);
+
+
   // custom addition: a preference for a certain y position
-  glm::vec3 pref_y =
-      glm::vec3(0., (float)pow(species->pref_y - position.y, 3.f), 0.) *
-      PREF_Y_SCALE;
+  float pref_y_value = pow(species->pref_y - position.y, 3.f);
+  pref_y_value =
+      clamp(pref_y_value, -1000.0f, 1000.0f); // Clamping the value
+  glm::vec3 pref_y = glm::vec3(0., pref_y_value, 0.) * PREF_Y_SCALE;
+
+    // Log the pref_y vector
+  fprintf(stderr, "Pref_y: %f %f %f\n", pref_y.x, pref_y.y, pref_y.z);
+
 
   this->apply_force(steer + pref_y);
 
   this->evaluate(deltaTime);
 
   glm::vec3 translation = velocity * (float)deltaTime;
+
+    // Log the translation vector
+  fprintf(stderr, "Translation: %f %f %f\n", translation.x, translation.y,
+          translation.z);
+
 
   glm::vec3 target = position + translation;
 
@@ -162,10 +200,38 @@ inline void boid::update(const std::list<const boid *> &boids,
       scene->check_line(negbound, negbound + translation)) {
     this->velocity = -this->velocity;
   } else {
+
+    if (target.x < MIN_X) {
+      target.x = MIN_X;
+      this->velocity.x = -this->velocity.x;
+    } else if (target.x > MAX_X) {
+      target.x = MAX_X;
+      this->velocity.x = -this->velocity.x;
+    }
+
+    if (target.y < MIN_Y) {
+      target.y = MIN_Y;
+      this->velocity.y = -this->velocity.y;
+    } else if (target.y > MAX_Y) {
+      target.y = MAX_Y;
+      this->velocity.y = -this->velocity.y;
+    }
+
+    if (target.z < MIN_Z) {
+      target.z = MIN_Z;
+      this->velocity.z = -this->velocity.z;
+    } else if (target.z > MAX_Z) {
+      target.z = MAX_Z;
+      this->velocity.z = -this->velocity.z;
+    }
+
     this->set_position(target);
   }
+  // Log the final position
+  position = this->get_position();
+  fprintf(stderr, "Updated Position: %f %f %f\n", position.x, position.y,
+          position.z);
 }
-
 inline uint32_t boid::get_species_id() const { return species->id; }
 
 inline void boid::evaluate(double deltaTime) { entity::evaluate(deltaTime); }

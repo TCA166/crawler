@@ -4,29 +4,29 @@
 #define CAMERA_Y_OFFSET 1.0f
 #define CAMERA_SPEED 10.0f
 
-#define LIGHT_STRENGTH 0.5f
-#define LIGHT_RANGE 15.0f
+#define LIGHT_STRENGTH 0.9f
+#define LIGHT_RANGE 30.0f
 #define LIGHT_FOV glm::radians(70.f)
 #define LIGHT_OFFSET 0.25f
 
 #define FLOOR_SIZE 100
 #define TREE_COUNT 20
 
-#define FLOCK_COUNT 10
+#define FLOCK_COUNT 1
 // the radius from 0.0 to spawn boid flocks
 #define SPAWN_RADIUS 10.0f
 // the radius of the flock
 #define FLOCK_RADIUS 5.0f
-#define FLOCK_SIZE 15
+#define FLOCK_SIZE 10
 
-#define MIN_FLOCK_Y 10.0f
-#define MAX_FLOCK_Y 20.0f
+#define MIN_FLOCK_Y 5.0f
+#define MAX_FLOCK_Y 10.0f
 
-#define MIN_FLOCK_SPEED 3.0f
-#define MAX_FLOCK_SPEED 8.0f
+#define MIN_FLOCK_SPEED 0.1f
+#define MAX_FLOCK_SPEED 2.0f
 
-#define MIN_FLOCK_SEP 5.0f
-#define MAX_FLOCK_SEP 15.0f
+#define MIN_FLOCK_SEP 2.0f
+#define MAX_FLOCK_SEP 7.0f
 
 #define MIN_FLOCK_COH 15.0f
 #define MAX_FLOCK_COH 25.0f
@@ -63,6 +63,7 @@ void game::init(camera *target_camera) {
   if (initialized) {
     return;
   }
+
   textured_shader =
       new shader(SHADER_PATH("textured.vert"), SHADER_PATH("textured.frag"));
   simple_shader = new shader(SHADER_PATH("textured.vert"),

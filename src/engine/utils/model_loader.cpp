@@ -3,15 +3,42 @@
 #include <stdexcept>
 
 static const std::vector<float> triangle_data = {
-    MODEL_LINE(-.5f, -.5f, -.5f, 0.f, 0.f, 0.f, 0.f, 1.f, 0.f, 0.f, 0.f, 0.f,
-               0.f, 0.f),
-    MODEL_LINE(-.5f, -.5f, .5f, 0.f, 1.f, 0.f, 0.f, 1.f, 0.f, 0.f, 0.f, 0.f,
-               0.f, 0.f),
-    MODEL_LINE(-.5f, .5f, -.5f, 1.f, 1.f, 0.f, 0.f, 1.f, 0.f, 0.f, 0.f, 0.f,
-               0.f, 0.f),
+    // Bottom pyramid
+    MODEL_LINE(0.0f, -0.5f, 0.0f, 0.5f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f,
+               0.0f, 0.0f, 1.0f, 0.0f),
+    MODEL_LINE(-0.5f, 0.0f, -0.5f, 0.0f, 0.5f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f,
+               0.0f, 0.0f, 1.0f, 0.0f),
+    MODEL_LINE(0.5f, 0.0f, -0.5f, 1.0f, 0.5f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f,
+               0.0f, 0.0f, 1.0f, 0.0f),
+    MODEL_LINE(0.5f, 0.0f, 0.5f, 1.0f, 0.5f, 1.0f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f,
+               0.0f, 1.0f, 0.0f),
+    MODEL_LINE(-0.5f, 0.0f, 0.5f, 0.0f, 0.5f, 1.0f, 0.0f, 1.0f, 0.0f, 1.0f,
+               0.0f, 0.0f, 1.0f, 0.0f),
+    // Top pyramid
+    MODEL_LINE(0.0f, 0.5f, 0.0f, 0.5f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f,
+               0.0f, 1.0f, 0.0f),
+    MODEL_LINE(-0.5f, 0.0f, -0.5f, 0.0f, 0.5f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f,
+               0.0f, 0.0f, 1.0f, 0.0f),
+    MODEL_LINE(0.5f, 0.0f, -0.5f, 1.0f, 0.5f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f,
+               0.0f, 0.0f, 1.0f, 0.0f),
+    MODEL_LINE(0.5f, 0.0f, 0.5f, 1.0f, 0.5f, 1.0f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f,
+               0.0f, 1.0f, 0.0f),
+    MODEL_LINE(-0.5f, 0.0f, 0.5f, 0.0f, 0.5f, 1.0f, 0.0f, 1.0f, 0.0f, 1.0f,
+               0.0f, 0.0f, 1.0f, 0.0f),
 };
 
-static const std::vector<unsigned int> triangle_indices = {0, 1, 2};
+static const std::vector<unsigned int> triangle_indices = {
+    // Bottom pyramid
+    0, 1, 2, // First triangle
+    0, 2, 3, // Second triangle
+    0, 3, 4, // Third triangle
+    0, 4, 1, // Fourth triangle
+    // Top pyramid
+    5, 6, 7, // First triangle
+    5, 7, 8, // Second triangle
+    5, 8, 9, // Third triangle
+    5, 9, 6  // Fourth triangle
+};
 
 static const std::vector<float> cube_data = {
     MODEL_LINE(-.5f, -.5f, -.5f, 0.f, 0.f, -1.f, 0.f, 0.f, -1.f, 1.f, 0.f, 0.f,
@@ -98,10 +125,14 @@ model_loader &model_loader::get() {
 const model *model_loader::get_model(const std::string &key) {
   try {
     return models.at(key);
+    fprintf(stderr, "Model %s found\n", key.c_str());
   } catch (const std::out_of_range &e) {
 #ifndef STATIC_ASSETS
+    fprintf(stderr, "creating new model");
     model *new_model = new model(key);
+    fprintf(stderr, "adding model");
     models[key] = new_model;
+    fprintf(stderr, "about to return a model");
     return new_model;
 #else
     throw std::runtime_error("Model not found");
