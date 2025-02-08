@@ -10,12 +10,19 @@ scene::scene(glm::vec3 ambient_light, glm::vec3 background_color)
 
 scene::~scene() {}
 
-void scene::set_skybox(skybox *sky) { this->sky = sky; }
+void scene::set_skybox(const shader *skybox_shader, skybox *sky) {
+  this->skybox_shader = skybox_shader;
+  this->sky = sky;
+}
 
-void scene::add_object(object *obj) { objects.push_back(obj); }
+void scene::add_object(const shader *target_shader, const object *obj) {
+  objects[target_shader].push_back(obj);
+}
 
 void scene::remove_object(const object *obj) {
-  objects.remove(const_cast<object *>(obj));
+  for (auto &pair : objects) {
+    pair.second.remove(obj);
+  }
 }
 
 void scene::remove_light(const light *lght) {
@@ -49,13 +56,38 @@ void scene::render(const camera &target_camera, uint16_t width,
   if (sky != nullptr) {
     // special projection matrix that removes the translation
     glm::mat4 viewProjection = projection * glm::mat4(glm::mat3(view));
-    sky->render(&viewProjection, target_camera.get_position(),
-                (const std::list<const light *> &)lights, ambient_light);
+    skybox_shader->use();
+    skybox_shader->apply_uniform_mat4(viewProjection, "viewProjection");
+
+    sky->render(&target_camera, skybox_shader, 0);
   }
   glm::mat4 viewProjection = projection * view;
-  for (const object *obj : objects) {
-    obj->render(&viewProjection, target_camera.get_position(),
-                (const std::list<const light *> &)lights, ambient_light);
+  for (auto collection : objects) {
+    const shader *current_shader = collection.first;
+    current_shader->use();
+    current_shader->apply_uniform_mat4(viewProjection, "viewProjection");
+    current_shader->apply_uniform_vec3(target_camera.get_position(), "viewPos");
+    current_shader->apply_uniform_vec3(ambient_light, "ambientLight");
+
+    uint32_t i = 0;
+    for (auto light : lights) {
+      std::string name = "lights[" + std::to_string(i) + "]";
+      current_shader->apply_uniform_vec3(light->get_position(),
+                                         name + ".position");
+      current_shader->apply_uniform_vec3(light->get_color(), name + ".color");
+      current_shader->apply_uniform_mat4(light->get_light_space(),
+                                         name + ".lightSpaceMatrix");
+      current_shader->apply_uniform_scalar(light->get_range(), name + ".range");
+      light->use_depth_map(i);
+      current_shader->apply_uniform(i, name + ".depthMap");
+      i++;
+    }
+    current_shader->apply_uniform(lights.size(), "numLights");
+
+    for (const object *obj : collection.second) {
+      obj->render(&target_camera, current_shader, i);
+    }
+    glUseProgram(0);
   }
 }
 
@@ -70,9 +102,11 @@ void scene::shadow_pass() const {
     light_pass_shader->apply_uniform_mat4(lght->get_light_space(),
                                           "lightSpaceMatrix");
     // draw all the objects
-    for (const object *obj : objects) {
-      light_pass_shader->apply_uniform_mat4(obj->get_model_matrix(), "model");
-      obj->draw();
+    for (auto collection : objects) {
+      for (const object *obj : collection.second) {
+        light_pass_shader->apply_uniform_mat4(obj->get_model_matrix(), "model");
+        obj->draw();
+      }
     }
     // cleanup
     glBindFramebuffer(GL_FRAMEBUFFER, 0);

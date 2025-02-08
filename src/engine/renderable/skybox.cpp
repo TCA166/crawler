@@ -1,7 +1,9 @@
 #include "skybox.hpp"
 
-skybox::skybox(const shader *skybox_shader, std::vector<std::string> &paths)
-    : cube(skybox_shader, 0.0, 0.0, 0.0) {
+#include "../utils/model_loader.hpp"
+
+skybox::skybox(std::vector<std::string> &paths)
+    : object(model_loader::get().get_cube(), 0.0, 0.0, 0.0) {
   skybox_texture = new cubemap(paths);
   this->add_texture(skybox_texture, "skybox");
   this->set_scale(100.0);
@@ -9,10 +11,9 @@ skybox::skybox(const shader *skybox_shader, std::vector<std::string> &paths)
 
 skybox::~skybox() { delete skybox_texture; }
 
-void skybox::render(const glm::mat4 *view_projection, glm::vec3 camera_position,
-                    const std::list<const light *> &lights,
-                    glm::vec3 ambient_light) const {
+void skybox::render(const camera *target_camera, const shader *current_shader,
+                    uint32_t tex_off) const {
   glDepthFunc(GL_LEQUAL);
-  object::render(view_projection, camera_position, lights, ambient_light);
+  object::render(target_camera, current_shader, tex_off);
   glDepthFunc(GL_LESS);
 }

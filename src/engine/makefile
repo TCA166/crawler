@@ -20,9 +20,6 @@ gl.o: renderer.o texture.o shader.o cubemap.o
 
 # renderable subfolder
 
-cube.o: renderable/cube.cpp renderable/cube.hpp
-	$(CC) $(IFLAGS) $(CFLAGS) -c renderable/cube.cpp
-
 object.o: renderable/object.cpp renderable/object.hpp
 	$(CC) $(IFLAGS) $(CFLAGS) -c renderable/object.cpp
 
@@ -32,14 +29,8 @@ model.o: renderable/model.cpp renderable/model.hpp
 skybox.o: renderable/skybox.cpp renderable/skybox.hpp
 	$(CC) $(IFLAGS) $(CFLAGS) -c renderable/skybox.cpp
 
-wall.o: renderable/wall.cpp renderable/wall.hpp
-	$(CC) $(IFLAGS) $(CFLAGS) -c renderable/wall.cpp
-
-triangle.o: renderable/triangle.cpp renderable/triangle.hpp
-	$(CC) $(IFLAGS) $(CFLAGS) -c renderable/triangle.cpp
-
-renderable.o: cube.o object.o skybox.o wall.o triangle.o model.o
-	$(CC) $(CFLAGS) -r cube.o object.o skybox.o wall.o model.o triangle.o -o renderable.o
+renderable.o: object.o skybox.o model.o
+	$(CC) $(CFLAGS) -r object.o skybox.o model.o -o renderable.o
 
 # scene subfolder
 

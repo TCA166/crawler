@@ -2,7 +2,7 @@
 #pragma once
 
 #include <list>
-#include <map>
+#include <unordered_map>
 #include <vector>
 
 #include "../abc/collider.hpp"
@@ -18,7 +18,6 @@
 */
 class object : public moveable, public collider {
 private:
-  const shader *object_shader;
   glm::vec3 scale, rot;
   const model *object_model;
 
@@ -26,7 +25,7 @@ protected:
   /*!
    @brief Map of name->texture
   */
-  std::map<std::string, const texture *> textures;
+  std::unordered_map<std::string, const texture *> textures;
   /*!
    @brief The number of textures
   */
@@ -59,44 +58,29 @@ protected:
 public:
   /*!
    @brief Constructs an object with a given shader and model
-   @param object_shader The shader to use for rendering
    @param object_model the model to use for this object
    @param xpos The x position of the object
    @param ypos The y position of the object
    @param zpos The z position of the object
   */
-  object(const shader *object_shader, const model *object_model, double xpos,
-         double ypos, double zpos);
+  object(const model *object_model, double xpos, double ypos, double zpos);
   /*!
    @brief Constructs an object with a given shader and a path to the obj file
-   @param object_shader The shader to use for rendering
    @param path the path to the obj file
    @param xpos The x position of the object
    @param ypos The y position of the object
    @param zpos The z position of the object
   */
-  object(const shader *object_shader, const std::string &path, double xpos,
-         double ypos, double zpos);
+  object(const std::string &path, double xpos, double ypos, double zpos);
   virtual ~object();
   /*!
    @brief Render the object
    @param target_camera The camera to render the object with
-   @param aspect_ratio The aspect ratio of the window
-   @param lights The lights to render the object with
-   @param ambient The ambient light to render the object with
+   @param current_shader The shader to render the object with
+   @param tex_off The offset to start the textures at
   */
-  void render(const camera *target_camera, float aspect_ratio,
-              const std::list<const light *> &lights, glm::vec3 ambient) const;
-  /*!
-   @brief Render the object, including drawing the object onto the viewport
-   @param viewProjection The view projection matrix to render the object with
-   @param viewPos The position of the camera
-   @param lights The lights to render the object with
-   @param ambient The ambient light to render the object with
-  */
-  virtual void render(const glm::mat4 *viewProjection, glm::vec3 viewPos,
-                      const std::list<const light *> &lights,
-                      glm::vec3 ambient) const;
+  void render(const camera *target_camera, const shader *current_shader,
+              uint32_t tex_off) const;
   /*!
    @brief Draws the object onto the viewport
   */

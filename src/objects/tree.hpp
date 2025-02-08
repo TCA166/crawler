@@ -206,63 +206,23 @@ private:
   float tip_y;
   branch tree;
   texture tex, norm;
-  std::list<object *> leaves;
-  const shader *leaves_shader;
-  const texture *leaf_tex;
 
 public:
-  random_tree(const shader *object_shader, const shader *leaves_shader,
-              const texture *leaf_texture, double xpos, double ypos,
-              double zpos);
+  random_tree(double xpos, double ypos, double zpos);
   ~random_tree();
-  virtual void render(const glm::mat4 *viewProjection, glm::vec3 viewPos,
-                      const std::list<const light *> &lights,
-                      glm::vec3 ambient) const;
 };
 
-inline random_tree::random_tree(const shader *object_shader,
-                                const shader *leaves_shader,
-                                const texture *leaf_texture, double xpos,
-                                double ypos, double zpos)
-    : object(object_shader, &tree, xpos, ypos, zpos),
+inline random_tree::random_tree(double xpos, double ypos, double zpos)
+    : object(&tree, xpos, ypos, zpos),
       segment_count(glm::linearRand(MIN_SEGMENTS, MAX_SEGMENTS)),
       tip_y(glm::linearRand(MIN_TIP_Y, MAX_TIP_Y)),
       tree(segment_count, SEGMENT_HEIGHT,
            glm::linearRand(MIN_BARK_RADIUS, MAX_BARK_RADIUS), BARK_VARIANCE,
            tip_y),
-      tex(TEXTURE_PATH("poplar.jpg")), norm(TEXTURE_PATH("poplar_normal.jpg")),
-      leaves_shader(leaves_shader), leaf_tex(leaf_texture) {
+      tex(TEXTURE_PATH("poplar.jpg")), norm(TEXTURE_PATH("poplar_normal.jpg")) {
   tree.init();
   add_texture(&tex, "texture0");
   add_texture(&norm, "normal0");
-  for (uint8_t i = 0; i < 5; i++) {
-    object *leaf =
-        new object(leaves_shader, model_loader::get().get_cube(), xpos,
-                   ypos + (segment_count * SEGMENT_HEIGHT) + tip_y / 2, zpos);
-    leaf->add_texture(leaf_tex, "texture0");
-    leaf->set_rotation(glm::ballRand((float)(2.f * M_PI)));
-    leaf->set_scale(glm::linearRand(1.f, LEAF_MAX_SIZE),
-                    glm::linearRand(1.f, LEAF_MAX_SIZE),
-                    glm::linearRand(1.f, LEAF_MAX_SIZE));
-    leaves.push_back(leaf);
-  }
 }
 
 inline random_tree::~random_tree() {}
-
-inline void random_tree::render(const glm::mat4 *viewProjection,
-                                glm::vec3 viewPos,
-                                const std::list<const light *> &lights,
-                                glm::vec3 ambient) const {
-  object::render(viewProjection, viewPos, lights, ambient);
-  leaves_shader->use();
-  leaves_shader->apply_uniform_mat4(*viewProjection, "viewProjection");
-  leaves_shader->apply_uniform_vec3(ambient, "ambientLight");
-  leaves_shader->apply_uniform_vec3(viewPos, "viewPos");
-  leaves_shader->apply_uniform_scalar(1e10, "shininess");
-  leaf_tex->set_active_texture(leaves_shader, 0, "texture0");
-  for (object *leaf : leaves) {
-    leaves_shader->apply_uniform_mat4(leaf->get_model_matrix(), "model");
-    leaf->draw();
-  }
-}

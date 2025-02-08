@@ -40,8 +40,8 @@ public:
    @param height The height of the floor
    @param resolution The distance between each sample
   */
-  random_floor(const shader *object_shader, double xpos, double ypos,
-               double zpos, uint32_t width, uint32_t height, float resolution);
+  random_floor(double xpos, double ypos, double zpos, uint32_t width,
+               uint32_t height, float resolution);
   ~random_floor();
   /*!
    @brief Sample the noise at a given point
@@ -157,10 +157,10 @@ static inline std::vector<unsigned int> generate_indices(uint32_t width,
   return indices;
 }
 
-inline random_floor::random_floor(const shader *object_shader, double xpos,
-                                  double ypos, double zpos, uint32_t width,
-                                  uint32_t height, float resolution)
-    : object(object_shader, &floor, xpos, ypos, zpos),
+inline random_floor::random_floor(double xpos, double ypos, double zpos,
+                                  uint32_t width, uint32_t height,
+                                  float resolution)
+    : object(&floor, xpos, ypos, zpos),
       noise_shift(glm::linearRand(0.f, NOISE_TEMP),
                   glm::linearRand(0.f, NOISE_TEMP)),
       floor(generate_data(width, height, resolution, noise_shift),
