@@ -45,3 +45,5 @@ main
 # C converted textures
 
 static
+
+.out*

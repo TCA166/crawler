@@ -4,7 +4,7 @@
 #define SHADER_PATH(name) "shaders/" name
 #define MODEL_PATH(name) "models/" name
 
-#define SHADOW_RES 4096
+#define SHADOW_RES 1024
 
 enum axes { X, Y, Z };
 

@@ -31,6 +31,9 @@
 #define MIN_FLOCK_COH 15.0f
 #define MAX_FLOCK_COH 25.0f
 
+#define LEAF_IMAGE_SIZE 256
+#define COLOR_VARIANCE 25
+
 #define CAMERA_COLLISION_EPS (RENDER_MIN * 5e2f + 1.f)
 
 game::game(std::list<boid *> &boids)
@@ -69,6 +72,8 @@ void game::init(camera *target_camera) {
                              SHADER_PATH("simple_textured.frag"));
   debug_shader =
       new shader(SHADER_PATH("textured.vert"), SHADER_PATH("red.frag"));
+  leaf_shader =
+      new shader(SHADER_PATH("leaves.vert"), SHADER_PATH("leaves.frag"));
   floor1 = new random_floor(textured_shader, FLOOR_SIZE / -2., 0.0,
                             FLOOR_SIZE / -2., FLOOR_SIZE, FLOOR_SIZE, 0.1);
   this->add_object(floor1);
@@ -107,13 +112,16 @@ void game::init(camera *target_camera) {
 
   // tree spawning
 
+  leaf_tex = create_random_leaf_texture(LEAF_IMAGE_SIZE, COLOR_VARIANCE);
+
   for (int x = FLOOR_SIZE / -2; x < FLOOR_SIZE / 2;
        x += FLOOR_SIZE / TREE_COUNT) {
     for (int z = FLOOR_SIZE / -2; z < FLOOR_SIZE / 2;
          z += FLOOR_SIZE / TREE_COUNT) {
       glm::vec2 pos = glm::vec2(x, z) + glm::circularRand(3.f);
-      random_tree *tree = new random_tree(
-          textured_shader, pos.x, floor1->sample_noise(pos.x, pos.y), pos.y);
+      random_tree *tree =
+          new random_tree(textured_shader, leaf_shader, leaf_tex, pos.x,
+                          floor1->sample_noise(pos.x, pos.y), pos.y);
       this->add_object(tree);
       trees.push_back(tree);
     }
