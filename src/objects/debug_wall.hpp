@@ -9,7 +9,6 @@ class debug_wall : public object {
 public:
   /*!
    @brief Constructs a debug wall object
-   @param object_shader The shader to use for rendering
    @param tex The texture of the object
    @param norm The normal map of the object
    @param xpos The x position of the object

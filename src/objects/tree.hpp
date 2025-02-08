@@ -200,6 +200,9 @@ inline texture *create_random_leaf_texture(uint32_t size,
 
 #define LEAF_MAX_SIZE 1.5f
 
+/*!
+ @brief A procedurally generated model of a tree
+*/
 class random_tree : public object {
 private:
   uint8_t segment_count;
@@ -208,6 +211,12 @@ private:
   texture tex, norm;
 
 public:
+  /*!
+   @brief Constructs a random tree object
+   @param xpos The x position of the tree
+   @param ypos The y position of the tree
+   @param zpos The z position of the tree
+  */
   random_tree(double xpos, double ypos, double zpos);
   ~random_tree();
 };
