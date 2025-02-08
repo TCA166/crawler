@@ -12,18 +12,18 @@
 #define FLOOR_SIZE 100
 #define TREE_COUNT 20
 
-#define FLOCK_COUNT 1
+#define FLOCK_COUNT 3
 // the radius from 0.0 to spawn boid flocks
 #define SPAWN_RADIUS 10.0f
 // the radius of the flock
 #define FLOCK_RADIUS 5.0f
-#define FLOCK_SIZE 10
+#define FLOCK_SIZE 6
 
 #define MIN_FLOCK_Y 5.0f
 #define MAX_FLOCK_Y 10.0f
 
 #define MIN_FLOCK_SPEED 0.1f
-#define MAX_FLOCK_SPEED 2.0f
+#define MAX_FLOCK_SPEED 0.5f
 
 #define MIN_FLOCK_SEP 2.0f
 #define MAX_FLOCK_SEP 7.0f

@@ -28,16 +28,14 @@ static const std::vector<float> triangle_data = {
 };
 
 static const std::vector<unsigned int> triangle_indices = {
-    // Bottom pyramid
-    0, 1, 2, // First triangle
-    0, 2, 3, // Second triangle
-    0, 3, 4, // Third triangle
-    0, 4, 1, // Fourth triangle
-    // Top pyramid
-    5, 6, 7, // First triangle
-    5, 7, 8, // Second triangle
-    5, 8, 9, // Third triangle
-    5, 9, 6  // Fourth triangle
+    0, 1, 2,
+    0, 2, 3,
+    0, 3, 4,
+    0, 4, 1,
+    5, 6, 7,
+    5, 7, 8,
+    5, 8, 9,
+    5, 9, 6 
 };
 
 static const std::vector<float> cube_data = {
