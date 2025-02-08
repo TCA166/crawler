@@ -107,7 +107,7 @@ inline void boid::update(const std::list<const boid *> &boids,
                          const collider *scene, double deltaTime) {
 
   glm::vec3 position = this->get_position();
-  fprintf(stderr, "Position: %f %f %f\n", position.x, position.y, position.z);
+  //fprintf(stderr, "Position: %f %f %f\n", position.x, position.y, position.z);
 
   glm::vec3 steer(0.0f); // steer accumulator
   {
@@ -120,7 +120,7 @@ inline void boid::update(const std::list<const boid *> &boids,
       glm::vec3 diff = position - other->get_position();
       float distance = glm::length(diff);
       if (distance == 0.0f) {
-        fprintf(stderr, "Distance is zero\n");
+        //fprintf(stderr, "Distance is zero\n");
         continue;
       }
       if (other->get_species_id() == species->id) { // if species match
@@ -152,7 +152,7 @@ inline void boid::update(const std::list<const boid *> &boids,
           steer = glm::normalize(steer) * MAX_FORCE;
         }
       } else {
-        fprintf(stderr, "Steer length is zero\n");
+        //fprintf(stderr, "Steer length is zero\n");
       }
     }
   }

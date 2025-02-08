@@ -12,12 +12,12 @@
 #define FLOOR_SIZE 100
 #define TREE_COUNT 20
 
-#define FLOCK_COUNT 3
+#define FLOCK_COUNT 1
 // the radius from 0.0 to spawn boid flocks
 #define SPAWN_RADIUS 10.0f
 // the radius of the flock
 #define FLOCK_RADIUS 5.0f
-#define FLOCK_SIZE 6
+#define FLOCK_SIZE 2
 
 #define MIN_FLOCK_Y 5.0f
 #define MAX_FLOCK_Y 10.0f
@@ -117,6 +117,20 @@ void game::init(camera *target_camera) {
           textured_shader, pos.x, floor1->sample_noise(pos.x, pos.y), pos.y);
       this->add_object(tree);
       trees.push_back(tree);
+    }
+  }
+
+
+    // grass spawning
+
+  for (int x = FLOOR_SIZE / -2; x < FLOOR_SIZE / 2; x += 2) {
+    for (int z = FLOOR_SIZE / -2; z < FLOOR_SIZE / 2; z += 2) {
+      glm::vec2 pos = glm::vec2(x, z) + glm::circularRand(1.0f);
+      float y = floor1->sample_noise(pos.x, pos.y);
+      object *grass1 = new object(debug_shader, model_loader::get().get_grass(),
+                                 pos.x, y, pos.y);
+      fprintf(stderr, "Grass at %f %f %f\n", pos.x, y, pos.y);
+      this->add_object(grass1);
     }
   }
 

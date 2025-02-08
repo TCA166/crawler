@@ -38,6 +38,20 @@ static const std::vector<unsigned int> triangle_indices = {
     5, 9, 6 
 };
 
+// Grass model data
+static const std::vector<float> grass_data = {
+    MODEL_LINE(-0.05f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f,
+               0.0f, 0.0f, 1.0f, 0.0f),
+    MODEL_LINE(0.05f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f,
+               0.0f, 0.0f, 1.0f, 0.0f),
+    MODEL_LINE(-0.05f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f,
+               0.0f, 0.0f, 1.0f, 0.0f),
+    MODEL_LINE(0.05f, 1.0f, 0.0f, 1.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f,
+               0.0f, 0.0f, 1.0f, 0.0f)};
+
+static const std::vector<unsigned int> grass_indices = {0, 1, 2, 1, 3, 2};
+
+
 static const std::vector<float> cube_data = {
     MODEL_LINE(-.5f, -.5f, -.5f, 0.f, 0.f, -1.f, 0.f, 0.f, -1.f, 1.f, 0.f, 0.f,
                0.f, 1.f),
@@ -112,6 +126,8 @@ model_loader::model_loader()
     : cube(cube_data, cube_indices, glm::vec3(0.5), glm::vec3(-0.5)),
       triangle(triangle_data, triangle_indices, glm::vec3(-0.5, 0.5, 0.5),
                glm::vec3(-0.5, -0.5, -0.5)),
+      grass(grass_data, grass_indices, glm::vec3(0.05, 1.0, 0.0),
+            glm::vec3(-0.05, 0.0, 0.0)),
       wall(wall_data, wall_indices, glm::vec3(0.5, 0.5, 0.0),
            glm::vec3(-0.5, -0.5, 0.0)) {}
 
@@ -141,6 +157,8 @@ const model *model_loader::get_model(const std::string &key) {
 const model *model_loader::get_cube() const { return &cube; }
 
 const model *model_loader::get_triangle() const { return &triangle; }
+
+const model *model_loader::get_grass() const { return &grass; }
 
 const model *model_loader::get_wall() const { return &wall; }
 

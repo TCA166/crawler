@@ -7,6 +7,7 @@
 #include "../objects/debug_wall.hpp"
 #include "../objects/random_floor.hpp"
 #include "../objects/tree.hpp"
+#include "../engine/renderable/grass.hpp"
 
 /*!
  @brief The scene used for the game.
@@ -27,6 +28,7 @@ private:
   std::vector<boid_species *> species;
   std::vector<random_tree *> trees;
   texture *boid_tex, *boid_norm;
+  object *grass1;
 
 public:
   /*!

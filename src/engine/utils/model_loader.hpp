@@ -16,6 +16,7 @@
 class model_loader {
 private:
   model cube;
+  model grass;
   model triangle;
   model wall;
   std::map<std::string, model *> models;
@@ -43,6 +44,11 @@ public:
    @return Triangle model
   */
   const model *get_triangle() const;
+  /*!
+  @brief Gets the grass model
+  @return Grass model
+ */
+  const model *get_grass() const;
   /*!
    @brief Gets the wall model
    @return Wall model
