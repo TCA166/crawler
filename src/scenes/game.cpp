@@ -153,12 +153,21 @@ void game::update(camera *target_camera, double delta_time, double) {
     move = glm::normalize(move) * CAMERA_SPEED * (float)delta_time;
     glm::vec3 collision_dist = move * CAMERA_COLLISION_EPS;
     if (!check_line(camera_position, camera_position + collision_dist)) {
-      target_camera->translate(move);
-      camera_position = target_camera->get_position();
-      camera_position.y =
-          floor1->sample_noise(camera_position.x, camera_position.z) +
-          CAMERA_Y_OFFSET;
-      target_camera->set_position(camera_position);
+      bool tree_collision = false;
+      for (auto &tree : trees) {
+        if (tree->check_line(camera_position, camera_position + move)) {
+          tree_collision = true;
+          break;
+        }
+      }
+      if (!tree_collision) {
+        target_camera->translate(move);
+        camera_position = target_camera->get_position();
+        camera_position.y =
+            floor1->sample_noise(camera_position.x, camera_position.z) +
+            CAMERA_Y_OFFSET;
+        target_camera->set_position(camera_position);
+      }
     }
   }
   if (rot_left) {
@@ -172,11 +181,10 @@ void game::update(camera *target_camera, double delta_time, double) {
   }
 
   if (shooting) {
-    glm::vec3 shoot_position = camera_position + camera_front * 10.0f;
-
     // Collision detection
     for (auto &tri : boids) {
-      if (tri->check_line(camera_position, shoot_position)) {
+      if (tri->check_line(camera_position,
+                          camera_position + camera_front * 100.0f)) {
         this->remove_object(tri);
         delete tri;
         boids.remove(tri);
