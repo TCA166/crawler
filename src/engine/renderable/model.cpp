@@ -45,6 +45,19 @@ model::model(const std::string &path) {
   float zbound = -std::numeric_limits<float>::infinity();
   float znegbound = std::numeric_limits<float>::infinity();
 
+  if (mesh->mNormals == nullptr) {
+    throw std::runtime_error("No normals found in mesh");
+  }
+  if (mesh->mTangents == nullptr) {
+    throw std::runtime_error("No tangents found in mesh");
+  }
+  if (mesh->mBitangents == nullptr) {
+    throw std::runtime_error("No bitangents found in mesh");
+  }
+  if (mesh->mTextureCoords[0] == nullptr) {
+    throw std::runtime_error("No texture coordinates found in mesh");
+  }
+
   for (unsigned int i = 0; i < mesh->mNumVertices; i++) {
     if (mesh->mVertices[i].x > xbound) {
       xbound = mesh->mVertices[i].x;
@@ -67,51 +80,28 @@ model::model(const std::string &path) {
       znegbound = mesh->mVertices[i].z;
     }
     data.push_back(mesh->mVertices[i].z);
-    if (mesh->mTextureCoords[0] != nullptr) {
-      data.push_back(mesh->mTextureCoords[0][i].x);
-      data.push_back(mesh->mTextureCoords[0][i].y);
-    } else {
-      data.push_back(0.0f);
-      data.push_back(0.0f);
-    }
-    if (mesh->mNormals != nullptr) {
-      data.push_back(mesh->mNormals[i].x);
-      data.push_back(mesh->mNormals[i].y);
-      data.push_back(mesh->mNormals[i].z);
-    } else {
-      data.push_back(0.0f);
-      data.push_back(0.0f);
-      data.push_back(0.0f);
-    }
-    if (mesh->mTangents != nullptr) {
-      data.push_back(mesh->mTangents[i].x);
-      data.push_back(mesh->mTangents[i].y);
-      data.push_back(mesh->mTangents[i].z);
-    } else {
-      data.push_back(0.0f);
-      data.push_back(0.0f);
-      data.push_back(0.0f);
-    }
-    if (mesh->mBitangents != nullptr) {
-      data.push_back(mesh->mBitangents[i].x);
-      data.push_back(mesh->mBitangents[i].y);
-      data.push_back(mesh->mBitangents[i].z);
-    } else {
-      data.push_back(0.0f);
-      data.push_back(0.0f);
-      data.push_back(0.0f);
+    data.push_back(mesh->mTextureCoords[0][i].x);
+    data.push_back(mesh->mTextureCoords[0][i].y);
+    data.push_back(mesh->mNormals[i].x);
+    data.push_back(mesh->mNormals[i].y);
+    data.push_back(mesh->mNormals[i].z);
+    data.push_back(mesh->mTangents[i].x);
+    data.push_back(mesh->mTangents[i].y);
+    data.push_back(mesh->mTangents[i].z);
+    data.push_back(mesh->mBitangents[i].x);
+    data.push_back(mesh->mBitangents[i].y);
+    data.push_back(mesh->mBitangents[i].z);
+  }
+
+  for (unsigned int i = 0; i < mesh->mNumFaces; i++) {
+    // retrieve all indices of the face and store them in the indices vector
+    for (unsigned int j = 0; j < mesh->mFaces[i].mNumIndices; j++) {
+      indices.push_back(mesh->mFaces[i].mIndices[j]);
     }
   }
 
   this->bounds = glm::vec3(xbound, ybound, zbound);
   this->negbounds = glm::vec3(xnegbound, ynegbound, znegbound);
-
-  for (unsigned int i = 0; i < mesh->mNumFaces; i++) {
-    aiFace face = mesh->mFaces[i];
-    // retrieve all indices of the face and store them in the indices vector
-    for (unsigned int j = 0; j < face.mNumIndices; j++)
-      indices.push_back(face.mIndices[j]);
-  }
 }
 #endif
 

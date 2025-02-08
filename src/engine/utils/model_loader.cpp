@@ -102,6 +102,7 @@ const model *model_loader::get_model(const std::string &key) {
 #ifndef STATIC_ASSETS
     model *new_model = new model(key);
     models[key] = new_model;
+    new_model->init();
     return new_model;
 #else
     throw std::runtime_error("Model not found");
