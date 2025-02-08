@@ -95,13 +95,15 @@ model_loader &model_loader::get() {
   return instance;
 }
 
-const model *model_loader::get_model(const std::string &key) {
+const model *model_loader::get_model(const std::string &key,
+                                     uint32_t mesh_index) {
+  std::pair<std::string, uint32_t> key_tuple = std::make_pair(key, mesh_index);
   try {
-    return models.at(key);
+    return models.at(key_tuple);
   } catch (const std::out_of_range &e) {
 #ifndef STATIC_ASSETS
-    model *new_model = new model(key);
-    models[key] = new_model;
+    model *new_model = new model(key, mesh_index);
+    models[key_tuple] = new_model;
     new_model->init();
     return new_model;
 #else

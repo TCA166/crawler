@@ -53,7 +53,7 @@ public:
    @brief Create a new model using the obj model at the provided path
    @param path the path pointing to the model
   */
-  model(const std::string &path);
+  model(const std::string &path, uint32_t mesh_index = 0);
 #endif
   ~model();
   /*!

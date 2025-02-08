@@ -12,9 +12,6 @@ object::object(const model *object_model, double xpos, double ypos, double zpos)
     : scale(glm::vec3(1.)), rot(glm::vec3(0.)), object_model(object_model),
       position(xpos, ypos, zpos) {}
 
-object::object(const std::string &path, double xpos, double ypos, double zpos)
-    : object(model_loader::get().get_model(path), xpos, ypos, zpos) {}
-
 object::~object() {
   for (object *parent : parents) {
     parent->remove_child(this);

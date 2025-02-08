@@ -64,14 +64,6 @@ public:
    @param zpos The z position of the object
   */
   object(const model *object_model, double xpos, double ypos, double zpos);
-  /*!
-   @brief Constructs an object with a given shader and a path to the obj file
-   @param path the path to the obj file
-   @param xpos The x position of the object
-   @param ypos The y position of the object
-   @param zpos The z position of the object
-  */
-  object(const std::string &path, double xpos, double ypos, double zpos);
   virtual ~object();
   /*!
    @brief Render the object

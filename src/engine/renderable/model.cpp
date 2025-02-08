@@ -22,7 +22,7 @@ model::model(const std::vector<float> &data,
     : data(data), indices(indices), bounds(bounds), negbounds(negbounds) {}
 
 #ifndef STATIC_ASSETS
-model::model(const std::string &path) {
+model::model(const std::string &path, uint32_t mesh_index) {
   Assimp::Importer import;
   const aiScene *scene =
       import.ReadFile(path, aiProcess_Triangulate | aiProcess_CalcTangentSpace);
@@ -35,8 +35,11 @@ model::model(const std::string &path) {
   if (scene->mNumMeshes == 0) {
     throw std::runtime_error("No meshes found in file");
   }
+  if (mesh_index >= scene->mNumMeshes) {
+    throw std::runtime_error("Mesh index out of bounds");
+  }
 
-  const aiMesh *mesh = scene->mMeshes[0];
+  const aiMesh *mesh = scene->mMeshes[mesh_index];
 
   float xbound = -std::numeric_limits<float>::infinity();
   float xnegbound = std::numeric_limits<float>::infinity();
