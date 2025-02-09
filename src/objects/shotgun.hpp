@@ -4,7 +4,7 @@
 #include "../engine/utils/model_loader.hpp"
 
 #define SHOTGUN_SPEED 0.5f
-#define MUZZLE_FLASH_LENGTH 0.02f
+#define MUZZLE_FLASH_LENGTH 0.05f
 
 /*!
  @brief An animated weapon. Purely decorative
