@@ -43,8 +43,7 @@ struct boid_species {
 };
 
 /*!
- @brief A boid object
- @details A boid object that can be used in a flocking simulation
+ @brief A boid object, a particle that can flock with other boids
 */
 class boid : public object, protected entity {
 public:

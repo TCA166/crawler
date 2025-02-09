@@ -5,7 +5,8 @@
 #include "texture.hpp"
 
 /*!
- @brief A cubemap texture
+ @brief A cubemap texture, so a texture consisting of 6 textures, each for a
+  different face of a cube.
 */
 class cubemap : public texture {
 public:

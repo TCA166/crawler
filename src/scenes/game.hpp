@@ -5,6 +5,7 @@
 #include "../objects/boid.hpp"
 #include "../objects/debug_cube.hpp"
 #include "../objects/debug_wall.hpp"
+#include "../objects/leaves.hpp"
 #include "../objects/random_floor.hpp"
 #include "../objects/tree.hpp"
 

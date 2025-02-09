@@ -18,10 +18,22 @@
 */
 class object : public moveable, public collider {
 protected:
-  glm::vec3 scale, rot;
+  /*!
+   @brief The scale of the object
+  */
+  glm::vec3 scale;
+  /*!
+   @brief The rotation of the object
+  */
+  glm::vec3 rot;
+  /*!
+   @brief The model of the object
+  */
   const model *object_model;
   /*!
    @brief Map of name->texture
+   @details This is used to provide the shader texture names, with map keys as
+    the texture names and the values as the textures
   */
   std::unordered_map<std::string, const texture *> textures;
   /*!

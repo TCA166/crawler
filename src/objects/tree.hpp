@@ -4,7 +4,6 @@
 
 #include "../engine/engine.hpp"
 #include "../engine/utils/model_loader.hpp"
-#include "../engine/utils/noise.hpp"
 
 // the number of points the curve of the cylinder is defined by
 #define BARK_POINTS 8
@@ -186,31 +185,6 @@ tree_model::get_branch_points() const {
   return branch_points;
 }
 
-inline texture *create_random_leaf_texture(uint32_t size,
-                                           uint8_t color_variance) {
-  uint8_t *leaf_data = new uint8_t[size * size * 4];
-  float radius = size / 2;
-  glm::vec2 image_center(radius, radius);
-  for (size_t x = 0; x < size; x++) {
-    for (size_t y = 0; y < size; y++) {
-      size_t i = (x + y * size) * 4;
-      float distance = glm::distance(glm::vec2(x, y), image_center);
-      if (distance > radius) {
-        leaf_data[i + 3] = 0;
-        continue; // outside the circle, make it transparent
-      }
-      leaf_data[i] = 0;
-      leaf_data[i + 1] =
-          (255 - color_variance) + glm::linearRand((uint8_t)0, color_variance);
-      leaf_data[i + 2] = 0;
-      float noise_val = noise(x, y) + 1.f * 128.f;
-      leaf_data[i + 3] = (uint8_t)noise_val; // alpha
-    }
-  }
-  image_t leaf_image = {leaf_data, size, size, 4};
-  return new texture(&leaf_image);
-}
-
 #define MIN_BARK_RADIUS 0.2f
 #define MAX_BARK_RADIUS 0.3f
 #define BARK_VARIANCE 0.01f
@@ -243,8 +217,16 @@ public:
   */
   random_tree(double xpos, double ypos, double zpos);
   ~random_tree();
+  /*!
+   @brief Gets the points constituting leaves on the logical level
+   @return A vector of point pairs
+  */
   const std::vector<std::pair<glm::vec3, glm::vec3>> &get_leaves_points() const;
-  float get_tip_y() const { return tree.get_bounds().y; }
+  /*!
+   @brief Gets the y position of the tip of the tree
+   @return The y position of the tip of the tree
+  */
+  float get_tip_y() const;
 };
 
 inline random_tree::random_tree(double xpos, double ypos, double zpos)
@@ -267,29 +249,4 @@ random_tree::get_leaves_points() const {
   return tree.get_branch_points();
 }
 
-class leaves : public object {
-public:
-  leaves(const texture *tex, const std::vector<glm::vec3> &points);
-  ~leaves();
-  void render(const camera *target_camera, const shader *current_shader,
-              uint32_t tex_off) const;
-
-private:
-  const texture *tex;
-};
-
-inline leaves::leaves(const texture *tex, const std::vector<glm::vec3> &points)
-    : object(model_loader::get().get_wall()->get_instanced(points), 0.f, 0.f,
-             0.f),
-      tex(tex) {}
-
-inline leaves::~leaves() {}
-
-inline void leaves::render(const camera *, const shader *current_shader,
-                           uint32_t tex_off) const {
-  current_shader->apply_uniform_mat4(get_model_matrix(), "model");
-  tex->set_active_texture(current_shader, tex_off, "leafTexture");
-  draw();
-  glActiveTexture(GL_TEXTURE0 + tex_off);
-  glBindTexture(GL_TEXTURE_2D, 0);
-}
+inline float random_tree::get_tip_y() const { return tip_y; }

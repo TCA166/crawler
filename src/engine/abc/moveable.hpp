@@ -4,7 +4,9 @@
 #include "../include.hpp"
 
 /*!
- @brief Interface(abstract class) for objects that can be moved
+ @brief Interface for objects that can be moved.
+ @warning The rotation should be expressed in radians, and the translation in
+ units.
 */
 class moveable {
 public:
