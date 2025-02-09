@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../engine/engine.hpp"
+#include "../engine/utils/model_loader.hpp"
 #include "../physics/entity.hpp"
 
 #define SEP_SCALE 4.0f
@@ -52,11 +53,10 @@ struct boid_species {
  @brief A boid object
  @details A boid object that can be used in a flocking simulation
 */
-class boid : public triangle, protected entity {
+class boid : public object, protected entity {
 public:
   /*!
    @brief Constructs a boid object
-   @param object_shader The shader to use for rendering
    @param tex The texture of the boid
    @param norm The normal map of the boid
    @param xpos The x position of the boid
@@ -64,8 +64,8 @@ public:
    @param zpos The z position of the boid
    @param species The species of the boid
   */
-  boid(const shader *object_shader, const texture *tex, const texture *norm,
-       double xpos, double ypos, double zpos, const boid_species *species);
+  boid(const texture *tex, const texture *norm, double xpos, double ypos,
+       double zpos, const boid_species *species);
   ~boid();
 
   /*!
@@ -87,15 +87,12 @@ private:
   void evaluate(double deltaTime);
 
   const boid_species *species;
-  const shader *triangle_object_shader;
 };
 
-inline boid::boid(const shader *object_shader, const texture *tex,
-                  const texture *norm, double xpos, double ypos, double zpos,
-                  const boid_species *species)
-    : triangle(object_shader, xpos, ypos, zpos),
-      entity(1.0f, glm::sphericalRand(0.5f)), species(species),
-      triangle_object_shader(object_shader) {
+inline boid::boid(const texture *tex, const texture *norm, double xpos,
+                  double ypos, double zpos, const boid_species *species)
+    : object(model_loader::get().get_triangle(), xpos, ypos, zpos),
+      entity(1.0f, glm::sphericalRand(0.5f)), species(species) {
   this->add_texture(tex, "texture0");
   this->add_texture(norm, "normal0");
   this->set_scale(0.5f);

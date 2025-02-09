@@ -5,7 +5,7 @@
 /*!
  @brief A wall with a texture and normal map
 */
-class debug_wall : public wall {
+class debug_wall : public object {
 public:
   /*!
    @brief Constructs a debug wall object
@@ -16,15 +16,14 @@ public:
    @param ypos The y position of the object
    @param zpos The z position of the object
   */
-  debug_wall(const shader *object_shader, const texture *tex,
-             const texture *norm, double xpos, double ypos, double zpos);
+  debug_wall(const texture *tex, const texture *norm, double xpos, double ypos,
+             double zpos);
   ~debug_wall();
 };
 
-inline debug_wall::debug_wall(const shader *object_shader, const texture *tex,
-                              const texture *norm, double xpos, double ypos,
-                              double zpos)
-    : wall(object_shader, xpos, ypos, zpos) {
+inline debug_wall::debug_wall(const texture *tex, const texture *norm,
+                              double xpos, double ypos, double zpos)
+    : object(model_loader::get().get_wall(), xpos, ypos, zpos) {
   this->add_texture(tex, "texture0");
   this->add_texture(norm, "normal0");
 }

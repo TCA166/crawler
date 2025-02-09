@@ -2,22 +2,21 @@
 
 #include "../gl/cubemap.hpp"
 #include "../gl/shader.hpp"
-#include "cube.hpp"
+#include "object.hpp"
 
 /*!
  @brief A cube with a skybox texture
 */
-class skybox : protected cube {
+class skybox : protected object {
 private:
   cubemap *skybox_texture;
 
 public:
   /*!
    @brief Create a new skybox object
-   @param skybox_shader The shader to use for rendering
    @param paths The paths to the skybox textures
   */
-  skybox(const shader *skybox_shader, std::vector<std::string> &paths);
+  skybox(std::vector<std::string> &paths);
   ~skybox();
   /*!
    @brief Render the skybox
@@ -26,7 +25,6 @@ public:
    @param lights The lights in the scene
    @param ambient_light The ambient light in the scene
   */
-  void render(const glm::mat4 *view_projection, glm::vec3 camera_position,
-              const std::list<const light *> &lights,
-              glm::vec3 ambient_light) const;
+  void render(const camera *target_camera, const shader *current_shader,
+              uint32_t tex_off) const;
 };

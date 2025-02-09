@@ -24,11 +24,9 @@ entity.o: src/physics/entity.cpp src/physics/entity.hpp
 physics.o: entity.o
 	$(CC) $(CFLAGS) -r entity.o -o physics.o
 
-game_object.o: src/game_object.cpp src/game_object.hpp
-	$(CC) $(IFLAGS) $(CFLAGS) -c src/game_object.cpp
 
-main: src/main.cpp engine.o scenes.o physics.o game_object.o
-	$(CC) $(CFLAGS) -o main src/main.cpp engine.o scenes.o physics.o game_object.o $(IFLAGS)
+main: src/main.cpp engine.o scenes.o physics.o
+	$(CC) $(CFLAGS) -o main src/main.cpp engine.o scenes.o physics.o $(IFLAGS)
 
 clean:
 	rm -f *.o main

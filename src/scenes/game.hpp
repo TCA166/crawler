@@ -2,12 +2,12 @@
 #pragma once
 
 #include "../engine/engine.hpp"
+#include "../engine/renderable/grass.hpp"
 #include "../objects/boid.hpp"
 #include "../objects/debug_cube.hpp"
 #include "../objects/debug_wall.hpp"
 #include "../objects/random_floor.hpp"
 #include "../objects/tree.hpp"
-#include "../engine/renderable/grass.hpp"
 
 /*!
  @brief The scene used for the game.
@@ -20,15 +20,15 @@ private:
   double xpos, ypos;
   skybox *sky;
   light *lght;
-  shader *textured_shader, *skybox_shader, *simple_shader, *debug_shader;
+  shader *textured_shader, *skybox_shader, *simple_shader, *debug_shader,
+      *leaf_shader;
   std::list<boid *> &boids;
   bool is_shooting;
   glm::vec3 shoot_direction;
   random_floor *floor1;
   std::vector<boid_species *> species;
   std::vector<random_tree *> trees;
-  texture *boid_tex, *boid_norm;
-  object *grass1;
+  texture *boid_tex, *boid_norm, *leaf_tex, *grasstex;
 
 public:
   /*!

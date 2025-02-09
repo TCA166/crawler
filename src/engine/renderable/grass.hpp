@@ -16,6 +16,6 @@ public:
    @param ypos The y position of the grass
    @param zpos The z position of the grass
   */
-  grass(const shader *object_shader, double xpos, double ypos, double zpos);
+  grass( double xpos, double ypos, double zpos);
   ~grass();
 };

@@ -2,8 +2,8 @@
 
 #include "../renderable/model.hpp"
 
-#include <map>
 #include <string>
+#include <unordered_map>
 
 /*!
  @brief A facility for loading models deinitialization
@@ -19,7 +19,7 @@ private:
   model grass;
   model triangle;
   model wall;
-  std::map<std::string, model *> models;
+  std::unordered_map<std::string, model *> models;
   model_loader();
 
 public:

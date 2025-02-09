@@ -12,7 +12,7 @@
 #define FLOOR_SIZE 100
 #define TREE_COUNT 20
 
-#define FLOCK_COUNT 1
+#define FLOCK_COUNT 5
 // the radius from 0.0 to spawn boid flocks
 #define SPAWN_RADIUS 10.0f
 // the radius of the flock
@@ -30,6 +30,9 @@
 
 #define MIN_FLOCK_COH 15.0f
 #define MAX_FLOCK_COH 25.0f
+
+#define LEAF_IMAGE_SIZE 256
+#define COLOR_VARIANCE 25
 
 #define CAMERA_COLLISION_EPS (RENDER_MIN * 5e2f + 1.f)
 
@@ -70,16 +73,23 @@ void game::init(camera *target_camera) {
                              SHADER_PATH("simple_textured.frag"));
   debug_shader =
       new shader(SHADER_PATH("textured.vert"), SHADER_PATH("red.frag"));
-  floor1 = new random_floor(textured_shader, FLOOR_SIZE / -2., 0.0,
-                            FLOOR_SIZE / -2., FLOOR_SIZE, FLOOR_SIZE, 0.1);
-  this->add_object(floor1);
+  leaf_shader =
+      new shader(SHADER_PATH("leaves.vert"), SHADER_PATH("leaves.frag"));
+  floor1 = new random_floor(FLOOR_SIZE / -2., 0.0, FLOOR_SIZE / -2., FLOOR_SIZE,
+                            FLOOR_SIZE, 0.5);
+  this->add_object(textured_shader, floor1);
   target_camera->set_position(
       glm::vec3(0.0, floor1->sample_noise(0.0, 0.0) + CAMERA_Y_OFFSET, 0.0));
   lght = new light(target_camera->get_position(), glm::vec3(LIGHT_STRENGTH),
                    LIGHT_FOV, LIGHT_RANGE);
   this->add_light(lght);
+
+  //object *grass2 = new object(model_loader::get().get_grass(), 0.0, 0.0, 0.0); 
+  //this->add_object(debug_shader, grass2);
+
   // flock spawning
   boid_tex = new texture(TEXTURE_PATH("diamond.png"));
+  grasstex = new texture(TEXTURE_PATH("grasspng.png"));
   boid_norm = new texture(TEXTURE_PATH("grass_normal.png"));
   for (uint8_t flock = 0; flock < FLOCK_COUNT; flock++) {
     boid_species *spec = new boid_species();
@@ -99,38 +109,40 @@ void game::init(camera *target_camera) {
                   glm::linearRand(-SPAWN_RADIUS, SPAWN_RADIUS));
     for (int i = 0; i < FLOCK_SIZE; ++i) {
       glm::vec3 pos = center + glm::ballRand(FLOCK_RADIUS);
-      boid *tri = new boid(textured_shader, boid_tex, boid_norm, pos.x, pos.y,
-                           pos.z, spec);
+      boid *tri = new boid(boid_tex, boid_norm, pos.x, pos.y, pos.z, spec);
       boids.push_back(tri);
-      this->add_object(tri);
+      this->add_object(textured_shader, tri);
+
     }
   }
 
   // tree spawning
+
+  leaf_tex = create_random_leaf_texture(LEAF_IMAGE_SIZE, COLOR_VARIANCE);
 
   for (int x = FLOOR_SIZE / -2; x < FLOOR_SIZE / 2;
        x += FLOOR_SIZE / TREE_COUNT) {
     for (int z = FLOOR_SIZE / -2; z < FLOOR_SIZE / 2;
          z += FLOOR_SIZE / TREE_COUNT) {
       glm::vec2 pos = glm::vec2(x, z) + glm::circularRand(3.f);
-      random_tree *tree = new random_tree(
-          textured_shader, pos.x, floor1->sample_noise(pos.x, pos.y), pos.y);
-      this->add_object(tree);
+      random_tree *tree =
+          new random_tree(pos.x, floor1->sample_noise(pos.x, pos.y), pos.y);
+      this->add_object(textured_shader, tree);
       trees.push_back(tree);
     }
   }
 
+  // grass spawning
 
-    // grass spawning
-
-  for (int x = FLOOR_SIZE / -2; x < FLOOR_SIZE / 2; x += 2) {
-    for (int z = FLOOR_SIZE / -2; z < FLOOR_SIZE / 2; z += 2) {
+  for (int x = FLOOR_SIZE / -2; x < FLOOR_SIZE / 2; x += 1) {
+    for (int z = FLOOR_SIZE / -2; z < FLOOR_SIZE / 2; z += 1) {
       glm::vec2 pos = glm::vec2(x, z) + glm::circularRand(1.0f);
       float y = floor1->sample_noise(pos.x, pos.y);
-      object *grass1 = new object(debug_shader, model_loader::get().get_grass(),
-                                 pos.x, y, pos.y);
+      grass *grass1 = new grass(
+                                  pos.x, y, pos.y);
       fprintf(stderr, "Grass at %f %f %f\n", pos.x, y, pos.y);
-      this->add_object(grass1);
+      grass1->add_texture(grasstex, "texture0");
+      this->add_object(textured_shader, grass1);
     }
   }
 
@@ -140,8 +152,8 @@ void game::init(camera *target_camera) {
       TEXTURE_PATH("sky.png"), TEXTURE_PATH("sky.png"),
       TEXTURE_PATH("sky.png"), TEXTURE_PATH("sky.png"),
       TEXTURE_PATH("sky.png"), TEXTURE_PATH("sky.png")};
-  sky = new skybox(skybox_shader, paths);
-  this->set_skybox(sky);
+  sky = new skybox(paths);
+  this->set_skybox(skybox_shader, sky);
   scene::init(target_camera);
 }
 

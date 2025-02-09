@@ -40,16 +40,31 @@ static const std::vector<unsigned int> triangle_indices = {
 
 // Grass model data
 static const std::vector<float> grass_data = {
-    MODEL_LINE(-0.05f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f,
+    // Pyramid Base
+    MODEL_LINE(-0.01f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.5f, 0.0f, -0.5f, 1.0f,
                0.0f, 0.0f, 1.0f, 0.0f),
-    MODEL_LINE(0.05f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f,
+    MODEL_LINE(0.01f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.5f, 0.0f, 0.5f, 1.0f,
                0.0f, 0.0f, 1.0f, 0.0f),
-    MODEL_LINE(-0.05f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f,
+    MODEL_LINE(0.0f, 0.0f, 0.01f, 0.0f, 0.0f, 1.0f, 0.5f, 0.0f, 0.5f, 1.0f,
                0.0f, 0.0f, 1.0f, 0.0f),
-    MODEL_LINE(0.05f, 1.0f, 0.0f, 1.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f,
-               0.0f, 0.0f, 1.0f, 0.0f)};
+    MODEL_LINE(0.0f, 0.25f, 0.1f, 0.0f, 0.0f, 1.0f, 0.5f, 0.0f, 0.5f, 1.0f, 0.0f,
+               0.0f, 1.0f, 0.0f),
+    MODEL_LINE(0.0f, 0.25f, -0.1f, 0.0f, 0.0f, 1.0f, 0.5f, 0.0f, 0.5f, 1.0f,
+               0.0f, 0.0f, 1.0f, 0.0f),
+    MODEL_LINE(0.0f, 0.25f, 0.0f, 0.0f, 0.0f, 1.0f, 0.5f, 0.0f, 0.5f, 1.0f,
+               0.0f, 0.0f, 1.0f, 0.0f),
 
-static const std::vector<unsigned int> grass_indices = {0, 1, 2, 1, 3, 2};
+};
+
+static const std::vector<unsigned int> grass_indices = {
+    0,1,2, 
+    0, 2, 3,
+    0, 1, 3, 
+    1, 2, 3,
+    0,2,4,
+    0,1,4,
+    1,2,4, 
+    0, 2, 5, 0, 1, 5, 1, 2, 5};
 
 
 static const std::vector<float> cube_data = {
@@ -166,6 +181,7 @@ void model_loader::init() {
   wall.init();
   cube.init();
   triangle.init();
+  grass.init();
   for (auto pair : models) {
     pair.second->init();
   }
