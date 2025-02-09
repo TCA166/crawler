@@ -18,6 +18,7 @@ private:
   model cube;
   model triangle;
   model wall;
+  model grass;
   std::map<std::pair<std::string, uint32_t>, model *> models;
   model_loader();
 
@@ -44,6 +45,11 @@ public:
    @return Triangle model
   */
   const model *get_triangle() const;
+  /*!
+  @brief Gets the grass model
+  @return Grass model
+ */
+  const model *get_grass() const;
   /*!
    @brief Gets the wall model
    @return Wall model

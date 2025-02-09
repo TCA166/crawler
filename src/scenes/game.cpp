@@ -4,8 +4,8 @@
 #define CAMERA_Y_OFFSET 1.0f
 #define CAMERA_SPEED 10.0f
 
-#define LIGHT_STRENGTH 0.5f
-#define LIGHT_RANGE 15.0f
+#define LIGHT_STRENGTH 0.9f
+#define LIGHT_RANGE 30.0f
 #define LIGHT_FOV glm::radians(70.f)
 #define LIGHT_OFFSET 0.25f
 
@@ -17,16 +17,16 @@
 #define SPAWN_RADIUS 10.0f
 // the radius of the flock
 #define FLOCK_RADIUS 5.0f
-#define FLOCK_SIZE 15
+#define FLOCK_SIZE 6
 
-#define MIN_FLOCK_Y 10.0f
-#define MAX_FLOCK_Y 20.0f
+#define MIN_FLOCK_Y 5.0f
+#define MAX_FLOCK_Y 10.0f
 
-#define MIN_FLOCK_SPEED 3.0f
-#define MAX_FLOCK_SPEED 8.0f
+#define MIN_FLOCK_SPEED 0.5f
+#define MAX_FLOCK_SPEED 4.0f
 
-#define MIN_FLOCK_SEP 5.0f
-#define MAX_FLOCK_SEP 15.0f
+#define MIN_FLOCK_SEP 2.0f
+#define MAX_FLOCK_SEP 7.0f
 
 #define MIN_FLOCK_COH 15.0f
 #define MAX_FLOCK_COH 25.0f
@@ -55,7 +55,6 @@ game::~game() {
 
   delete this->textured_shader;
   delete this->skybox_shader;
-  delete this->simple_shader;
 
   for (auto &tri : boids) {
     delete tri;
@@ -68,12 +67,9 @@ void game::init(camera *target_camera) {
   if (initialized) {
     return;
   }
+
   textured_shader =
       new shader(SHADER_PATH("textured.vert"), SHADER_PATH("textured.frag"));
-  simple_shader = new shader(SHADER_PATH("textured.vert"),
-                             SHADER_PATH("simple_textured.frag"));
-  debug_shader =
-      new shader(SHADER_PATH("textured.vert"), SHADER_PATH("red.frag"));
   leaf_shader =
       new shader(SHADER_PATH("leaves.vert"), SHADER_PATH("leaves.frag"), false);
   floor1 = new random_floor(FLOOR_SIZE / -2., 0.0, FLOOR_SIZE / -2., FLOOR_SIZE,
@@ -84,8 +80,10 @@ void game::init(camera *target_camera) {
   lght = new light(target_camera->get_position(), glm::vec3(LIGHT_STRENGTH),
                    LIGHT_FOV, LIGHT_RANGE);
   this->add_light(lght);
+
   // flock spawning
   boid_tex = new texture(TEXTURE_PATH("diamond.png"));
+  grasstex = new texture(TEXTURE_PATH("grasspng2.png"));
   boid_norm = new texture(TEXTURE_PATH("grass_normal.png"));
   for (uint8_t flock = 0; flock < FLOCK_COUNT; flock++) {
     boid_species *spec = new boid_species();
@@ -139,6 +137,18 @@ void game::init(camera *target_camera) {
   leaves_obj = new leaves(leaf_tex, leaf_points);
   this->add_object(leaf_shader, leaves_obj);
   leaves_obj->set_scale(LEAF_SIZE);
+  // grass generation
+
+  for (int x = FLOOR_SIZE / -2; x < FLOOR_SIZE / 2; x += 3) {
+    for (int z = FLOOR_SIZE / -2; z < FLOOR_SIZE / 2; z += 3) {
+      glm::vec2 pos = glm::vec2(x, z) + glm::circularRand(1.0f);
+      float y = floor1->sample_noise(pos.x, pos.y);
+      object *grass1 = new object(model_loader::get().get_grass(), x, y, pos.y);
+      grass1->add_texture(grasstex, "texture0");
+      grass1->set_scale(2.0f, 2.0f, 2.0f);
+      this->add_object(textured_shader, grass1);
+    }
+  }
 
   skybox_shader =
       new shader(SHADER_PATH("skybox.vert"), SHADER_PATH("skybox.frag"));

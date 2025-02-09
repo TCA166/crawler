@@ -3,15 +3,58 @@
 #include <stdexcept>
 
 static const std::vector<float> triangle_data = {
-    MODEL_LINE(-.5f, -.5f, -.5f, 0.f, 0.f, 0.f, 0.f, 1.f, 0.f, 0.f, 0.f, 0.f,
-               0.f, 0.f),
-    MODEL_LINE(-.5f, -.5f, .5f, 0.f, 1.f, 0.f, 0.f, 1.f, 0.f, 0.f, 0.f, 0.f,
-               0.f, 0.f),
-    MODEL_LINE(-.5f, .5f, -.5f, 1.f, 1.f, 0.f, 0.f, 1.f, 0.f, 0.f, 0.f, 0.f,
-               0.f, 0.f),
+    // Bottom pyramid
+    MODEL_LINE(0.0f, -0.5f, 0.0f, 0.5f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f,
+               0.0f, 0.0f, 1.0f, 0.0f),
+    MODEL_LINE(-0.5f, 0.0f, -0.5f, 0.0f, 0.5f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f,
+               0.0f, 0.0f, 1.0f, 0.0f),
+    MODEL_LINE(0.5f, 0.0f, -0.5f, 1.0f, 0.5f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f,
+               0.0f, 0.0f, 1.0f, 0.0f),
+    MODEL_LINE(0.5f, 0.0f, 0.5f, 1.0f, 0.5f, 1.0f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f,
+               0.0f, 1.0f, 0.0f),
+    MODEL_LINE(-0.5f, 0.0f, 0.5f, 0.0f, 0.5f, 1.0f, 0.0f, 1.0f, 0.0f, 1.0f,
+               0.0f, 0.0f, 1.0f, 0.0f),
+    // Top pyramid
+    MODEL_LINE(0.0f, 0.5f, 0.0f, 0.5f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f,
+               0.0f, 1.0f, 0.0f),
+    MODEL_LINE(-0.5f, 0.0f, -0.5f, 0.0f, 0.5f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f,
+               0.0f, 0.0f, 1.0f, 0.0f),
+    MODEL_LINE(0.5f, 0.0f, -0.5f, 1.0f, 0.5f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f,
+               0.0f, 0.0f, 1.0f, 0.0f),
+    MODEL_LINE(0.5f, 0.0f, 0.5f, 1.0f, 0.5f, 1.0f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f,
+               0.0f, 1.0f, 0.0f),
+    MODEL_LINE(-0.5f, 0.0f, 0.5f, 0.0f, 0.5f, 1.0f, 0.0f, 1.0f, 0.0f, 1.0f,
+               0.0f, 0.0f, 1.0f, 0.0f),
 };
 
-static const std::vector<unsigned int> triangle_indices = {0, 1, 2};
+static const std::vector<unsigned int> triangle_indices = {
+    0, 1, 2, 0, 2, 3, 0, 3, 4, 0, 4, 1, 5, 6, 7, 5, 7, 8, 5, 8, 9, 5, 9, 6};
+
+// Grass model data
+static const std::vector<float> grass_data = {
+    // Base left
+    MODEL_LINE(-0.01f, 0.0f, 0.0f, 0.0f, 0.0f, -0.577f, -0.577f, 0.577f, 1.0f,
+               0.0f, 0.0f, 0.0f, 1.0f, 0.0f),
+    // Base right
+    MODEL_LINE(0.01f, 0.0f, 0.0f, 0.0f, 0.0f, -0.577f, 0.577f, -0.577f, -1.0f,
+               0.0f, 0.0f, 0.0f, -1.0f, 0.0f),
+    // Base top
+    MODEL_LINE(0.0f, 0.0f, 0.01f, 1.0f, 0.0f, 0.577f, 0.577f, -0.577f, -1.0f,
+               0.0f, 0.0f, 0.0f, -1.0f, 0.0f),
+    // Tip
+    MODEL_LINE(0.0f, 0.25f, -0.01f, 1.0f, 0.0f, -0.577f, 0.577f, 0.577f, 1.0f,
+               0.0f, 0.0f, 0.0f, -1.0f, 0.0f),
+    // Tip
+    MODEL_LINE(0.0f, 0.25f, 0.05f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f,
+               0.0f, 0.0f, 0.0f, 1.0f),
+    // Tip
+    MODEL_LINE(0.0f, 0.25f, -0.05f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f,
+               1.0f, 0.0f, 0.0f, -1.0f),
+};
+
+static const std::vector<unsigned int> grass_indices = {
+    0, 1, 2, 0, 2, 3, 0, 1, 3, 1, 2, 3, 0, 2, 4,
+    0, 1, 4, 1, 2, 4, 0, 2, 5, 0, 1, 5, 1, 2, 5};
 
 static const std::vector<float> cube_data = {
     MODEL_LINE(-.5f, -.5f, -.5f, 0.f, 0.f, -1.f, 0.f, 0.f, -1.f, 1.f, 0.f, 0.f,
@@ -87,8 +130,11 @@ model_loader::model_loader()
     : cube(cube_data, cube_indices, glm::vec3(0.5), glm::vec3(-0.5)),
       triangle(triangle_data, triangle_indices, glm::vec3(-0.5, 0.5, 0.5),
                glm::vec3(-0.5, -0.5, -0.5)),
+
       wall(wall_data, wall_indices, glm::vec3(0.5, 0.5, 0.0),
-           glm::vec3(-0.5, -0.5, 0.0)) {}
+           glm::vec3(-0.5, -0.5, 0.0)),
+      grass(grass_data, grass_indices, glm::vec3(0.05, 1.0, 0.0),
+            glm::vec3(-0.05, 0.0, 0.0)) {}
 
 model_loader &model_loader::get() {
   static model_loader instance;
@@ -116,12 +162,15 @@ const model *model_loader::get_cube() const { return &cube; }
 
 const model *model_loader::get_triangle() const { return &triangle; }
 
+const model *model_loader::get_grass() const { return &grass; }
+
 const model *model_loader::get_wall() const { return &wall; }
 
 void model_loader::init() {
   wall.init();
   cube.init();
   triangle.init();
+  grass.init();
 }
 
 void model_loader::deinit() const {

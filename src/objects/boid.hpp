@@ -12,6 +12,13 @@
 
 #define MAX_FORCE 1.0f
 
+#define MAX_X 100.0f
+#define MAX_Y 100.0f
+#define MAX_Z 100.0f
+#define MIN_X -100.0f
+#define MIN_Y -100.0f
+#define MIN_Z -100.0f
+
 /*!
  @brief A species of boid, with parameters for flocking
 */
@@ -96,6 +103,8 @@ inline void boid::update(const std::list<const boid *> &boids,
                          const collider *scene, double deltaTime) {
 
   glm::vec3 position = this->get_position();
+  // fprintf(stderr, "Position: %f %f %f\n", position.x, position.y,
+  // position.z);
 
   glm::vec3 steer(0.0f); // steer accumulator
   {
@@ -107,6 +116,10 @@ inline void boid::update(const std::list<const boid *> &boids,
       }
       glm::vec3 diff = position - other->get_position();
       float distance = glm::length(diff);
+      if (distance == 0.0f) {
+        // fprintf(stderr, "Distance is zero\n");
+        continue;
+      }
       if (other->get_species_id() == species->id) { // if species match
         // we add alignment speed if the boid is close enough
         if (distance < species->ali_dist) {
@@ -130,19 +143,34 @@ inline void boid::update(const std::list<const boid *> &boids,
     }
     if (count > 0) {
       steer /= count;
-      steer = glm::normalize(steer) * species->max_speed - velocity;
-      if (glm::length(steer) > MAX_FORCE) {
-        steer = glm::normalize(steer) * MAX_FORCE;
+      if (glm::length(steer) > 0.0f) {
+        steer = glm::normalize(steer) * species->max_speed - velocity;
+        if (glm::length(steer) > MAX_FORCE) {
+          steer = glm::normalize(steer) * MAX_FORCE;
+        }
+      } else {
+        // fprintf(stderr, "Steer length is zero\n");
       }
     }
   }
 
   // custom addition: a preference for a certain y position
-  glm::vec3 pref_y =
-      glm::vec3(0., (float)pow(species->pref_y - position.y, 3.f), 0.) *
-      PREF_Y_SCALE;
+  float pref_y_value = pow(species->pref_y - position.y, 3.f);
+  pref_y_value =
+      glm::clamp(pref_y_value, -1000.0f, 1000.0f); // Clamping the value
+  glm::vec3 pref_y = glm::vec3(0., pref_y_value, 0.) * PREF_Y_SCALE;
 
   this->apply_force(steer + pref_y);
+
+  // Random perturbation
+  glm::vec3 random_perturbation = glm::sphericalRand(0.1f) * 0.2f;
+  this->apply_force(random_perturbation);
+
+  // Force for centre attraction
+  glm::vec3 center(0.0f, 0.0f, 0.0f);
+  glm::vec3 to_center = center - position;
+  glm::vec3 center_force = glm::normalize(to_center) * 0.1f;
+  this->apply_force(center_force);
 
   this->evaluate(deltaTime);
 
@@ -158,10 +186,25 @@ inline void boid::update(const std::list<const boid *> &boids,
       scene->check_line(negbound, negbound + translation)) {
     this->velocity = -this->velocity;
   } else {
+
+    if (target.x <= MIN_X || target.x >= MAX_X) {
+      this->velocity.x = -this->velocity.x;
+      target.x = glm::clamp(target.x, MIN_X, MAX_X);
+    }
+
+    if (target.y <= MIN_Y || target.y >= MAX_Y) {
+      this->velocity.y = -this->velocity.y;
+      target.y = glm::clamp(target.y, MIN_Y, MAX_Y);
+    }
+
+    if (target.z <= MIN_Z || target.z >= MAX_Z) {
+      this->velocity.z = -this->velocity.z;
+      target.z = glm::clamp(target.z, MIN_Z, MAX_Z);
+    }
+
     this->set_position(target);
   }
 }
-
 inline uint32_t boid::get_species_id() const { return species->id; }
 
 inline void boid::evaluate(double deltaTime) { entity::evaluate(deltaTime); }
