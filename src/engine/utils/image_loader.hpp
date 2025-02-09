@@ -1,9 +1,9 @@
 
 #pragma once
 
-#include <map>
 #include <stdint.h>
 #include <string>
+#include <unordered_map>
 
 /*!
  @brief A simple struct for storing image data
@@ -35,7 +35,7 @@ typedef struct {
 class image_loader {
 private:
   image_loader();
-  std::map<std::string, image_t *> images;
+  std::unordered_map<std::string, image_t *> images;
 
 public:
   /*!

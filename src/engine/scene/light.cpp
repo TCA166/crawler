@@ -3,10 +3,8 @@
 #include "../settings.hpp"
 #include <stdexcept>
 
-light::light(glm::vec3 position, glm::vec3 direction, glm::vec3 color,
-             float fov, float range)
-    : position(position), direction(direction), color(color), fov(fov),
-      range(range) {
+light::light(glm::vec3 position, glm::vec3 color, float fov, float range)
+    : position(position), rotation(0.f), color(color), fov(fov), range(range) {
   // create the framebuffer
   glGenFramebuffers(1, &depthMapFBO);
   // create the texture to store the depth values
@@ -41,24 +39,24 @@ light::~light() {
   glDeleteTextures(1, &depthMap);
 }
 
-const glm::vec3 &light::get_direction() const { return direction; }
-
 const glm::vec3 &light::get_color() const { return color; }
 
 const glm::vec3 &light::get_position() const { return position; }
 
 const glm::mat4 light::get_light_space() const {
   return glm::perspective(fov, 1.0f, 1.0f, range) *
-         glm::lookAt(position, direction, glm::vec3(0.0f, 1.0f, 0.0f));
+         glm::lookAt(position, this->position + this->get_front(), get_up());
 }
 
-void light::set_direction(glm::vec3 direction) { this->direction = direction; }
+void light::look_at(glm::vec3 target) {
+  glm::vec3 direction = glm::normalize(target - position);
+  rotation.x = asin(direction.y);
+  rotation.y = atan2(direction.z, direction.x);
+}
 
 void light::set_color(glm::vec3 color) { this->color = color; }
 
-void light::set_position(double xpos, double ypos, double zpos) {
-  this->position = glm::vec3(xpos, ypos, zpos);
-}
+void light::set_position(glm::vec3 position) { this->position = position; }
 
 void light::bind_view_map() const {
   glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
@@ -74,16 +72,19 @@ texture *light::get_view_map() const { return new texture(depthMap); }
 
 void light::translate(glm::vec3 translation) { position += translation; }
 
-void light::rotate(double xrot, double yrot, double) {
-  direction.x += cos(yrot) * cos(xrot);
-  direction.y += sin(xrot);
-  direction.z += sin(yrot) * cos(xrot);
-  direction = glm::normalize(direction);
+glm::vec3 light::get_front() const {
+  return glm::normalize(glm::vec3(cos(rotation.y) * cos(rotation.x),
+                                  sin(rotation.x),
+                                  sin(rotation.y) * cos(rotation.x)));
 }
 
-void light::set_rotation(double xrot, double yrot, double zrot) {
-  direction = glm::vec3(0.0f, 0.0f, 0.0f);
-  this->rotate(xrot, yrot, zrot);
+glm::vec3 light::get_up() const {
+  return glm::rotate(glm::mat4(1), rotation.z, get_front()) *
+         glm::vec4(UP, 1.0f);
 }
+
+void light::rotate(glm::vec3 rotation) { this->rotation += rotation; }
+
+void light::set_rotation(glm::vec3 rotation) { this->rotation = rotation; }
 
 float light::get_range() const { return range; }

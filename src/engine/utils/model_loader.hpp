@@ -18,7 +18,7 @@ private:
   model cube;
   model triangle;
   model wall;
-  std::map<std::string, model *> models;
+  std::map<std::pair<std::string, uint32_t>, model *> models;
   model_loader();
 
 public:
@@ -32,7 +32,7 @@ public:
    @param key the key under which to access the model
    @return the model
   */
-  const model *get_model(const std::string &key);
+  const model *get_model(const std::string &key, uint32_t mesh_index = 0);
   /*!
    @brief Gets the simple cube model
    @return Cube model

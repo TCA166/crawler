@@ -53,7 +53,7 @@ vec3 CalcDirectionalLight(Light light, vec3 norm)
     }
 
     float currentDepth = projCoords.z;
-    float bias = max(0.005 * (1.0 - dot(norm, lightDir)), 0.005);
+    float bias = max(0.01 * (1.0 - dot(norm, lightDir)), 0.05);
     float shadow = 0.0;
     vec2 texelSize = vec2(textureSize(light.depthMap, 0));
     texelSize.x = 1.0 / texelSize.x;

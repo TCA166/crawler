@@ -15,7 +15,7 @@
 #define FLOOR_SIZE 100
 #define TREE_COUNT 20
 
-#define FLOCK_COUNT 10
+#define FLOCK_COUNT 5
 // the radius from 0.0 to spawn boid flocks
 #define SPAWN_RADIUS 10.0f
 // the radius of the flock
@@ -33,6 +33,9 @@
 
 #define MIN_FLOCK_COH 15.0f
 #define MAX_FLOCK_COH 25.0f
+
+#define LEAF_IMAGE_SIZE 256
+#define COLOR_VARIANCE 25
 
 #define CAMERA_COLLISION_EPS (RENDER_MIN * 5e2f + 1.f)
 
@@ -72,13 +75,15 @@ void game::init(camera *target_camera) {
                              SHADER_PATH("simple_textured.frag"));
   debug_shader =
       new shader(SHADER_PATH("textured.vert"), SHADER_PATH("red.frag"));
-  floor1 = new random_floor(textured_shader, FLOOR_SIZE / -2., 0.0,
-                            FLOOR_SIZE / -2., FLOOR_SIZE, FLOOR_SIZE, 0.1);
-  this->add_object(floor1);
+  leaf_shader =
+      new shader(SHADER_PATH("leaves.vert"), SHADER_PATH("leaves.frag"));
+  floor1 = new random_floor(FLOOR_SIZE / -2., 0.0, FLOOR_SIZE / -2., FLOOR_SIZE,
+                            FLOOR_SIZE, 0.5);
+  this->add_object(textured_shader, floor1);
   target_camera->set_position(
-      0.0, floor1->sample_noise(0.0, 0.0) + CAMERA_Y_OFFSET, 0.0);
-  lght = new light(target_camera->get_position(), target_camera->get_front(),
-                   glm::vec3(LIGHT_STRENGTH), LIGHT_FOV, LIGHT_RANGE);
+      glm::vec3(0.0, floor1->sample_noise(0.0, 0.0) + CAMERA_Y_OFFSET, 0.0));
+  lght = new light(target_camera->get_position(), glm::vec3(LIGHT_STRENGTH),
+                   LIGHT_FOV, LIGHT_RANGE);
   this->add_light(lght);
 
   player_gun = new gun(debug_shader,
@@ -98,6 +103,8 @@ void game::init(camera *target_camera) {
   
 
   // flock spawning
+  boid_tex = new texture(TEXTURE_PATH("diamond.png"));
+  boid_norm = new texture(TEXTURE_PATH("grass_normal.png"));
   for (uint8_t flock = 0; flock < FLOCK_COUNT; flock++) {
     boid_species *spec = new boid_species();
 
@@ -116,22 +123,24 @@ void game::init(camera *target_camera) {
                   glm::linearRand(-SPAWN_RADIUS, SPAWN_RADIUS));
     for (int i = 0; i < FLOCK_SIZE; ++i) {
       glm::vec3 pos = center + glm::ballRand(FLOCK_RADIUS);
-      boid *tri = new boid(textured_shader, pos.x, pos.y, pos.z, spec);
+      boid *tri = new boid(boid_tex, boid_norm, pos.x, pos.y, pos.z, spec);
       boids.push_back(tri);
-      this->add_object(tri);
+      this->add_object(textured_shader, tri);
     }
   }
 
   // tree spawning
+
+  leaf_tex = create_random_leaf_texture(LEAF_IMAGE_SIZE, COLOR_VARIANCE);
 
   for (int x = FLOOR_SIZE / -2; x < FLOOR_SIZE / 2;
        x += FLOOR_SIZE / TREE_COUNT) {
     for (int z = FLOOR_SIZE / -2; z < FLOOR_SIZE / 2;
          z += FLOOR_SIZE / TREE_COUNT) {
       glm::vec2 pos = glm::vec2(x, z) + glm::circularRand(3.f);
-      random_tree *tree = new random_tree(
-          textured_shader, pos.x, floor1->sample_noise(pos.x, pos.y), pos.y);
-      this->add_object(tree);
+      random_tree *tree =
+          new random_tree(pos.x, floor1->sample_noise(pos.x, pos.y), pos.y);
+      this->add_object(textured_shader, tree);
       trees.push_back(tree);
     }
   }
@@ -142,8 +151,8 @@ void game::init(camera *target_camera) {
       TEXTURE_PATH("sky.png"), TEXTURE_PATH("sky.png"),
       TEXTURE_PATH("sky.png"), TEXTURE_PATH("sky.png"),
       TEXTURE_PATH("sky.png"), TEXTURE_PATH("sky.png")};
-  sky = new skybox(skybox_shader, paths);
-  this->set_skybox(sky);
+  sky = new skybox(paths);
+  this->set_skybox(skybox_shader, sky);
   scene::init(target_camera);
 
 }
@@ -170,19 +179,27 @@ void game::update(camera *target_camera, double delta_time, double) {
     move = glm::normalize(move) * CAMERA_SPEED * (float)delta_time;
     glm::vec3 collision_dist = move * CAMERA_COLLISION_EPS;
     if (!check_line(camera_position, camera_position + collision_dist)) {
-      target_camera->translate(move);
-      camera_position = target_camera->get_position();
-      target_camera->set_position(
-          camera_position.x,
-          floor1->sample_noise(camera_position.x, camera_position.z) +
-              CAMERA_Y_OFFSET,
-          camera_position.z);
+      bool tree_collision = false;
+      for (auto &tree : trees) {
+        if (tree->check_line(camera_position, camera_position + move)) {
+          tree_collision = true;
+          break;
+        }
+      }
+      if (!tree_collision) {
+        target_camera->translate(move);
+        camera_position = target_camera->get_position();
+        camera_position.y =
+            floor1->sample_noise(camera_position.x, camera_position.z) +
+            CAMERA_Y_OFFSET;
+        target_camera->set_position(camera_position);
+      }
     }
   }
   if (rot_left) {
-    target_camera->rotate(0.0, 0.0, -delta_time);
+    target_camera->rotate(glm::vec3(0.0, 0.0, -delta_time));
   } else if (rot_right) {
-    target_camera->rotate(0.0, 0.0, delta_time);
+    target_camera->rotate(glm::vec3(0.0, 0.0, delta_time));
   }
 
   glm::vec3 camera_up = target_camera->get_up();
@@ -211,12 +228,14 @@ void game::update(camera *target_camera, double delta_time, double) {
   }
 
   if (shooting) {
-    glm::vec3 shoot_position = camera_position + camera_front * 10.0f;
-    player_gun->fire();
+      glm::vec3 shoot_position = camera_position + camera_front * 10.0f;
+      player_gun->fire();
+
 
     // Collision detection
     for (auto &tri : boids) {
-      if (tri->check_line(camera_position, shoot_position)) {
+      if (tri->check_line(camera_position,
+                          camera_position + camera_front * 100.0f)) {
         this->remove_object(tri);
         delete tri;
         boids.remove(tri);
@@ -226,16 +245,16 @@ void game::update(camera *target_camera, double delta_time, double) {
 
     shooting = false;
   }
+  lght->set_position(camera_position +
+      (camera_front * glm::vec3(-LIGHT_OFFSET, 0.f, 0.f)));
+  lght->look_at(camera_position + target_camera->get_front());
   glm::vec3 light_position =
       camera_position +
       (camera_front * glm::vec3(-LIGHT_OFFSET, 0.f, -LIGHT_OFFSET));
-  lght->set_position(light_position.x, light_position.y, light_position.z);
-  lght->set_direction(light_position + camera_front);
-
-
-  player_gun->set_position(light_position.x-2, light_position.y,
-                            light_position.z);
+  player_gun->set_position(light_position.x - 2, light_position.y,
+      light_position.z);
   player_gun->set_direction(camera_front);
+ 
 }
 
 void game::scroll_callback(double, double yoffset, camera &target_camera) {
@@ -280,8 +299,10 @@ void game::key_callback(int key, int, int action, int, camera &) {
 
 void game::mouse_callback(double xpos, double ypos, camera &target_camera) {
   if (xpos != this->xpos || ypos != this->ypos) {
-    target_camera.rotate(xpos - this->xpos, ypos - this->ypos, 0.0);
-    player_gun->rotate(xpos - this->xpos, ypos - this->ypos, 0.0);
+      glm::vec3 rot(ypos - this->ypos, xpos - this->xpos, 0.0);
+      target_camera.rotate(rot);
+      player_gun->rotate(xpos - this->xpos, ypos - this->ypos, 0.0);
+   
     this->xpos = xpos;
     this->ypos = ypos;
   }

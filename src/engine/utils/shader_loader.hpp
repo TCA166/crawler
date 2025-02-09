@@ -3,8 +3,8 @@
 
 #include "../gl/shader.hpp"
 
-#include <map>
 #include <string>
+#include <unordered_map>
 
 /*!
  @brief A facility for loading shader code
@@ -14,7 +14,7 @@
 class shader_loader {
 private:
   shader_loader();
-  std::map<std::string, std::string> shaders;
+  std::unordered_map<std::string, std::string> shaders;
   void add_shader(const std::string &key, unsigned char *data, size_t len);
 
 public:

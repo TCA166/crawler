@@ -2,7 +2,7 @@
 #pragma once
 
 #include <list>
-#include <map>
+#include <unordered_map>
 #include <vector>
 
 #include "../abc/collider.hpp"
@@ -18,7 +18,6 @@
 */
 class object : public moveable, public collider {
 private:
-  const shader *object_shader;
   glm::vec3 scale, rot;
   const model *object_model;
 
@@ -26,7 +25,7 @@ protected:
   /*!
    @brief Map of name->texture
   */
-  std::map<std::string, const texture *> textures;
+  std::unordered_map<std::string, const texture *> textures;
   /*!
    @brief The number of textures
   */
@@ -39,12 +38,10 @@ protected:
    @brief The parents of the object, objects that move the object
   */
   std::list<object *> parents;
-  ///@{
   /*!
    @brief The position of the object
   */
-  double xpos, ypos, zpos;
-  ///@}
+  glm::vec3 position;
   /*!
    @brief Gets the positive bounds of the object
    @return A vector with 1 points on each axis representing the largest extent
@@ -62,44 +59,21 @@ public:
 
   /*!
    @brief Constructs an object with a given shader and model
-   @param object_shader The shader to use for rendering
    @param object_model the model to use for this object
    @param xpos The x position of the object
    @param ypos The y position of the object
    @param zpos The z position of the object
   */
-  object(const shader *object_shader, const model *object_model, double xpos,
-         double ypos, double zpos);
-  /*!
-   @brief Constructs an object with a given shader and a path to the obj file
-   @param object_shader The shader to use for rendering
-   @param path the path to the obj file
-   @param xpos The x position of the object
-   @param ypos The y position of the object
-   @param zpos The z position of the object
-  */
-  object(const shader *object_shader, const std::string &path, double xpos,
-         double ypos, double zpos);
+  object(const model *object_model, double xpos, double ypos, double zpos);
   virtual ~object();
   /*!
    @brief Render the object
    @param target_camera The camera to render the object with
-   @param aspect_ratio The aspect ratio of the window
-   @param lights The lights to render the object with
-   @param ambient The ambient light to render the object with
+   @param current_shader The shader to render the object with
+   @param tex_off The offset to start the textures at
   */
-  void render(const camera *target_camera, float aspect_ratio,
-              const std::list<const light *> &lights, glm::vec3 ambient) const;
-  /*!
-   @brief Render the object, including drawing the object onto the viewport
-   @param viewProjection The view projection matrix to render the object with
-   @param viewPos The position of the camera
-   @param lights The lights to render the object with
-   @param ambient The ambient light to render the object with
-  */
-  virtual void render(const glm::mat4 *viewProjection, glm::vec3 viewPos,
-                      const std::list<const light *> &lights,
-                      glm::vec3 ambient) const;
+  void render(const camera *target_camera, const shader *current_shader,
+              uint32_t tex_off) const;
   /*!
    @brief Draws the object onto the viewport
   */
@@ -112,11 +86,9 @@ public:
   void add_texture(const texture *tex, std::string name);
   /*!
    @brief Set the position of the object
-   @param xpos The x position of the object
-   @param ypos The y position of the object
-   @param zpos The z position of the object
+   @param position The position to set
   */
-  void set_position(double xpos, double ypos, double zpos);
+  void set_position(glm::vec3 position);
   /*!
    @brief Set the scale of the object
    @param scalex The x scale of the object
@@ -131,18 +103,14 @@ public:
   void set_scale(float scale);
   /*!
    @brief Set the rotation of the object in radians
-   @param xrot The x rotation of the object in radians
-   @param yrot The y rotation of the object in radians
-   @param zrot The z rotation of the object in radians
+   @param rotation The rotation to apply
   */
-  void set_rotation(double xrot, double yrot, double zrot);
+  void set_rotation(glm::vec3 rotation);
   /*!
    @brief Rotate the object in radians
-   @param xrot The delta x rotation
-   @param yrot The delta y rotation
-   @param zrot The delta z rotation
+   @param rotation The rotation to apply
   */
-  void rotate(double xrot, double yrot, double zrot);
+  void rotate(glm::vec3 rotation);
   /*!
    @brief Translate the object
    @param translation The translation to apply

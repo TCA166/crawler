@@ -9,7 +9,7 @@
 
 static const glm::vec3 loading_color = glm::vec3(038.0f, 206.0f, 0.0f);
 
-static std::map<GLenum, const GLchar *> gl_source_name_map = {
+static std::unordered_map<GLenum, const GLchar *> gl_source_name_map = {
     {GL_DEBUG_SOURCE_API, "API"},
     {GL_DEBUG_SOURCE_WINDOW_SYSTEM, "WINDOW_SYSTEM"},
     {GL_DEBUG_SOURCE_SHADER_COMPILER, "SHADER_COMPILER"},
@@ -17,13 +17,13 @@ static std::map<GLenum, const GLchar *> gl_source_name_map = {
     {GL_DEBUG_SOURCE_APPLICATION, "APPLICATION"},
     {GL_DEBUG_SOURCE_OTHER, "OTHER"}};
 
-static std::map<GLenum, const GLchar *> gl_severity_name_map = {
+static std::unordered_map<GLenum, const GLchar *> gl_severity_name_map = {
     {GL_DEBUG_SEVERITY_HIGH, "HIGH"},
     {GL_DEBUG_SEVERITY_MEDIUM, "MEDIUM"},
     {GL_DEBUG_SEVERITY_LOW, "LOW"},
     {GL_DEBUG_SEVERITY_NOTIFICATION, "NOTIFICATION"}};
 
-static std::map<GLenum, const GLchar *> gl_type_name_map = {
+static std::unordered_map<GLenum, const GLchar *> gl_type_name_map = {
     {GL_DEBUG_TYPE_ERROR, "ERROR"},
     {GL_DEBUG_TYPE_DEPRECATED_BEHAVIOR, "DEPRECATED_BEHAVIOR"},
     {GL_DEBUG_TYPE_UNDEFINED_BEHAVIOR, "UNDEFINED_BEHAVIOR"},

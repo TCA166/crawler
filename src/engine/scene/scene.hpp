@@ -22,13 +22,13 @@ protected:
   void clear() const;
 
 private:
-  std::list<const object *> objects;
+  std::unordered_map<const shader *, std::list<const object *>> objects;
   std::list<const light *> lights;
   std::list<const collider *> colliders;
   glm::vec3 ambient_light;
   glm::vec3 background_color;
   skybox *sky;
-  const shader *light_pass_shader;
+  const shader *light_pass_shader, *skybox_shader;
   double current_time, delta_time;
 
 public:
@@ -41,14 +41,16 @@ public:
   ~scene();
   /*!
    @brief Set the skybox of the scene
+   @param skybox_shader The shader to render the skybox with
    @param sky The skybox to set
   */
-  void set_skybox(skybox *sky);
+  void set_skybox(const shader *skybox_shader, skybox *sky);
   /*!
    @brief Add an object to the scene
+   @param target_shader The shader to render the object with
    @param obj The object to add
   */
-  void add_object(object *obj);
+  void add_object(const shader *target_shader, const object *obj);
   /*!
    @brief Remove an object from the scene
    @param obj The object to remove

@@ -20,15 +20,17 @@ private:
   double xpos, ypos;
   skybox *sky;
   light *lght;
-  shader *textured_shader, *skybox_shader, *simple_shader, *debug_shader;
+  shader *textured_shader, *skybox_shader, *simple_shader, *debug_shader,
+      *leaf_shader;
   std::list<boid *> &boids;
   bool is_shooting;
   glm::vec3 shoot_direction;
   random_floor *floor1;
   std::vector<boid_species *> species;
   std::vector<random_tree *> trees;
-  gun *player_gun;
 
+  texture* boid_tex, * boid_norm, * leaf_tex;
+  gun* player_gun;
 public:
   /*!
    @brief Initializes the main game scene

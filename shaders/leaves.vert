@@ -1,3 +1,4 @@
+
 #version 410 core
 precision highp float;
 
@@ -10,9 +11,6 @@ layout(location = 4) in vec3 vertexBitangent;
 out vec2 texCoord;
 out vec3 fragPos;
 
-out vec3 viewPos;
-out vec3 shininess;
-
 out mat3 TBN;
 
 uniform mat4 model;
@@ -20,14 +18,14 @@ uniform mat4 viewProjection;
 
 void main()
 {
-    // Transform the vertex position by the model and view-projection matrices
-    gl_Position = viewProjection * model * vec4(vertexPosition, 1.0);
+    // Calculate the billboarded position
+    vec4 billboardPos = model * vec4(vertexPosition, 1.0);
+
+    // Transform the vertex position by the view and projection matrices
+    gl_Position = viewProjection * billboardPos;
     texCoord = vertexTexCoord;
+    fragPos = billboardPos.xyz;
 
-    // Transform the fragment position by the model matrix only
-    fragPos = vec3(model * vec4(vertexPosition, 1.0));
-
-    // Calculate the TBN matrix
     vec3 T = normalize(vec3(model * vec4(vertexTangent, 0.0)));
     vec3 B = normalize(vec3(model * vec4(vertexBitangent, 0.0)));
     vec3 N = normalize(vec3(model * vec4(vertexNormal, 0.0)));

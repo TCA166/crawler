@@ -15,6 +15,13 @@
 */
 class model {
 private:
+  GLuint VAO, VBO, EBO;
+
+protected:
+  /*!
+   @brief Hidden constructor creating an empty model
+  */
+  model() = default;
   /*!
    @brief the data of the object (vertices, texture coordinates)
   */
@@ -23,7 +30,6 @@ private:
    @brief the indices of the object
   */
   std::vector<unsigned int> indices;
-  GLuint VAO, VBO, EBO;
   ///@{
   /*!
    @brief The bounds of the object
@@ -47,7 +53,7 @@ public:
    @brief Create a new model using the obj model at the provided path
    @param path the path pointing to the model
   */
-  model(const std::string &path);
+  model(const std::string &path, uint32_t mesh_index = 0);
 #endif
   ~model();
   /*!

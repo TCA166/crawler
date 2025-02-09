@@ -32,7 +32,6 @@ private:
 public:
   /*!
    @brief Constructs a random floor object
-   @param object_shader The shader to use for rendering
    @param xpos The x position of the floor
    @param ypos The y position of the floor
    @param zpos The z position of the floor
@@ -40,8 +39,8 @@ public:
    @param height The height of the floor
    @param resolution The distance between each sample
   */
-  random_floor(const shader *object_shader, double xpos, double ypos,
-               double zpos, uint32_t width, uint32_t height, float resolution);
+  random_floor(double xpos, double ypos, double zpos, uint32_t width,
+               uint32_t height, float resolution);
   ~random_floor();
   /*!
    @brief Sample the noise at a given point
@@ -99,6 +98,7 @@ static inline std::vector<float> generate_data(uint32_t width, uint32_t height,
       points.push_back(x * resolution);
       points.push_back(y * resolution);
       // normals
+      // https://stackoverflow.com/a/13983431/12520385 - simplified normal calc
       float height_l =
           sample_noise((x * resolution) - resolution + noise_shift.x,
                        (y * resolution) + noise_shift.y);
@@ -117,13 +117,17 @@ static inline std::vector<float> generate_data(uint32_t width, uint32_t height,
       points.push_back(normal.y);
       points.push_back(normal.z);
       // tangent
-      points.push_back(1.0);
-      points.push_back(0.0);
-      points.push_back(0.0);
+      glm::vec3 tangent = glm::normalize(
+          glm::vec3(1.0, 0.0, (height_r - height_l) / (2.0f * resolution)));
+      points.push_back(tangent.x);
+      points.push_back(tangent.y);
+      points.push_back(tangent.z);
       // bitangent
-      points.push_back(0.0);
-      points.push_back(0.0);
-      points.push_back(1.0);
+      glm::vec3 bitangent = glm::normalize(
+          glm::cross(normal, tangent)); // cross product of normal and tangent
+      points.push_back(bitangent.x);
+      points.push_back(bitangent.y);
+      points.push_back(bitangent.z);
     }
   }
   return points;
@@ -152,10 +156,10 @@ static inline std::vector<unsigned int> generate_indices(uint32_t width,
   return indices;
 }
 
-inline random_floor::random_floor(const shader *object_shader, double xpos,
-                                  double ypos, double zpos, uint32_t width,
-                                  uint32_t height, float resolution)
-    : object(object_shader, &floor, xpos, ypos, zpos),
+inline random_floor::random_floor(double xpos, double ypos, double zpos,
+                                  uint32_t width, uint32_t height,
+                                  float resolution)
+    : object(&floor, xpos, ypos, zpos),
       noise_shift(glm::linearRand(0.f, NOISE_TEMP),
                   glm::linearRand(0.f, NOISE_TEMP)),
       floor(generate_data(width, height, resolution, noise_shift),
