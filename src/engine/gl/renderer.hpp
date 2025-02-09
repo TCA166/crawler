@@ -24,6 +24,7 @@ private:
   bool *should_close;
 
 public:
+
   /*!
    @brief Constructs a renderer with a given scene, width, height and name.
    @param width The width of the window

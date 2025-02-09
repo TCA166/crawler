@@ -59,6 +59,7 @@ protected:
   glm::vec3 get_negbounds() const;
 
 public:
+
   /*!
    @brief Constructs an object with a given shader and model
    @param object_shader The shader to use for rendering

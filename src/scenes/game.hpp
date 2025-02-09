@@ -7,6 +7,7 @@
 #include "../objects/debug_wall.hpp"
 #include "../objects/random_floor.hpp"
 #include "../objects/tree.hpp"
+#include "../objects/gun.hpp"
 
 /*!
  @brief The scene used for the game.
@@ -26,6 +27,7 @@ private:
   random_floor *floor1;
   std::vector<boid_species *> species;
   std::vector<random_tree *> trees;
+  gun *player_gun;
 
 public:
   /*!

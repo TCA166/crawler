@@ -1,5 +1,8 @@
 #include "game.hpp"
 #include <iostream>
+#include "../objects/gun.hpp"
+#include "../engine/utils/model_loader.hpp"
+
 
 #define CAMERA_Y_OFFSET 1.0f
 #define CAMERA_SPEED 10.0f
@@ -77,6 +80,23 @@ void game::init(camera *target_camera) {
   lght = new light(target_camera->get_position(), target_camera->get_front(),
                    glm::vec3(LIGHT_STRENGTH), LIGHT_FOV, LIGHT_RANGE);
   this->add_light(lght);
+
+  player_gun = new gun(debug_shader,
+                       model_loader::get().get_cube(),
+                       glm::vec3(0, 0, 0));
+   //player_gun = new gun(debug_shader, model_loader::get().get_model(MODEL_PATH("/M4A1.obj")), glm::vec3(0,0,0));
+  this->add_object(player_gun);
+  light *muzzle_flash =
+      new light(player_gun->get_position(),  // pocz¹tkowa pozycja
+                player_gun->get_direction(), // pocz¹tkowy kierunek
+                glm::vec3(0.0f),             // pocz¹tkowy kolor (wy³¹czony)
+                MUZZLE_LIGHT_FOV,            // szeroki k¹t œwiecenia
+                MUZZLE_LIGHT_RANGE           // krótki zasiêg
+      );
+  this->add_light(muzzle_flash); // Dodaj œwiat³o do silnika
+  player_gun->set_muzzle_flash_light(muzzle_flash);
+  
+
   // flock spawning
   for (uint8_t flock = 0; flock < FLOCK_COUNT; flock++) {
     boid_species *spec = new boid_species();
@@ -125,6 +145,7 @@ void game::init(camera *target_camera) {
   sky = new skybox(skybox_shader, paths);
   this->set_skybox(sky);
   scene::init(target_camera);
+
 }
 
 void game::update(camera *target_camera, double delta_time, double) {
@@ -164,12 +185,34 @@ void game::update(camera *target_camera, double delta_time, double) {
     target_camera->rotate(0.0, 0.0, delta_time);
   }
 
+  glm::vec3 camera_up = target_camera->get_up();
+
+  glm::vec3 gun_pos = camera_position + (camera_front *
+                      GUN_VIEW_DISTANCE) -
+                      (camera_up * GUN_VIEW_DROP);
+  
+  //player_gun->set_position(static_cast<double>(gun_pos.x),
+  //                         static_cast<double>(gun_pos.y),
+  //                         static_cast<double>(gun_pos.z));
+  //player_gun->set_direction(
+  //    camera_front);
+
+
+  /*std::cout << player_gun->get_position().x << " "
+            << player_gun->get_position().y << " "
+            << player_gun->get_position().z << std::endl;*/
+
+  player_gun->update(delta_time);
+  //player_gun->update_view_position(target_camera);
+
+  
   for (auto &tri : boids) {
     tri->update((const std::list<const boid *> &)boids, this, delta_time);
   }
 
   if (shooting) {
     glm::vec3 shoot_position = camera_position + camera_front * 10.0f;
+    player_gun->fire();
 
     // Collision detection
     for (auto &tri : boids) {
@@ -188,6 +231,11 @@ void game::update(camera *target_camera, double delta_time, double) {
       (camera_front * glm::vec3(-LIGHT_OFFSET, 0.f, -LIGHT_OFFSET));
   lght->set_position(light_position.x, light_position.y, light_position.z);
   lght->set_direction(light_position + camera_front);
+
+
+  player_gun->set_position(light_position.x-2, light_position.y,
+                            light_position.z);
+  player_gun->set_direction(camera_front);
 }
 
 void game::scroll_callback(double, double yoffset, camera &target_camera) {
@@ -233,6 +281,7 @@ void game::key_callback(int key, int, int action, int, camera &) {
 void game::mouse_callback(double xpos, double ypos, camera &target_camera) {
   if (xpos != this->xpos || ypos != this->ypos) {
     target_camera.rotate(xpos - this->xpos, ypos - this->ypos, 0.0);
+    player_gun->rotate(xpos - this->xpos, ypos - this->ypos, 0.0);
     this->xpos = xpos;
     this->ypos = ypos;
   }

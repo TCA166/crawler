@@ -13,6 +13,7 @@
 #define MAX_SEGMENTS 30
 
 #define SEGMENT_HEIGHT 0.1f
+#define M_PI 3.14159265358979323846
 
 class random_tree : public object {
 private:
