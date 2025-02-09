@@ -1,10 +1,6 @@
 #include "radar.hpp"
 #include <stdexcept>
 
-#ifndef M_PI
-#define M_PI 3.14159265358979323846
-#endif
-
 #define SCALE 30.f
 
 static const float radar_radius = RADAR_SIZE / SCALE;
