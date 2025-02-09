@@ -21,7 +21,7 @@ private:
   skybox *sky;
   light *lght;
   shader *textured_shader, *skybox_shader, *simple_shader, *debug_shader,
-      *leaf_shader;
+      *leaf_shader, *moon_shader;
   std::list<boid *> &boids;
   bool is_shooting;
   glm::vec3 shoot_direction;
@@ -29,6 +29,7 @@ private:
   std::vector<boid_species *> species;
   std::vector<random_tree *> trees;
   texture *boid_tex, *boid_norm, *leaf_tex, *grasstex;
+
 
 public:
   /*!

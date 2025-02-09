@@ -77,9 +77,7 @@ public:
   void set_position(glm::vec3 position);
   /*!
    @brief Rotate the object
-   @param xrot The rotation around the x axis
-   @param yrot The rotation around the y axis
-   @param zrot The rotation around the z axis
+   @param rotation The rotation to apply
   */
   void rotate(glm::vec3 rotation);
   /*!

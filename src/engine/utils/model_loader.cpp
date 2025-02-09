@@ -28,43 +28,33 @@ static const std::vector<float> triangle_data = {
 };
 
 static const std::vector<unsigned int> triangle_indices = {
-    0, 1, 2,
-    0, 2, 3,
-    0, 3, 4,
-    0, 4, 1,
-    5, 6, 7,
-    5, 7, 8,
-    5, 8, 9,
-    5, 9, 6 
-};
+    0, 1, 2, 0, 2, 3, 0, 3, 4, 0, 4, 1, 5, 6, 7, 5, 7, 8, 5, 8, 9, 5, 9, 6};
 
 // Grass model data
 static const std::vector<float> grass_data = {
-    // Pyramid Base
-    MODEL_LINE(-0.01f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.5f, 0.0f, -0.5f, 1.0f,
-               0.0f, 0.0f, 1.0f, 0.0f),
-    MODEL_LINE(0.01f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.5f, 0.0f, 0.5f, 1.0f,
-               0.0f, 0.0f, 1.0f, 0.0f),
-    MODEL_LINE(0.0f, 0.0f, 0.01f, 0.0f, 0.0f, 1.0f, 0.5f, 0.0f, 0.5f, 1.0f,
-               0.0f, 0.0f, 1.0f, 0.0f),
-    MODEL_LINE(0.0f, 0.25f, 0.1f, 0.0f, 0.0f, 1.0f, 0.5f, 0.0f, 0.5f, 1.0f, 0.0f,
-               0.0f, 1.0f, 0.0f),
-    MODEL_LINE(0.0f, 0.25f, -0.1f, 0.0f, 0.0f, 1.0f, 0.5f, 0.0f, 0.5f, 1.0f,
-               0.0f, 0.0f, 1.0f, 0.0f),
-    MODEL_LINE(0.0f, 0.25f, 0.0f, 0.0f, 0.0f, 1.0f, 0.5f, 0.0f, 0.5f, 1.0f,
-               0.0f, 0.0f, 1.0f, 0.0f),
-
+    // Base left
+    MODEL_LINE(-0.01f, 0.0f, 0.0f, 0.0f, 0.0f, -0.577f, -0.577f, 0.577f, 1.0f,
+               0.0f, 0.0f, 0.0f, 1.0f, 0.0f),
+    // Base right
+    MODEL_LINE(0.01f, 0.0f, 0.0f, 0.0f, 0.0f, -0.577f, 0.577f, -0.577f, -1.0f,
+               0.0f, 0.0f, 0.0f, -1.0f, 0.0f),
+    // Base top
+    MODEL_LINE(0.0f, 0.0f, 0.01f, 1.0f, 0.0f, 0.577f, 0.577f, -0.577f, -1.0f,
+               0.0f, 0.0f, 0.0f, -1.0f, 0.0f),
+    // Tip
+    MODEL_LINE(0.0f, 0.25f, -0.01f, 1.0f, 0.0f, -0.577f, 0.577f, 0.577f, 1.0f,
+               0.0f, 0.0f, 0.0f, -1.0f, 0.0f),
+    // Tip 
+    MODEL_LINE(0.0f, 0.25f, 0.05f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f),
+    // Tip
+    MODEL_LINE(0.0f, 0.25f, -0.05f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f,
+               1.0f, 0.0f, 0.0f, -1.0f),
 };
 
+
 static const std::vector<unsigned int> grass_indices = {
-    0,1,2, 
-    0, 2, 3,
-    0, 1, 3, 
-    1, 2, 3,
-    0,2,4,
-    0,1,4,
-    1,2,4, 
-    0, 2, 5, 0, 1, 5, 1, 2, 5};
+    0, 1, 2, 0, 2, 3, 0, 1, 3, 1, 2, 3, 0, 2, 4,
+    0, 1, 4, 1, 2, 4, 0, 2, 5, 0, 1, 5, 1, 2, 5};
 
 
 static const std::vector<float> cube_data = {
@@ -151,17 +141,16 @@ model_loader &model_loader::get() {
   return instance;
 }
 
-const model *model_loader::get_model(const std::string &key) {
+const model *model_loader::get_model(const std::string &key,
+                                     uint32_t mesh_index) {
+  std::pair<std::string, uint32_t> key_tuple = std::make_pair(key, mesh_index);
   try {
-    return models.at(key);
-    fprintf(stderr, "Model %s found\n", key.c_str());
+    return models.at(key_tuple);
   } catch (const std::out_of_range &e) {
 #ifndef STATIC_ASSETS
-    fprintf(stderr, "creating new model");
-    model *new_model = new model(key);
-    fprintf(stderr, "adding model");
-    models[key] = new_model;
-    fprintf(stderr, "about to return a model");
+    model *new_model = new model(key, mesh_index);
+    models[key_tuple] = new_model;
+    new_model->init();
     return new_model;
 #else
     throw std::runtime_error("Model not found");
@@ -182,9 +171,6 @@ void model_loader::init() {
   cube.init();
   triangle.init();
   grass.init();
-  for (auto pair : models) {
-    pair.second->init();
-  }
 }
 
 void model_loader::deinit() const {

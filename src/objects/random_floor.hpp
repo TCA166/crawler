@@ -32,7 +32,6 @@ private:
 public:
   /*!
    @brief Constructs a random floor object
-   @param object_shader The shader to use for rendering
    @param xpos The x position of the floor
    @param ypos The y position of the floor
    @param zpos The z position of the floor

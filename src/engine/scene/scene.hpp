@@ -41,6 +41,7 @@ public:
   ~scene();
   /*!
    @brief Set the skybox of the scene
+   @param skybox_shader The shader to render the skybox with
    @param sky The skybox to set
   */
   void set_skybox(const shader *skybox_shader, skybox *sky);

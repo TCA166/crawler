@@ -12,12 +12,12 @@
 
 #define MAX_FORCE 1.0f
 
-#define MAX_X 10.0f
-#define MAX_Y 10.0f
-#define MAX_Z 10.0f
-#define MIN_X -10.0f
-#define MIN_Y -10.0f
-#define MIN_Z -10.0f
+#define MAX_X 100.0f
+#define MAX_Y 100.0f
+#define MAX_Z 100.0f
+#define MIN_X -100.0f
+#define MIN_Y -100.0f
+#define MIN_Z -100.0f
 
 /*!
  @brief A species of boid, with parameters for flocking
@@ -163,13 +163,13 @@ inline void boid::update(const std::list<const boid *> &boids,
   this->apply_force(steer + pref_y);
 
   // Random perturbation
-  glm::vec3 random_perturbation = glm::sphericalRand(0.1f);
+  glm::vec3 random_perturbation = glm::sphericalRand(0.1f) * 0.2;
   this->apply_force(random_perturbation);
 
    // Force for centre attraction
   glm::vec3 center(0.0f, 0.0f, 0.0f);
   glm::vec3 to_center = center - position;
-  glm::vec3 center_force = glm::normalize(to_center) * 0.01f;
+  glm::vec3 center_force = glm::normalize(to_center) * 0.1f;
   this->apply_force(center_force);
 
   this->evaluate(deltaTime);
