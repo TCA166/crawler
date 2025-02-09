@@ -43,7 +43,6 @@ vec3 CalcLight(Light light)
     }
 
     float currentDepth = projCoords.z;
-    float bias =0.01;
     float shadow = texture(light.depthMap, projCoords.xy).r;
     shadow = currentDepth > shadow ? 1.0 : 0.0;
 

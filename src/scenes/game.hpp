@@ -5,6 +5,7 @@
 #include "../objects/boid.hpp"
 #include "../objects/debug_cube.hpp"
 #include "../objects/debug_wall.hpp"
+#include "../objects/grass.hpp"
 #include "../objects/leaves.hpp"
 #include "../objects/random_floor.hpp"
 #include "../objects/tree.hpp"
@@ -28,8 +29,9 @@ private:
   std::vector<boid_species *> species;
   std::vector<random_tree *> trees;
   texture *boid_tex, *boid_norm, *leaf_tex, *grasstex;
-  std::vector<glm::vec3> leaf_points;
+  std::vector<glm::vec3> leaf_points, grass_points;
   leaves *leaves_obj;
+  grass *grass_obj;
 
 public:
   /*!

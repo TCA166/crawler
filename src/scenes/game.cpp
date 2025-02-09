@@ -11,6 +11,7 @@
 
 #define FLOOR_SIZE 100
 #define TREE_COUNT 20
+#define GRASS_COUNT 100
 
 #define FLOCK_COUNT 5
 // the radius from 0.0 to spawn boid flocks
@@ -34,7 +35,9 @@
 #define LEAF_IMAGE_SIZE 128
 #define COLOR_VARIANCE 25
 #define LEAVES_PER_BRANCH 30
-#define LEAF_SIZE 0.2f
+#define LEAF_SIZE 0.25f
+
+#define SPAWNING_RADIUS 3.0f
 
 #define CAMERA_COLLISION_EPS (RENDER_MIN * 5e2f + 1.f)
 
@@ -83,7 +86,7 @@ void game::init(camera *target_camera) {
 
   // flock spawning
   boid_tex = new texture(TEXTURE_PATH("diamond.png"));
-  grasstex = new texture(TEXTURE_PATH("grasspng2.png"));
+  grasstex = new texture(TEXTURE_PATH("grass3.png"));
   boid_norm = new texture(TEXTURE_PATH("grass_normal.png"));
   for (uint8_t flock = 0; flock < FLOCK_COUNT; flock++) {
     boid_species *spec = new boid_species();
@@ -117,7 +120,7 @@ void game::init(camera *target_camera) {
        x += FLOOR_SIZE / TREE_COUNT) {
     for (int z = FLOOR_SIZE / -2; z < FLOOR_SIZE / 2;
          z += FLOOR_SIZE / TREE_COUNT) {
-      glm::vec2 pos = glm::vec2(x, z) + glm::circularRand(3.f);
+      glm::vec2 pos = glm::vec2(x, z) + glm::circularRand(SPAWNING_RADIUS);
       random_tree *tree =
           new random_tree(pos.x, floor1->sample_noise(pos.x, pos.y), pos.y);
       this->add_object(textured_shader, tree);
@@ -139,16 +142,18 @@ void game::init(camera *target_camera) {
   leaves_obj->set_scale(LEAF_SIZE);
   // grass generation
 
-  for (int x = FLOOR_SIZE / -2; x < FLOOR_SIZE / 2; x += 3) {
-    for (int z = FLOOR_SIZE / -2; z < FLOOR_SIZE / 2; z += 3) {
-      glm::vec2 pos = glm::vec2(x, z) + glm::circularRand(1.0f);
-      float y = floor1->sample_noise(pos.x, pos.y);
-      object *grass1 = new object(model_loader::get().get_grass(), x, y, pos.y);
-      grass1->add_texture(grasstex, "texture0");
-      grass1->set_scale(2.0f, 2.0f, 2.0f);
-      this->add_object(textured_shader, grass1);
+  for (int x = FLOOR_SIZE / -2; x < FLOOR_SIZE / 2;
+       x += FLOOR_SIZE / GRASS_COUNT) {
+    for (int z = FLOOR_SIZE / -2; z < FLOOR_SIZE / 2;
+         z += FLOOR_SIZE / GRASS_COUNT) {
+      glm::vec2 pos = glm::vec2(x, z) + glm::circularRand(SPAWNING_RADIUS);
+      float y = floor1->sample_noise(pos.x, pos.y) + 0.3;
+      grass_points.push_back(glm::vec3(pos.x, y, pos.y));
     }
   }
+
+  grass_obj = new grass(grasstex, grass_points);
+  this->add_object(leaf_shader, grass_obj);
 
   skybox_shader =
       new shader(SHADER_PATH("skybox.vert"), SHADER_PATH("skybox.frag"));

@@ -38,7 +38,7 @@ void main()
     // Transform the vertex position by the view and projection matrices
     gl_Position = viewProjection * (billboardPos + vec4(offset, 0.0));
     texCoord = vertexTexCoord;
-    fragPos = worldPosition;
+    fragPos = (billboardPos + vec4(offset, 0.0)).xyz;
 
     vec3 T = normalize(vec3(billboardMatrix * vec4(vertexTangent, 0.0)));
     vec3 B = normalize(vec3(billboardMatrix * vec4(vertexBitangent, 0.0)));
