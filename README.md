@@ -40,6 +40,18 @@ or ```dependencies-apt``` target.
 
 ### Windows
 
+To compile this project on Windows, you need to ensure you have the necessary libraries, such as GLFW, GLEW, SOIL, GLM, GLUT and Assimp installed and linked correctly.
+
+Ensure your project follows this directory structure:
+```markdown 
+/project-root
+│── lib/          # Contains .lib files for linking
+│── include/      # Contains header files (.h, .hpp) for dependencies
+│── main.cpp      # Source file
+```
+
+
+
 ## WASM
 
 Here's how to compile and run this for Web Assembly:
