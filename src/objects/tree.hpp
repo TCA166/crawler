@@ -22,6 +22,9 @@
  @brief A procedurally generated model of a tree branch (cylinder with tip)
 */
 class branch : public model {
+private:
+  std::vector<std::pair<glm::vec3, glm::vec3>> branch_points;
+
 public:
   /*!
    @brief Constructs a branch object
@@ -64,8 +67,6 @@ inline branch::branch(uint8_t num_segments, float segment_height,
     ring_points.push_back(glm::vec2(cos(angle), sin(angle)));
   }
   // future branch definitions
-  std::vector<glm::vec3> branch_points;
-  std::vector<glm::vec3> branch_end_points;
   // then we copy this ring for each segment
   std::vector<glm::vec3> points;
   for (uint8_t i = 0; i < num_segments; i++) {
@@ -83,24 +84,19 @@ inline branch::branch(uint8_t num_segments, float segment_height,
         float start_radius = radius * 0.9;
         float cos_angle = cosf(angle);
         float sin_angle = sinf(angle);
-        branch_points.push_back(glm::vec3(start_radius * cos_angle,
-                                          (i + 1) * segment_height,
-                                          start_radius * sin_angle));
         float end_radius =
             glm::linearRand(BRANCH_MIN_LENGTH, BRANCH_MAX_LENGTH) + radius;
-        branch_end_points.push_back(
+
+        branch_points.push_back(std::make_pair(
+            glm::vec3(start_radius * cos_angle, (i + 1) * segment_height,
+                      start_radius * sin_angle),
             glm::vec3(end_radius * cos_angle,
                       (glm::linearRand(-1.f, 1.f) * segment_height) +
                           (i * segment_height),
-                      end_radius * sin_angle));
+                      end_radius * sin_angle)));
       }
     }
   }
-  negbounds = glm::vec3(-root_radius, 0.0, -root_radius);
-  float tip_y = num_segments * segment_height + tip_offset;
-  bounds = glm::vec3(root_radius, tip_y, root_radius);
-  // add a tip
-  points.push_back(glm::vec3(0.0f, tip_y, 0.0f));
   // then we use the rings to generate the bark
   for (size_t i = 0; i < points.size(); i++) {
     uint8_t ring_index = i % RING_POINTS;
@@ -122,6 +118,13 @@ inline branch::branch(uint8_t num_segments, float segment_height,
       indices.push_back(point_off + RING_POINTS + (x + 1) % RING_POINTS);
     }
   }
+  float tip_y = num_segments * segment_height + tip_offset;
+  negbounds = glm::vec3(-root_radius, 0.0, -root_radius);
+  bounds = glm::vec3(root_radius, tip_y, root_radius);
+  // tip
+  add_data(data, glm::vec3(0.f, tip_y, 0.f), glm::vec2(0.f, tip_y),
+           glm::vec3(0.f, 1.f, 0.f), glm::vec3(1.f, 0.f, 0.f),
+           glm::vec3(0.f, 0.f, 1.f));
   for (uint8_t x = 0; x < RING_POINTS; x++) {
     indices.push_back((num_segments - 1) * RING_POINTS + x);
     indices.push_back((num_segments - 1) * RING_POINTS + (x + 1) % RING_POINTS);
@@ -129,23 +132,27 @@ inline branch::branch(uint8_t num_segments, float segment_height,
   }
   // branches
   for (size_t i = 0; i < branch_points.size(); i++) {
+    glm::vec3 branch_start = branch_points[i].first;
+    glm::vec3 branch_end = branch_points[i].second;
     uint32_t point_off =
-        points.size() + (i * (BARK_POINTS * BRANCH_SEGMENTS + 1));
+        points.size() + 1 + (i * (BARK_POINTS * BRANCH_SEGMENTS + 1));
     // generate a cylinder around the line between the two points
-    glm::vec3 direction = branch_end_points[i] - branch_points[i];
+    glm::vec3 direction = branch_end - branch_start;
     glm::vec3 tangent = glm::normalize(direction);
     glm::vec3 bitangent = glm::normalize(glm::cross(tangent, UP));
     glm::vec3 normal = glm::normalize(glm::cross(tangent, bitangent));
     for (uint8_t seg = 0; seg < BRANCH_SEGMENTS; seg++) {
       for (uint8_t j = 0; j < BARK_POINTS; j++) {
         float angle = (2 * M_PI * j) / BARK_POINTS;
-        glm::vec3 point = branch_points[i] +
+        glm::vec3 point = branch_start +
                           (direction * (seg / (float)BRANCH_SEGMENTS)) +
                           BRANCH_RADIUS * cosf(angle) * bitangent +
                           BRANCH_RADIUS * sinf(angle) * normal;
-        add_data(data, point, glm::vec2(angle, seg),
-                 glm::vec3(cosf(angle), 0., sinf(angle)),
-                 glm::vec3(-sinf(angle), 0.f, cosf(angle)), bitangent);
+        glm::vec3 normal_seg =
+            glm::normalize(cosf(angle) * bitangent + sinf(angle) * normal);
+
+        add_data(data, point, glm::vec2(angle, seg), normal_seg, tangent,
+                 bitangent);
       }
       for (uint8_t j = 0; j < BARK_POINTS;
            j++) { // FIXME this doesn't work well with BARK_POINTS > 2
@@ -157,8 +164,8 @@ inline branch::branch(uint8_t num_segments, float segment_height,
         indices.push_back(point_off + BARK_POINTS + (j + 1) % BARK_POINTS);
       }
     }
-    add_data(data, branch_end_points[i], glm::vec2(0.f, glm::length(direction)),
-             normal, tangent, bitangent);
+    add_data(data, branch_end, glm::vec2(0.f, glm::length(direction)), normal,
+             tangent, bitangent);
     point_off += (BARK_POINTS) * (BRANCH_SEGMENTS - 1);
     for (uint8_t j = 0; j < BARK_POINTS; j++) {
       indices.push_back(point_off + j);
