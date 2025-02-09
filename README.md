@@ -2,7 +2,18 @@
 
 Computer Graphics class project.
 
-Skybox from: [Emil Persson](https://opengameart.org/content/field-skyboxes)
+## Features
+
+- [Shadow Mapping](./shaders/textured.frag)
+- [Collision detection](./src/engine/utils/collision.cpp) (bounding box detection)
+- [Procedurally generated terrain](./src/objects/random_floor.hpp)
+- [Procedurally generated trees](./src/objects/tree.hpp)
+- Multiple light source support
+- Normal mapping
+- [Flocking](./src/objects/boid.hpp)
+- [Procedural texture generation](./src/objects/leaves.hpp)
+- [Instancing](./src/engine/renderable/model.cpp)
+- [Skybox](./src/engine/renderable/skybox.cpp)
 
 ## Compilation
 

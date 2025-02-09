@@ -5,10 +5,6 @@
 #include "../engine/engine.hpp"
 #include "../engine/utils/model_loader.hpp"
 
-#ifndef M_PI
-#define M_PI 3.14159265358979323846
-#endif
-
 // the number of points the curve of the cylinder is defined by
 #define BARK_POINTS 8
 #define RING_POINTS (BARK_POINTS * 2)
