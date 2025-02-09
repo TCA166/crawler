@@ -75,8 +75,6 @@ void game::init(camera *target_camera) {
       new shader(SHADER_PATH("textured.vert"), SHADER_PATH("red.frag"));
   leaf_shader =
       new shader(SHADER_PATH("leaves.vert"), SHADER_PATH("leaves.frag"));
-  moon_shader =
-      new shader(SHADER_PATH("moon.vert"), SHADER_PATH("moon.frag"));
   floor1 = new random_floor(FLOOR_SIZE / -2., 0.0, FLOOR_SIZE / -2., FLOOR_SIZE,
                             FLOOR_SIZE, 0.5);
   this->add_object(textured_shader, floor1);
@@ -111,7 +109,6 @@ void game::init(camera *target_camera) {
       boid *tri = new boid(boid_tex, boid_norm, pos.x, pos.y, pos.z, spec);
       boids.push_back(tri);
       this->add_object(textured_shader, tri);
-
     }
   }
 
@@ -137,8 +134,7 @@ void game::init(camera *target_camera) {
     for (int z = FLOOR_SIZE / -2; z < FLOOR_SIZE / 2; z += 3) {
       glm::vec2 pos = glm::vec2(x, z) + glm::circularRand(1.0f);
       float y = floor1->sample_noise(pos.x, pos.y);
-      grass *grass1 = new grass(
-                                  pos.x, y, pos.y);
+      grass *grass1 = new grass(pos.x, y, pos.y);
       grass1->add_texture(grasstex, "texture0");
       grass1->set_scale(2.0f, 2.0f, 2.0f);
       this->add_object(textured_shader, grass1);
