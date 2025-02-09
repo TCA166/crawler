@@ -1,6 +1,12 @@
 # crawler
 
-Computer Graphics class project.
+Computer Graphics class final project.
+
+## Scene
+
+A night scene in a forest, with multiple objects flocking in separate groups.
+The "player" is free to roam this landscape with a shotgun. Any of the flying
+objects once shot will disappear.
 
 ## Features
 
@@ -10,10 +16,12 @@ Computer Graphics class project.
 - [Procedurally generated trees](./src/objects/tree.hpp)
 - Multiple light source support
 - Normal mapping
-- [Flocking](./src/objects/boid.hpp)
+- [Flocking](./src/objects/boid.hpp) (altered algorithm featuring preferred y and multiple flocks)
 - [Procedural texture generation](./src/objects/leaves.hpp)
 - [Instancing](./src/engine/renderable/model.cpp)
 - [Skybox](./src/engine/renderable/skybox.cpp)
+- multithreading
+- [separate window with a radar of boids](./src/scenes/radar.cpp)
 
 ## Compilation
 
