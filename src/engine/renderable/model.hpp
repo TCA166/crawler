@@ -10,13 +10,12 @@
 
 #define MODEL_LINE_SIZE 14
 
+class instanced_model;
+
 /*!
  @brief A collection of OpenGL entities necessary for things to get drawn
 */
 class model {
-private:
-  GLuint VAO, VBO, EBO;
-
 protected:
   /*!
    @brief Hidden constructor creating an empty model
@@ -36,6 +35,7 @@ protected:
   */
   glm::vec3 bounds, negbounds;
   ///@}
+  GLuint VAO, VBO, EBO;
 
 public:
   /*!
@@ -52,6 +52,7 @@ public:
   /*!
    @brief Create a new model using the obj model at the provided path
    @param path the path pointing to the model
+   @param mesh_index the index of the mesh to use
   */
   model(const std::string &path, uint32_t mesh_index = 0);
 #endif
@@ -59,11 +60,11 @@ public:
   /*!
    @brief Initializes the model within the OpenGL context
   */
-  void init();
+  virtual void init();
   /*!
    @brief Undoes the OpenGL initialization
   */
-  void deinit() const;
+  virtual void deinit() const;
   /*!
    @brief Gets the upper model bounds
    @return The upper model bounds
@@ -77,5 +78,21 @@ public:
   /*!
    @brief Draws the model onto the viewport
   */
-  void draw() const;
+  virtual void draw() const;
+  instanced_model *get_instanced(const std::vector<glm::vec3> &instances) const;
+};
+
+class instanced_model : public model {
+private:
+  GLuint instanceVBO;
+  const std::vector<glm::vec3> instances;
+
+public:
+  instanced_model(const std::vector<float> &data,
+                  const std::vector<unsigned int> &indices, glm::vec3 bounds,
+                  glm::vec3 negbounds, const std::vector<glm::vec3> &instances);
+  ~instanced_model();
+  void init() override;
+  void deinit() const override;
+  void draw() const override;
 };

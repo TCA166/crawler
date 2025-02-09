@@ -15,6 +15,7 @@
 #define SHADER_NORMAL_POS 2
 #define SHADER_TANGENT_POS 3
 #define SHADER_BITANGENT_POS 4
+#define SHADER_INSTANCE_POS 5
 
 model::model(const std::vector<float> &data,
              const std::vector<unsigned int> &indices, glm::vec3 bounds,
@@ -162,6 +163,55 @@ void model::deinit() const {
 void model::draw() const {
   glBindVertexArray(VAO);
   glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, NULL);
+  glBindVertexArray(0);
+  glBindBuffer(GL_ARRAY_BUFFER, 0);
+  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+}
+
+instanced_model *
+model::get_instanced(const std::vector<glm::vec3> &instances) const {
+  instanced_model *instanced =
+      new instanced_model(data, indices, bounds, negbounds, instances);
+  instanced->init();
+  return instanced;
+}
+
+instanced_model::instanced_model(const std::vector<float> &data,
+                                 const std::vector<unsigned int> &indices,
+                                 glm::vec3 bounds, glm::vec3 negbounds,
+                                 const std::vector<glm::vec3> &instances)
+    : model(data, indices, bounds, negbounds), instances(instances) {}
+
+instanced_model::~instanced_model() {}
+
+void instanced_model::init() {
+  model::init();
+
+  glBindVertexArray(VAO);
+
+  glGenBuffers(1, &instanceVBO);
+  glBindBuffer(GL_ARRAY_BUFFER, instanceVBO);
+  glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec3) * instances.size(),
+               instances.data(), GL_STATIC_DRAW);
+
+  glVertexAttribPointer(SHADER_INSTANCE_POS, 3, GL_FLOAT, GL_FALSE,
+                        3 * sizeof(float), (void *)0);
+  glEnableVertexAttribArray(SHADER_INSTANCE_POS);
+  glVertexAttribDivisor(SHADER_INSTANCE_POS, 1);
+
+  glBindVertexArray(0);
+  glBindBuffer(GL_ARRAY_BUFFER, 0);
+}
+
+void instanced_model::deinit() const {
+  model::deinit();
+  glDeleteBuffers(1, &instanceVBO);
+}
+
+void instanced_model::draw() const {
+  glBindVertexArray(VAO);
+  glDrawElementsInstanced(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, NULL,
+                          instances.size());
   glBindVertexArray(0);
   glBindBuffer(GL_ARRAY_BUFFER, 0);
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);

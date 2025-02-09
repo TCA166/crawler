@@ -29,7 +29,9 @@ static GLuint compile_shader(const std::string &source, GLenum type) {
   return shader;
 }
 
-shader::shader(const std::string vertex_path, const std::string fragment_Path) {
+shader::shader(const std::string vertex_path, const std::string fragment_Path,
+               bool shadow_simple)
+    : shadow_simple(shadow_simple) {
   shader_loader &loader = shader_loader::get();
 
   GLuint vertex_shader =
@@ -83,3 +85,5 @@ void shader::apply_uniform_vec3(glm::vec3 vector,
   glUniform3fv(glGetUniformLocation(program, name.c_str()), 1,
                (float *)&vector);
 }
+
+bool shader::is_shadow_simple() const { return shadow_simple; }

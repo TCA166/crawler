@@ -99,13 +99,22 @@ void scene::shadow_pass() const {
   light_pass_shader->use();
   for (const light *lght : lights) {
     lght->bind_view_map(); // activate the framebuffer
-    light_pass_shader->apply_uniform_mat4(lght->get_light_space(),
-                                          "lightSpaceMatrix");
+    glm::mat4 lightProjection = lght->get_light_space();
     // draw all the objects
     for (auto collection : objects) {
+      const shader *current_shader = collection.first;
+      if (current_shader->is_shadow_simple()) {
+        light_pass_shader->use();
+        light_pass_shader->apply_uniform_mat4(lightProjection,
+                                              "viewProjection");
+        current_shader = light_pass_shader;
+      } else {
+        current_shader->use();
+        current_shader->apply_uniform_mat4(lightProjection, "viewProjection");
+        current_shader->apply_uniform_vec3(lght->get_position(), "viewPos");
+      }
       for (const object *obj : collection.second) {
-        light_pass_shader->apply_uniform_mat4(obj->get_model_matrix(), "model");
-        obj->draw();
+        obj->render(nullptr, current_shader, 0);
       }
     }
     // cleanup

@@ -17,11 +17,9 @@
  @brief Object class to handle rendering of objects.
 */
 class object : public moveable, public collider {
-private:
+protected:
   glm::vec3 scale, rot;
   const model *object_model;
-
-protected:
   /*!
    @brief Map of name->texture
   */
@@ -71,8 +69,8 @@ public:
    @param current_shader The shader to render the object with
    @param tex_off The offset to start the textures at
   */
-  void render(const camera *target_camera, const shader *current_shader,
-              uint32_t tex_off) const;
+  virtual void render(const camera *target_camera, const shader *current_shader,
+                      uint32_t tex_off) const;
   /*!
    @brief Draws the object onto the viewport
   */

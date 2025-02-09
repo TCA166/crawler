@@ -28,7 +28,7 @@ uniform vec3 ambientLight;
 
 out vec4 out_color;
 
-vec3 CalcDirectionalLight(Light light, vec3 norm)
+vec3 CalcLight(Light light, vec3 norm)
 {
     vec3 light_distance = light.position - fragPos;
     float distance = length(light_distance);
@@ -83,7 +83,7 @@ void main()
 
     vec3 result = ambientLight;
     for (int i = 0; i < numLights; ++i) {
-        result += CalcDirectionalLight(lights[i], norm);
+        result += CalcLight(lights[i], norm);
     }
 
     vec4 color = texture(texture0, texCoord);

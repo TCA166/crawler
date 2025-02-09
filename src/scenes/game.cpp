@@ -31,8 +31,10 @@
 #define MIN_FLOCK_COH 15.0f
 #define MAX_FLOCK_COH 25.0f
 
-#define LEAF_IMAGE_SIZE 256
+#define LEAF_IMAGE_SIZE 128
 #define COLOR_VARIANCE 25
+#define LEAVES_PER_BRANCH 30
+#define LEAF_SIZE 0.2f
 
 #define CAMERA_COLLISION_EPS (RENDER_MIN * 5e2f + 1.f)
 
@@ -73,7 +75,7 @@ void game::init(camera *target_camera) {
   debug_shader =
       new shader(SHADER_PATH("textured.vert"), SHADER_PATH("red.frag"));
   leaf_shader =
-      new shader(SHADER_PATH("leaves.vert"), SHADER_PATH("leaves.frag"));
+      new shader(SHADER_PATH("leaves.vert"), SHADER_PATH("leaves.frag"), false);
   floor1 = new random_floor(FLOOR_SIZE / -2., 0.0, FLOOR_SIZE / -2., FLOOR_SIZE,
                             FLOOR_SIZE, 0.5);
   this->add_object(textured_shader, floor1);
@@ -122,8 +124,21 @@ void game::init(camera *target_camera) {
           new random_tree(pos.x, floor1->sample_noise(pos.x, pos.y), pos.y);
       this->add_object(textured_shader, tree);
       trees.push_back(tree);
+      for (auto &pair : tree->get_leaves_points()) {
+        glm::vec3 start_pos = pair.first + tree->get_position();
+        glm::vec3 step = (pair.second - pair.first) / (float)LEAVES_PER_BRANCH;
+        // plaster the trees along the branch
+        for (uint8_t i = 1; i < LEAVES_PER_BRANCH; i++) {
+          leaf_points.push_back((start_pos + step * (float)i) +
+                                glm::ballRand(LEAF_SIZE));
+        }
+      }
     }
   }
+
+  leaves_obj = new leaves(leaf_tex, leaf_points);
+  this->add_object(leaf_shader, leaves_obj);
+  leaves_obj->set_scale(LEAF_SIZE);
 
   skybox_shader =
       new shader(SHADER_PATH("skybox.vert"), SHADER_PATH("skybox.frag"));

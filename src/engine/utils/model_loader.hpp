@@ -30,6 +30,7 @@ public:
   /*!
    @brief Loads and returns a model, or retrieves it from cache
    @param key the key under which to access the model
+   @param mesh_index the index of the mesh to use
    @return the model
   */
   const model *get_model(const std::string &key, uint32_t mesh_index = 0);

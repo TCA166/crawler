@@ -16,27 +16,30 @@
 #define BRANCH_MAX_LENGTH 1.2f
 #define BRANCH_SEGMENTS 2
 
-// TODO add leaves
-
 /*!
- @brief A procedurally generated model of a tree branch (cylinder with tip)
+ @brief A procedurally generated model of a tree
 */
-class branch : public model {
+class tree_model : public model {
 private:
   std::vector<std::pair<glm::vec3, glm::vec3>> branch_points;
 
 public:
   /*!
-   @brief Constructs a branch object
+   @brief Constructs a new tree model
    @param num_segments The number of segments in the branch
    @param segment_height The height of each segment
    @param root_radius The radius of the root of the branch
    @param variance The variance of the branch
    @param tip_offset The offset of the tip of the branch
   */
-  branch(uint8_t num_segments, float segment_height, float root_radius,
-         float variance, float tip_offset);
-  ~branch();
+  tree_model(uint8_t num_segments, float segment_height, float root_radius,
+             float variance, float tip_offset);
+  ~tree_model();
+  /*!
+   @brief Gets the points constituting branches on the logical level
+   @return A vector of point pairs
+  */
+  const std::vector<std::pair<glm::vec3, glm::vec3>> &get_branch_points() const;
 };
 
 static inline void add_data(std::vector<float> &data, glm::vec3 vertex,
@@ -58,8 +61,9 @@ static inline void add_data(std::vector<float> &data, glm::vec3 vertex,
   data.push_back(bitangent.z);
 }
 
-inline branch::branch(uint8_t num_segments, float segment_height,
-                      float root_radius, float variance, float tip_offset) {
+inline tree_model::tree_model(uint8_t num_segments, float segment_height,
+                              float root_radius, float variance,
+                              float tip_offset) {
   // https://math.stackexchange.com/questions/4459356/find-n-evenly-spaced-points-on-circle-with-radius-r
   std::vector<glm::vec2> ring_points; // first we generate a flat ring
   for (uint8_t i = 0; i < RING_POINTS; i++) {
@@ -175,18 +179,33 @@ inline branch::branch(uint8_t num_segments, float segment_height,
   }
 }
 
-inline branch::~branch() {}
+inline tree_model::~tree_model() {}
+
+inline const std::vector<std::pair<glm::vec3, glm::vec3>> &
+tree_model::get_branch_points() const {
+  return branch_points;
+}
 
 inline texture *create_random_leaf_texture(uint32_t size,
                                            uint8_t color_variance) {
   uint8_t *leaf_data = new uint8_t[size * size * 4];
-  for (size_t i = 0; i < size * size; i += 4) {
-    leaf_data[i] = 0;
-    leaf_data[i + 1] =
-        (255 - color_variance) + glm::linearRand((uint8_t)0, color_variance);
-    leaf_data[i + 2] = 0;
-    float noise_val = noise((i % size), (i / size)) + 1.f * 128.f;
-    leaf_data[i + 3] = (uint8_t)noise_val; // alpha
+  float radius = size / 2;
+  glm::vec2 image_center(radius, radius);
+  for (size_t x = 0; x < size; x++) {
+    for (size_t y = 0; y < size; y++) {
+      size_t i = (x + y * size) * 4;
+      float distance = glm::distance(glm::vec2(x, y), image_center);
+      if (distance > radius) {
+        leaf_data[i + 3] = 0;
+        continue; // outside the circle, make it transparent
+      }
+      leaf_data[i] = 0;
+      leaf_data[i + 1] =
+          (255 - color_variance) + glm::linearRand((uint8_t)0, color_variance);
+      leaf_data[i + 2] = 0;
+      float noise_val = noise(x, y) + 1.f * 128.f;
+      leaf_data[i + 3] = (uint8_t)noise_val; // alpha
+    }
   }
   image_t leaf_image = {leaf_data, size, size, 4};
   return new texture(&leaf_image);
@@ -205,8 +224,6 @@ inline texture *create_random_leaf_texture(uint32_t size,
 #define MIN_TIP_Y 0.5f
 #define MAX_TIP_Y 1.5f
 
-#define LEAF_MAX_SIZE 1.5f
-
 /*!
  @brief A procedurally generated model of a tree
 */
@@ -214,7 +231,7 @@ class random_tree : public object {
 private:
   uint8_t segment_count;
   float tip_y;
-  branch tree;
+  tree_model tree;
   texture tex, norm;
 
 public:
@@ -226,6 +243,8 @@ public:
   */
   random_tree(double xpos, double ypos, double zpos);
   ~random_tree();
+  const std::vector<std::pair<glm::vec3, glm::vec3>> &get_leaves_points() const;
+  float get_tip_y() const { return tree.get_bounds().y; }
 };
 
 inline random_tree::random_tree(double xpos, double ypos, double zpos)
@@ -242,3 +261,35 @@ inline random_tree::random_tree(double xpos, double ypos, double zpos)
 }
 
 inline random_tree::~random_tree() {}
+
+inline const std::vector<std::pair<glm::vec3, glm::vec3>> &
+random_tree::get_leaves_points() const {
+  return tree.get_branch_points();
+}
+
+class leaves : public object {
+public:
+  leaves(const texture *tex, const std::vector<glm::vec3> &points);
+  ~leaves();
+  void render(const camera *target_camera, const shader *current_shader,
+              uint32_t tex_off) const;
+
+private:
+  const texture *tex;
+};
+
+inline leaves::leaves(const texture *tex, const std::vector<glm::vec3> &points)
+    : object(model_loader::get().get_wall()->get_instanced(points), 0.f, 0.f,
+             0.f),
+      tex(tex) {}
+
+inline leaves::~leaves() {}
+
+inline void leaves::render(const camera *, const shader *current_shader,
+                           uint32_t tex_off) const {
+  current_shader->apply_uniform_mat4(get_model_matrix(), "model");
+  tex->set_active_texture(current_shader, tex_off, "leafTexture");
+  draw();
+  glActiveTexture(GL_TEXTURE0 + tex_off);
+  glBindTexture(GL_TEXTURE_2D, 0);
+}

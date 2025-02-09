@@ -11,14 +11,17 @@
 class shader {
 private:
   GLuint program;
+  bool shadow_simple = false;
 
 public:
   /*!
    @brief Constructs a shader based on two paths
    @param vertex_path Path to the vertex shader
    @param fragment_path Path to the fragment shader
+   @param shadow_simple Whether the shader can be simplified for shadow passes
   */
-  shader(const std::string vertex_path, const std::string fragment_path);
+  shader(const std::string vertex_path, const std::string fragment_path,
+         bool shadow_simple = true);
   ~shader();
   /*!
    @brief Use the shader program
@@ -57,4 +60,9 @@ public:
    @param name The name of the uniform variable
   */
   void apply_uniform_vec3(glm::vec3 vector, const std::string &name) const;
+  /*!
+   @brief Check if the shadow shader can be used instead of this one
+   @return True if the shader is simple
+  */
+  bool is_shadow_simple() const;
 };

@@ -28,6 +28,8 @@ private:
   std::vector<boid_species *> species;
   std::vector<random_tree *> trees;
   texture *boid_tex, *boid_norm, *leaf_tex;
+  std::vector<glm::vec3> leaf_points;
+  leaves *leaves_obj;
 
 public:
   /*!
