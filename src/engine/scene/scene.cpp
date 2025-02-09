@@ -25,10 +25,6 @@ void scene::remove_object(const object *obj) {
   }
 }
 
-void scene::remove_light(const light *lght) {
-  lights.remove(const_cast<light *>(lght));
-}
-
 void scene::add_light(light *light) { lights.push_back(light); }
 
 void scene::add_collider(const collider *collider) {
@@ -71,6 +67,9 @@ void scene::render(const camera &target_camera, uint16_t width,
 
     uint32_t i = 0;
     for (auto light : lights) {
+      if (!light->is_active()) {
+        continue;
+      }
       std::string name = "lights[" + std::to_string(i) + "]";
       current_shader->apply_uniform_vec3(light->get_position(),
                                          name + ".position");
@@ -82,9 +81,12 @@ void scene::render(const camera &target_camera, uint16_t width,
       current_shader->apply_uniform(i, name + ".depthMap");
       i++;
     }
-    current_shader->apply_uniform(lights.size(), "numLights");
+    current_shader->apply_uniform(i, "numLights");
 
     for (const object *obj : collection.second) {
+      if (!obj->is_active()) {
+        continue;
+      }
       obj->render(&target_camera, current_shader, i);
     }
     glUseProgram(0);
@@ -98,6 +100,9 @@ void scene::shadow_pass() const {
   // activate the super simple shader for the shadow pass
   light_pass_shader->use();
   for (const light *lght : lights) {
+    if (!lght->is_active()) {
+      continue;
+    }
     lght->bind_view_map(); // activate the framebuffer
     glm::mat4 lightProjection = lght->get_light_space();
     // draw all the objects
@@ -114,6 +119,9 @@ void scene::shadow_pass() const {
         current_shader->apply_uniform_vec3(lght->get_position(), "viewPos");
       }
       for (const object *obj : collection.second) {
+        if (!obj->is_active()) {
+          continue;
+        }
         obj->render(nullptr, current_shader, 0);
       }
     }

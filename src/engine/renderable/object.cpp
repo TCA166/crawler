@@ -10,7 +10,7 @@
 
 object::object(const model *object_model, double xpos, double ypos, double zpos)
     : scale(glm::vec3(1.)), rot(glm::vec3(0.)), object_model(object_model),
-      position(xpos, ypos, zpos) {}
+      position(xpos, ypos, zpos), active(true) {}
 
 object::~object() {
   for (object *parent : parents) {
@@ -123,3 +123,7 @@ bool object::check_point(glm::vec3 point) const {
 bool object::check_line(glm::vec3 a, glm::vec3 b) const {
   return check_line_box(get_negbounds(), get_bounds(), a, b, a);
 }
+
+bool object::is_active() const { return active; }
+
+void object::set_active(bool active) { this->active = active; }

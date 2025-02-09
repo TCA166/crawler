@@ -8,6 +8,7 @@
 #include "../objects/grass.hpp"
 #include "../objects/leaves.hpp"
 #include "../objects/random_floor.hpp"
+#include "../objects/shotgun.hpp"
 #include "../objects/tree.hpp"
 
 /*!
@@ -16,22 +17,25 @@
 */
 class game : public scene {
 private:
-  bool mv_forward, mv_backward, mv_left, mv_right, mv_up, mv_down, rot_left,
-      rot_right, shooting;
+  bool mv_forward, mv_backward, mv_left, mv_right, rot_left, rot_right,
+      shooting;
   double xpos, ypos;
   skybox *sky;
-  light *lght;
-  shader *textured_shader, *skybox_shader, *leaf_shader;
+  light *lght, *muzzle;
+  shader *textured_shader, *skybox_shader, *leaf_shader,
+      *simple_textured_shader;
   std::list<boid *> &boids;
   bool is_shooting;
   glm::vec3 shoot_direction;
   random_floor *floor1;
   std::vector<boid_species *> species;
   std::vector<random_tree *> trees;
-  texture *boid_tex, *boid_norm, *leaf_tex, *grasstex;
+  texture *boid_tex, *boid_norm, *leaf_tex, *grasstex, *flash_image;
   std::vector<glm::vec3> leaf_points, grass_points;
   leaves *leaves_obj;
   grass *grass_obj;
+  object *flash_sprite;
+  shotgun *gun;
 
 public:
   /*!

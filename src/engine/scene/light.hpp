@@ -21,6 +21,7 @@ private:
   unsigned int depthMap;
   glm::vec3 get_front() const;
   glm::vec3 get_up() const;
+  bool active;
 
 public:
   /*!
@@ -30,8 +31,10 @@ public:
    @param color the color of the light (rgb)
    @param fov the field of view of the light
    @param range the range of the light
+   @param active whether the light should be active
   */
-  light(glm::vec3 position, glm::vec3 color, float fov, float range);
+  light(glm::vec3 position, glm::vec3 color, float fov, float range,
+        bool active);
   virtual ~light();
   /*!
    @brief Gets the color of the light
@@ -91,4 +94,6 @@ public:
    @return the range of the light
   */
   float get_range() const;
+  bool is_active() const;
+  void set_active(bool active);
 };

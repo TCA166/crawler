@@ -43,8 +43,9 @@ vec3 CalcLight(Light light)
     }
 
     float currentDepth = projCoords.z;
+    float bias = max(0.01 * (1.0 - dot(normalize(fragPos - light.position), lightDir)), 0.05);
     float shadow = texture(light.depthMap, projCoords.xy).r;
-    shadow = currentDepth > shadow ? 1.0 : 0.0;
+    shadow = currentDepth - bias > shadow ? 1.0 : 0.0;
 
     float attenuation = 1.0 / (1 + 0.09 * distance + 0.032 * distance * distance);
     attenuation *= max(0.0, 1.0 - distance / light.range); // Ensure light falls off to zero at the maximum range

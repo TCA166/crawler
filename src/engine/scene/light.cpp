@@ -3,8 +3,10 @@
 #include "../settings.hpp"
 #include <stdexcept>
 
-light::light(glm::vec3 position, glm::vec3 color, float fov, float range)
-    : position(position), rotation(0.f), color(color), fov(fov), range(range) {
+light::light(glm::vec3 position, glm::vec3 color, float fov, float range,
+             bool active)
+    : position(position), rotation(0.f), color(color), fov(fov), range(range),
+      active(active) {
   // create the framebuffer
   glGenFramebuffers(1, &depthMapFBO);
   // create the texture to store the depth values
@@ -88,3 +90,7 @@ void light::rotate(glm::vec3 rotation) { this->rotation += rotation; }
 void light::set_rotation(glm::vec3 rotation) { this->rotation = rotation; }
 
 float light::get_range() const { return range; }
+
+bool light::is_active() const { return active; }
+
+void light::set_active(bool active) { this->active = active; }

@@ -64,6 +64,7 @@ protected:
    the opposite direction
   */
   glm::vec3 get_negbounds() const;
+  bool active;
 
 public:
   /*!
@@ -165,4 +166,6 @@ public:
    @return True if the line collides with the object
   */
   bool check_line(glm::vec3 a, glm::vec3 b) const;
+  bool is_active() const;
+  void set_active(bool active);
 };

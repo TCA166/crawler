@@ -62,11 +62,6 @@ public:
   */
   void add_light(light *light);
   /*!
-   @brief Remove a light from the scene
-   @param light The light to remove
-  */
-  void remove_light(const light *light);
-  /*!
    @brief Add a collider to the scene
    @param collider The collider to add
   */
