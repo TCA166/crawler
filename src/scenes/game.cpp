@@ -86,21 +86,26 @@ void game::init(camera *target_camera) {
                    LIGHT_FOV, LIGHT_RANGE);
   this->add_light(lght);
 
-  player_gun = new gun(debug_shader,
-                       model_loader::get().get_cube(),
+  //player_gun = new gun(debug_shader,
+  //                     model_loader::get().get_cube(),
+  //                     glm::vec3(0, 0, 0));
+  player_gun = new gun(simple_shader,
+                       model_loader::get().get_model(MODEL_PATH("/gun.obj")),
                        glm::vec3(0, 0, 0));
-   //player_gun = new gun(debug_shader, model_loader::get().get_model(MODEL_PATH("/M4A1.obj")), glm::vec3(0,0,0));
-  this->add_object(player_gun);
+
+
+  this->add_object(simple_shader, player_gun);
   light *muzzle_flash =
-      new light(player_gun->get_position(),  // pocz¹tkowa pozycja
-                player_gun->get_direction(), // pocz¹tkowy kierunek
-                glm::vec3(0.0f),             // pocz¹tkowy kolor (wy³¹czony)
-                MUZZLE_LIGHT_FOV,            // szeroki k¹t œwiecenia
-                MUZZLE_LIGHT_RANGE           // krótki zasiêg
+      new light(player_gun->get_position(), 
+                // pocz¹tkowy kierunek
+                glm::vec3(0.0f),             
+                MUZZLE_LIGHT_FOV,           
+                MUZZLE_LIGHT_RANGE           
       );
-  this->add_light(muzzle_flash); // Dodaj œwiat³o do silnika
+
+  this->add_light(muzzle_flash); 
   player_gun->set_muzzle_flash_light(muzzle_flash);
-  
+
 
   // flock spawning
   boid_tex = new texture(TEXTURE_PATH("diamond.png"));
@@ -220,6 +225,7 @@ void game::update(camera *target_camera, double delta_time, double) {
             << player_gun->get_position().z << std::endl;*/
 
   player_gun->update(delta_time);
+  player_gun->look_at(camera_position + target_camera->get_front());
   //player_gun->update_view_position(target_camera);
 
   
@@ -248,11 +254,13 @@ void game::update(camera *target_camera, double delta_time, double) {
   lght->set_position(camera_position +
       (camera_front * glm::vec3(-LIGHT_OFFSET, 0.f, 0.f)));
   lght->look_at(camera_position + target_camera->get_front());
+
+
   glm::vec3 light_position =
       camera_position +
       (camera_front * glm::vec3(-LIGHT_OFFSET, 0.f, -LIGHT_OFFSET));
-  player_gun->set_position(light_position.x - 2, light_position.y,
-      light_position.z);
+  player_gun->set_position(light_position.x , light_position.y-2.1f,
+      light_position.z-0.5f);
   player_gun->set_direction(camera_front);
  
 }
@@ -301,7 +309,7 @@ void game::mouse_callback(double xpos, double ypos, camera &target_camera) {
   if (xpos != this->xpos || ypos != this->ypos) {
       glm::vec3 rot(ypos - this->ypos, xpos - this->xpos, 0.0);
       target_camera.rotate(rot);
-      player_gun->rotate(xpos - this->xpos, ypos - this->ypos, 0.0);
+      //player_gun->rotate(rot);
    
     this->xpos = xpos;
     this->ypos = ypos;

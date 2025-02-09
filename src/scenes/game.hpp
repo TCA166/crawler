@@ -29,7 +29,7 @@ private:
   std::vector<boid_species *> species;
   std::vector<random_tree *> trees;
 
-  texture* boid_tex, * boid_norm, * leaf_tex;
+  texture* boid_tex, * boid_norm, * leaf_tex, * gun_texture;
   gun* player_gun;
 public:
   /*!

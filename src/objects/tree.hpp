@@ -15,6 +15,7 @@
 #define BRANCH_MIN_LENGTH 0.5f
 #define BRANCH_MAX_LENGTH 1.2f
 #define BRANCH_SEGMENTS 2
+#define M_PI 3.14159265358979323846
 
 // TODO add leaves
 
