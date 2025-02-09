@@ -6,15 +6,38 @@
 #define SHOTGUN_SPEED 0.5f
 #define MUZZLE_FLASH_LENGTH 0.02f
 
+/*!
+ @brief An animated weapon. Purely decorative
+*/
 class shotgun : public object {
 public:
+  /*!
+   @brief Initializes the shotgun
+   @param muzzle_flash the dedicated muzzle flash light source
+   @param flash_sprite the object that should be used as if it is a flash sprite
+   @param xpos the position on the x axis
+   @param ypos the position on the y axis
+   @param zpos the position on the z axis
+  */
   shotgun(light *muzzle_flash, object *flash_sprite, double xpos, double ypos,
           double zpos);
   ~shotgun();
+  /*!
+   @brief Rotates the gun towards a target
+   @param target the position of the target
+  */
   void look_at(glm::vec3 target);
   void render(const camera *target_camera, const shader *current_shader,
               uint32_t tex_off) const;
+  /*!
+   @brief Performs the actions associated with shotgun animations
+   @param delta_time
+  */
   void update(double delta_time);
+  /*!
+   @brief Shoots the weapon (animation)
+   @return If the weapon was actually fired
+  */
   bool shoot();
 
 private:

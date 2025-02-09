@@ -3,6 +3,9 @@
 #include "../engine/engine.hpp"
 #include "../engine/utils/model_loader.hpp"
 
+/*!
+ @brief A collection of grass elements
+*/
 class grass : public object {
 public:
   /*!

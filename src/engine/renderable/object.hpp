@@ -64,6 +64,9 @@ protected:
    the opposite direction
   */
   glm::vec3 get_negbounds() const;
+  /*!
+   @brief Whether this object is active
+   */
   bool active;
 
 public:
@@ -166,6 +169,14 @@ public:
    @return True if the line collides with the object
   */
   bool check_line(glm::vec3 a, glm::vec3 b) const;
+  /*!
+   @brief Checks if an object is considered active and ready to render
+   @return True if an object is active
+  */
   bool is_active() const;
+  /*!
+   @brief Sets whether an object is active
+   @param active whether the object is active
+  */
   void set_active(bool active);
 };

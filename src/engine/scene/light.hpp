@@ -94,6 +94,14 @@ public:
    @return the range of the light
   */
   float get_range() const;
+  /*!
+   @brief Checks if a light is considered active and ready to render
+   @return True if this light is active
+  */
   bool is_active() const;
+  /*!
+   @brief Sets whether a light should emit light
+   @param active whether the light is active
+  */
   void set_active(bool active);
 };
