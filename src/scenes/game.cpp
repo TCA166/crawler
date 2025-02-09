@@ -224,8 +224,8 @@ void game::update(camera *target_camera, double delta_time, double) {
             << player_gun->get_position().y << " "
             << player_gun->get_position().z << std::endl;*/
 
-  player_gun->update(delta_time);
-  player_gun->look_at(camera_position + target_camera->get_front());
+
+
   //player_gun->update_view_position(target_camera);
 
   
@@ -259,9 +259,13 @@ void game::update(camera *target_camera, double delta_time, double) {
   glm::vec3 light_position =
       camera_position +
       (camera_front * glm::vec3(-LIGHT_OFFSET, 0.f, -LIGHT_OFFSET));
+
   player_gun->set_position(light_position.x , light_position.y-2.1f,
       light_position.z-0.5f);
   player_gun->set_direction(camera_front);
+  player_gun->update(delta_time);
+  player_gun->update_direction();
+  //player_gun->look_at(camera_front);
  
 }
 
